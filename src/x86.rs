@@ -101,9 +101,20 @@ pub mod sse {
 
     unsafe impl crate::vector::VectorCore for Vf32 {
         type Scalar = f32;
+
+        #[inline]
+        unsafe fn store_ptr(self, to: *mut f32) {
+            _mm_storeu_ps(to, self.0);
+        }
     }
+
     unsafe impl crate::vector::VectorCore for Vf64 {
         type Scalar = f64;
+
+        #[inline]
+        unsafe fn store_ptr(self, to: *mut f64) {
+            _mm_storeu_pd(to, self.0);
+        }
     }
 }
 
@@ -208,9 +219,19 @@ pub mod avx {
 
     unsafe impl crate::vector::VectorCore for Vf32 {
         type Scalar = f32;
+
+        #[inline]
+        unsafe fn store_ptr(self, to: *mut f32) {
+            _mm256_storeu_ps(to, self.0);
+        }
     }
 
     unsafe impl crate::vector::VectorCore for Vf64 {
         type Scalar = f64;
+
+        #[inline]
+        unsafe fn store_ptr(self, to: *mut f64) {
+            _mm256_storeu_pd(to, self.0);
+        }
     }
 }

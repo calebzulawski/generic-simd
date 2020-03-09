@@ -1,38 +1,42 @@
 macro_rules! arithmetic_ops {
     {
-        @new $type:ty, $trait:ident, $func:ident, $intrinsic:ident
+        @new $type:ty, $trait:ident, $func:ident, $op:expr
     } => {
         impl core::ops::$trait<$type> for $type {
             type Output = Self;
+            #[allow(unused_unsafe)]
+            #[inline]
             fn $func(self, rhs: Self) -> Self {
-                Self(unsafe { $intrinsic(self.0, rhs.0) })
+                Self(unsafe { $op(self.0, rhs.0) })
             }
         }
     };
     {
-        @assign $type:ty, $trait:ident, $func:ident, $intrinsic:ident
+        @assign $type:ty, $trait:ident, $func:ident, $op:expr
     } => {
         impl core::ops::$trait<$type> for $type {
+            #[allow(unused_unsafe)]
+            #[inline]
             fn $func(&mut self, rhs: Self) {
-                self.0 = unsafe { $intrinsic(self.0, rhs.0) };
+                self.0 = unsafe { $op(self.0, rhs.0) };
             }
         }
     };
     {
         for $type:ident:
-            add -> $add_intrin:ident,
-            sub -> $sub_intrin:ident,
-            mul -> $mul_intrin:ident,
-            div -> $div_intrin:ident
+            add -> $add_expr:expr,
+            sub -> $sub_expr:expr,
+            mul -> $mul_expr:expr,
+            div -> $div_expr:expr
     } => {
-        arithmetic_ops!{@new $type, Add, add, $add_intrin}
-        arithmetic_ops!{@new $type, Sub, sub, $sub_intrin}
-        arithmetic_ops!{@new $type, Mul, mul, $mul_intrin}
-        arithmetic_ops!{@new $type, Div, div, $div_intrin}
-        arithmetic_ops!{@assign $type, AddAssign, add_assign, $add_intrin}
-        arithmetic_ops!{@assign $type, SubAssign, sub_assign, $sub_intrin}
-        arithmetic_ops!{@assign $type, MulAssign, mul_assign, $mul_intrin}
-        arithmetic_ops!{@assign $type, DivAssign, div_assign, $div_intrin}
+        arithmetic_ops!{@new $type, Add, add, $add_expr}
+        arithmetic_ops!{@new $type, Sub, sub, $sub_expr}
+        arithmetic_ops!{@new $type, Mul, mul, $mul_expr}
+        arithmetic_ops!{@new $type, Div, div, $div_expr}
+        arithmetic_ops!{@assign $type, AddAssign, add_assign, $add_expr}
+        arithmetic_ops!{@assign $type, SubAssign, sub_assign, $sub_expr}
+        arithmetic_ops!{@assign $type, MulAssign, mul_assign, $mul_expr}
+        arithmetic_ops!{@assign $type, DivAssign, div_assign, $div_expr}
     };
 }
 

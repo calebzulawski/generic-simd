@@ -25,7 +25,10 @@ pub trait Capability<Scalar>: Feature {
 
     /// Load a vector from a slice.  Panics if the slice is not long enough.
     fn load<T: AsRef<[Scalar]>>(&self, from: T) -> Self::Vector {
-        assert!(from.as_ref().len() >= Self::Vector::width());
+        assert!(
+            from.as_ref().len() >= Self::Vector::width(),
+            "source not large enough to load vector"
+        );
         unsafe { self.load_unchecked(from) }
     }
 
@@ -54,6 +57,23 @@ pub unsafe trait VectorCore: Sized {
     /// Returns a mutable slice containing the vector.
     fn as_slice_mut(&mut self) -> &mut [Self::Scalar] {
         unsafe { std::slice::from_raw_parts_mut(self as *mut _ as *mut _, Self::width()) }
+    }
+
+    /// Store to a pointer.
+    unsafe fn store_ptr(self, to: *mut Self::Scalar);
+
+    /// Store to a slice without checking the length.
+    unsafe fn store_unchecked<T: AsMut<[Self::Scalar]>>(self, mut to: T) {
+        self.store_ptr(to.as_mut().as_mut_ptr());
+    }
+
+    /// Store to a slice.
+    fn store<T: AsMut<[Self::Scalar]>>(self, mut to: T) {
+        assert!(
+            to.as_mut().len() >= Self::width(),
+            "destination not large enough to store vector"
+        );
+        unsafe { self.store_unchecked(to) };
     }
 }
 
