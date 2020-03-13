@@ -1,3 +1,5 @@
+/// Generic instruction set handle.
+#[derive(Clone, Copy, Debug, Default)]
 pub struct Generic(());
 
 #[derive(Clone, Copy, Debug)]
@@ -15,6 +17,10 @@ impl crate::vector::Feature for Generic {
 
     unsafe fn new_unchecked() -> Self {
         Self(())
+    }
+
+    fn apply<T, F: FnOnce(Self) -> T>(self, f: F) -> T {
+        f(self)
     }
 }
 

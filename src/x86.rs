@@ -1,9 +1,12 @@
+/// SSE instruction set extension.
 pub mod sse {
     #[cfg(target_arch = "x86")]
     use core::arch::x86::*;
     #[cfg(target_arch = "x86_64")]
     use core::arch::x86_64::*;
 
+    /// SSE instruction set handle.
+    #[derive(Clone, Copy, Debug)]
     pub struct Sse(());
 
     #[derive(Clone, Copy, Debug)]
@@ -25,6 +28,14 @@ pub mod sse {
 
         unsafe fn new_unchecked() -> Self {
             Self(())
+        }
+
+        fn apply<T, F: FnOnce(Self) -> T>(self, f: F) -> T {
+            #[target_feature(enable = "sse")]
+            unsafe fn apply<T, F: FnOnce(Sse) -> T>(handle: Sse, f: F) -> T {
+                f(handle)
+            }
+            unsafe { apply(self, f) }
         }
     }
 
@@ -118,12 +129,15 @@ pub mod sse {
     }
 }
 
+/// AVX instruction set extension.
 pub mod avx {
     #[cfg(target_arch = "x86")]
     use core::arch::x86::*;
     #[cfg(target_arch = "x86_64")]
     use core::arch::x86_64::*;
 
+    /// AVX instruction set handle.
+    #[derive(Clone, Copy, Debug)]
     pub struct Avx(());
 
     #[derive(Clone, Copy, Debug)]
@@ -143,6 +157,14 @@ pub mod avx {
 
         unsafe fn new_unchecked() -> Self {
             Self(())
+        }
+
+        fn apply<T, F: FnOnce(Self) -> T>(self, f: F) -> T {
+            #[target_feature(enable = "avx")]
+            unsafe fn apply<T, F: FnOnce(Avx) -> T>(handle: Avx, f: F) -> T {
+                f(handle)
+            }
+            unsafe { apply(self, f) }
         }
     }
 

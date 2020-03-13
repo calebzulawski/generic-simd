@@ -1,13 +1,15 @@
 use core::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign};
 
 /// A handle for a CPU feature.
-pub trait Feature: Sized {
+pub trait Feature: Sized + Copy + Clone {
     /// Create a new CPU feature handle, returning None if the feature is not supported by the
     /// processor.
     fn new() -> Option<Self>;
 
     /// Create a new CPU feature handle without checking if the feature is supported.
     unsafe fn new_unchecked() -> Self;
+
+    fn apply<T, F: FnOnce(Self) -> T>(self, f: F) -> T;
 }
 
 /// A handle for a specific vector type.
@@ -40,7 +42,7 @@ pub trait Capability<Scalar>: Feature {
 }
 
 /// The fundamental vector type.
-pub unsafe trait VectorCore: Sized {
+pub unsafe trait VectorCore: Sized + Copy + Clone {
     /// The type of elements in the vector.
     type Scalar;
 
@@ -77,6 +79,7 @@ pub unsafe trait VectorCore: Sized {
     }
 }
 
+/// A vector that allows arithmetic operations.
 pub trait Vector:
     VectorCore
     + Add<Self>
