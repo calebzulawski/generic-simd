@@ -1,11 +1,13 @@
-/// Generic instruction set handle.
+/// A generic instruction set handle supported by all CPUs.
 #[derive(Clone, Copy, Debug, Default)]
 pub struct Generic(());
 
+/// A generic vector of one `f32`.
 #[derive(Clone, Copy, Debug)]
 #[repr(transparent)]
 pub struct Vf32(f32);
 
+/// A generic vector of one `f64`.
 #[derive(Clone, Copy, Debug)]
 #[repr(transparent)]
 pub struct Vf64(f64);
@@ -26,40 +28,10 @@ impl crate::vector::Feature for Generic {
 
 impl crate::vector::Capability<f32> for Generic {
     type Vector = Vf32;
-
-    #[inline]
-    unsafe fn load_ptr(&self, from: *const f32) -> Vf32 {
-        Vf32(from.read())
-    }
-
-    #[inline]
-    fn splat(&self, from: f32) -> Vf32 {
-        Vf32(from)
-    }
-
-    #[inline]
-    fn zero(&self) -> Vf32 {
-        Vf32(0.)
-    }
 }
 
 impl crate::vector::Capability<f64> for Generic {
     type Vector = Vf64;
-
-    #[inline]
-    unsafe fn load_ptr(&self, from: *const f64) -> Vf64 {
-        Vf64(from.read())
-    }
-
-    #[inline]
-    fn splat(&self, from: f64) -> Vf64 {
-        Vf64(from)
-    }
-
-    #[inline]
-    fn zero(&self) -> Vf64 {
-        Vf64(0.)
-    }
 }
 
 arithmetic_ops! {
@@ -99,15 +71,15 @@ unsafe impl crate::vector::VectorCore for Vf32 {
     type Scalar = f32;
 
     #[inline]
-    unsafe fn store_ptr(self, to: *mut f32) {
-        to.write(self.0)
+    unsafe fn splat(from: Self::Scalar) -> Self {
+        Self(from)
     }
 }
 unsafe impl crate::vector::VectorCore for Vf64 {
     type Scalar = f64;
 
     #[inline]
-    unsafe fn store_ptr(self, to: *mut f64) {
-        to.write(self.0)
+    unsafe fn splat(from: Self::Scalar) -> Self {
+        Self(from)
     }
 }

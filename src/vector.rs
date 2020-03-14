@@ -17,28 +17,59 @@ pub trait Capability<Scalar>: Feature {
     /// The supported vector type.
     type Vector: Vector<Scalar = Scalar>;
 
-    /// Load a vector from a pointer.
-    unsafe fn load_ptr(&self, from: *const Scalar) -> Self::Vector;
-
-    /// Load a vector from a slice without checking the length.
-    unsafe fn load_unchecked<T: AsRef<[Scalar]>>(&self, from: T) -> Self::Vector {
-        self.load_ptr(from.as_ref().as_ptr())
+    /// Read a vector from a pointer.
+    ///
+    /// Safety: the pointer must be valid.
+    #[inline]
+    unsafe fn read_ptr(&self, from: *const Scalar) -> Self::Vector {
+        Self::Vector::read_ptr(from)
     }
 
-    /// Load a vector from a slice.  Panics if the slice is not long enough.
-    fn load<T: AsRef<[Scalar]>>(&self, from: T) -> Self::Vector {
-        assert!(
-            from.as_ref().len() >= Self::Vector::width(),
-            "source not large enough to load vector"
-        );
-        unsafe { self.load_unchecked(from) }
+    /// Read a vector from a slice without checking the length.
+    ///
+    /// Safety: the slice must be at least as long as the vector width.
+    #[inline]
+    unsafe fn read_unchecked<T: AsRef<[Scalar]>>(&self, from: T) -> Self::Vector {
+        Self::Vector::read_unchecked(from)
     }
 
-    /// Broadcast a value into each lane of the vector.
-    fn splat(&self, from: Scalar) -> Self::Vector;
+    /// Read a vector from a slice.
+    ///
+    /// Panics if the slice is not long enough.
+    #[inline]
+    fn read<T: AsRef<[Scalar]>>(&self, from: T) -> Self::Vector {
+        unsafe { Self::Vector::read(from) }
+    }
 
-    /// Create a new vector containing all zeros.
-    fn zero(&self) -> Self::Vector;
+    /// Create a new vector with each lane containing the provided value.
+    #[inline]
+    fn splat(&self, from: Scalar) -> Self::Vector {
+        unsafe { Self::Vector::splat(from) }
+    }
+
+    /// Create a new vector with each lane containing the provided value.
+    #[inline]
+    fn zeroed(&self) -> Self::Vector {
+        unsafe { Self::Vector::zeroed() }
+    }
+}
+
+struct IterExact<'a, T: VectorCore + 'a> {
+    slice: &'a [T::Scalar],
+}
+
+impl<'a, T: VectorCore + 'a> Iterator for IterExact<'a, T> {
+    type Item = &'a T;
+
+    fn next(&mut self) -> Option<&'a T> {
+        if self.slice.len() > T::width() {
+            let (item, rest) = self.slice.split_at(T::width());
+            self.slice = rest;
+            Some(unsafe { std::mem::transmute(item.as_ptr()) })
+        } else {
+            None
+        }
+    }
 }
 
 /// The fundamental vector type.
@@ -47,36 +78,97 @@ pub unsafe trait VectorCore: Sized + Copy + Clone {
     type Scalar;
 
     /// Returns the number of elements in the vector.
+    #[inline]
     fn width() -> usize {
         std::mem::size_of::<Self>() / std::mem::size_of::<Self::Scalar>()
     }
 
     /// Returns a slice containing the vector.
+    #[inline]
     fn as_slice(&self) -> &[Self::Scalar] {
         unsafe { std::slice::from_raw_parts(self as *const _ as *const _, Self::width()) }
     }
 
     /// Returns a mutable slice containing the vector.
+    #[inline]
     fn as_slice_mut(&mut self) -> &mut [Self::Scalar] {
         unsafe { std::slice::from_raw_parts_mut(self as *mut _ as *mut _, Self::width()) }
     }
 
-    /// Store to a pointer.
-    unsafe fn store_ptr(self, to: *mut Self::Scalar);
-
-    /// Store to a slice without checking the length.
-    unsafe fn store_unchecked<T: AsMut<[Self::Scalar]>>(self, mut to: T) {
-        self.store_ptr(to.as_mut().as_mut_ptr());
+    /// Read from a pointer.
+    ///
+    /// Safety:
+    ///   * The CPU feature must be supported.
+    ///   * The pointer must be valid.
+    #[inline]
+    unsafe fn read_ptr(from: *const Self::Scalar) -> Self {
+        std::mem::transmute::<*const Self::Scalar, *const Self>(from).read_unaligned()
     }
 
-    /// Store to a slice.
-    fn store<T: AsMut<[Self::Scalar]>>(self, mut to: T) {
+    /// Read from a slice without checking the length.
+    ///
+    /// Safety:
+    ///   * The CPU feature must be supported.
+    ///   * The slice must be at least as long as the vector.
+    #[inline]
+    unsafe fn read_unchecked<T: AsRef<[Self::Scalar]>>(from: T) -> Self {
+        Self::read_ptr(from.as_ref().as_ptr())
+    }
+
+    /// Read from a slice.
+    ///
+    /// Panics if the slice is not long enough.
+    ///
+    /// Safety: the CPU feature must be supported.
+    #[inline]
+    unsafe fn read<T: AsRef<[Self::Scalar]>>(from: T) -> Self {
+        assert!(
+            from.as_ref().len() >= Self::width(),
+            "source not larget enough to load vector"
+        );
+        Self::read_unchecked(from)
+    }
+
+    /// Write to a pointer.
+    ///
+    /// Safety: the pointer must be valid.
+    #[inline]
+    unsafe fn write_ptr(self, to: *mut Self::Scalar) {
+        std::mem::transmute::<*mut Self::Scalar, *mut Self>(to).write_unaligned(self);
+    }
+
+    /// Write to a slice without checking the length.
+    ///
+    /// Safety: the slice must be at least as long as the vector.
+    #[inline]
+    unsafe fn write_unchecked<T: AsMut<[Self::Scalar]>>(self, mut to: T) {
+        self.write_ptr(to.as_mut().as_mut_ptr());
+    }
+
+    /// Write to a slice.
+    ///
+    /// Panics if the slice is not long enough.
+    #[inline]
+    fn write<T: AsMut<[Self::Scalar]>>(self, mut to: T) {
         assert!(
             to.as_mut().len() >= Self::width(),
             "destination not large enough to store vector"
         );
-        unsafe { self.store_unchecked(to) };
+        unsafe { self.write_unchecked(to) };
     }
+
+    /// Create a new vector with each lane containing zeroes.
+    ///
+    /// Safety: the CPU feature must be supported.
+    #[inline]
+    unsafe fn zeroed() -> Self {
+        std::mem::zeroed()
+    }
+
+    /// Create a new vector with each lane containing the provided value.
+    ///
+    /// Safety: the CPU feature must be supported.
+    unsafe fn splat(from: Self::Scalar) -> Self;
 }
 
 /// A vector that allows arithmetic operations.
@@ -92,10 +184,8 @@ pub trait Vector:
     + DivAssign<Self>
     + Neg
 {
-    type Scalar;
 }
-impl<S, V> Vector for V
-where
+impl<S, V> Vector for V where
     V: VectorCore<Scalar = S>
         + Add<Self>
         + AddAssign<Self>
@@ -105,7 +195,6 @@ where
         + MulAssign<Self>
         + Div<Self>
         + DivAssign<Self>
-        + Neg,
+        + Neg
 {
-    type Scalar = S;
 }

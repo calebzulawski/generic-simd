@@ -9,10 +9,12 @@ pub mod sse {
     #[derive(Clone, Copy, Debug)]
     pub struct Sse(());
 
+    /// An SSE vector of `f32`s.
     #[derive(Clone, Copy, Debug)]
     #[repr(transparent)]
     pub struct Vf32(__m128);
 
+    /// An SSE vector of `f64`s.
     #[derive(Clone, Copy, Debug)]
     #[repr(transparent)]
     pub struct Vf64(__m128d);
@@ -41,40 +43,10 @@ pub mod sse {
 
     impl crate::vector::Capability<f32> for Sse {
         type Vector = Vf32;
-
-        #[inline]
-        unsafe fn load_ptr(&self, from: *const f32) -> Vf32 {
-            Vf32(_mm_load_ps(from))
-        }
-
-        #[inline]
-        fn splat(&self, from: f32) -> Vf32 {
-            Vf32(unsafe { _mm_set1_ps(from) })
-        }
-
-        #[inline]
-        fn zero(&self) -> Vf32 {
-            Vf32(unsafe { _mm_setzero_ps() })
-        }
     }
 
     impl crate::vector::Capability<f64> for Sse {
         type Vector = Vf64;
-
-        #[inline]
-        unsafe fn load_ptr(&self, from: *const f64) -> Vf64 {
-            Vf64(_mm_load_pd(from))
-        }
-
-        #[inline]
-        fn splat(&self, from: f64) -> Vf64 {
-            Vf64(unsafe { _mm_set1_pd(from) })
-        }
-
-        #[inline]
-        fn zero(&self) -> Vf64 {
-            Vf64(unsafe { _mm_setzero_pd() })
-        }
     }
 
     arithmetic_ops! {
@@ -114,8 +86,8 @@ pub mod sse {
         type Scalar = f32;
 
         #[inline]
-        unsafe fn store_ptr(self, to: *mut f32) {
-            _mm_storeu_ps(to, self.0);
+        unsafe fn splat(from: Self::Scalar) -> Self {
+            Self(_mm_set1_ps(from))
         }
     }
 
@@ -123,8 +95,8 @@ pub mod sse {
         type Scalar = f64;
 
         #[inline]
-        unsafe fn store_ptr(self, to: *mut f64) {
-            _mm_storeu_pd(to, self.0);
+        unsafe fn splat(from: Self::Scalar) -> Self {
+            Self(_mm_set1_pd(from))
         }
     }
 }
@@ -140,10 +112,14 @@ pub mod avx {
     #[derive(Clone, Copy, Debug)]
     pub struct Avx(());
 
+    /// An AVX vector of `f32`s.
     #[derive(Clone, Copy, Debug)]
+    #[repr(transparent)]
     pub struct Vf32(__m256);
 
+    /// An AVX vector of `f64`s.
     #[derive(Clone, Copy, Debug)]
+    #[repr(transparent)]
     pub struct Vf64(__m256d);
 
     impl crate::vector::Feature for Avx {
@@ -170,40 +146,10 @@ pub mod avx {
 
     impl crate::vector::Capability<f32> for Avx {
         type Vector = Vf32;
-
-        #[inline]
-        unsafe fn load_ptr(&self, from: *const f32) -> Vf32 {
-            Vf32(_mm256_load_ps(from))
-        }
-
-        #[inline]
-        fn splat(&self, from: f32) -> Vf32 {
-            Vf32(unsafe { _mm256_set1_ps(from) })
-        }
-
-        #[inline]
-        fn zero(&self) -> Vf32 {
-            Vf32(unsafe { _mm256_setzero_ps() })
-        }
     }
 
     impl crate::vector::Capability<f64> for Avx {
         type Vector = Vf64;
-
-        #[inline]
-        unsafe fn load_ptr(&self, from: *const f64) -> Vf64 {
-            Vf64(_mm256_load_pd(from))
-        }
-
-        #[inline]
-        fn splat(&self, from: f64) -> Vf64 {
-            Vf64(unsafe { _mm256_set1_pd(from) })
-        }
-
-        #[inline]
-        fn zero(&self) -> Vf64 {
-            Vf64(unsafe { _mm256_setzero_pd() })
-        }
     }
 
     arithmetic_ops! {
@@ -243,8 +189,8 @@ pub mod avx {
         type Scalar = f32;
 
         #[inline]
-        unsafe fn store_ptr(self, to: *mut f32) {
-            _mm256_storeu_ps(to, self.0);
+        unsafe fn splat(from: Self::Scalar) -> Self {
+            Self(_mm256_set1_ps(from))
         }
     }
 
@@ -252,8 +198,8 @@ pub mod avx {
         type Scalar = f64;
 
         #[inline]
-        unsafe fn store_ptr(self, to: *mut f64) {
-            _mm256_storeu_pd(to, self.0);
+        unsafe fn splat(from: Self::Scalar) -> Self {
+            Self(_mm256_set1_pd(from))
         }
     }
 }
