@@ -1,3 +1,6 @@
+//! Vector type interfaces.
+
+use crate::slice::{Overlapping, OverlappingMut};
 use core::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign};
 
 /// A handle for a CPU feature.
@@ -29,7 +32,7 @@ pub trait Capability<Scalar>: Feature {
     ///
     /// Safety: the slice must be at least as long as the vector width.
     #[inline]
-    unsafe fn read_unchecked<T: AsRef<[Scalar]>>(&self, from: T) -> Self::Vector {
+    unsafe fn read_unchecked<T: AsRef<[Scalar]>>(&self, from: &T) -> Self::Vector {
         Self::Vector::read_unchecked(from)
     }
 
@@ -37,7 +40,7 @@ pub trait Capability<Scalar>: Feature {
     ///
     /// Panics if the slice is not long enough.
     #[inline]
-    fn read<T: AsRef<[Scalar]>>(&self, from: T) -> Self::Vector {
+    fn read<T: AsRef<[Scalar]>>(&self, from: &T) -> Self::Vector {
         unsafe { Self::Vector::read(from) }
     }
 
@@ -52,23 +55,36 @@ pub trait Capability<Scalar>: Feature {
     fn zeroed(&self) -> Self::Vector {
         unsafe { Self::Vector::zeroed() }
     }
-}
 
-struct IterExact<'a, T: VectorCore + 'a> {
-    slice: &'a [T::Scalar],
-}
+    /// Extract a slice of aligned vectors, as if by [`align_to`].
+    ///
+    /// [`align_to`]: https://doc.rust-lang.org/std/primitive.slice.html#method.align_to
+    #[inline]
+    fn align<'a>(&self, slice: &'a [Scalar]) -> (&'a [Scalar], &'a [Self::Vector], &'a [Scalar]) {
+        unsafe { slice.align_to() }
+    }
 
-impl<'a, T: VectorCore + 'a> Iterator for IterExact<'a, T> {
-    type Item = &'a T;
+    /// Extract a slice of aligned mutable vectors, as if by [`align_to_mut`].
+    ///
+    /// [`align_to_mut`]: https://doc.rust-lang.org/std/primitive.slice.html#method.align_to_mut
+    #[inline]
+    fn align_mut<'a>(
+        &self,
+        slice: &'a mut [Scalar],
+    ) -> (&'a mut [Scalar], &'a mut [Self::Vector], &'a mut [Scalar]) {
+        unsafe { slice.align_to_mut() }
+    }
 
-    fn next(&mut self) -> Option<&'a T> {
-        if self.slice.len() > T::width() {
-            let (item, rest) = self.slice.split_at(T::width());
-            self.slice = rest;
-            Some(unsafe { std::mem::transmute(item.as_ptr()) })
-        } else {
-            None
-        }
+    /// Create a slice of overlapping vectors from a slice of scalars.
+    #[inline]
+    fn overlapping<'a>(&'a self, slice: &'a [Scalar]) -> Overlapping<'a, Self::Vector> {
+        unsafe { Overlapping::new(slice) }
+    }
+
+    /// Create a mutable slice of overlapping vectors from a slice of scalars.
+    #[inline]
+    fn overlapping_mut<'a>(&'a self, slice: &'a mut [Scalar]) -> OverlappingMut<'a, Self::Vector> {
+        unsafe { OverlappingMut::new(slice) }
     }
 }
 
@@ -141,7 +157,7 @@ pub unsafe trait VectorCore: Sized + Copy + Clone {
     ///
     /// Safety: the slice must be at least as long as the vector.
     #[inline]
-    unsafe fn write_unchecked<T: AsMut<[Self::Scalar]>>(self, mut to: T) {
+    unsafe fn write_unchecked<T: AsMut<[Self::Scalar]>>(self, to: &mut T) {
         self.write_ptr(to.as_mut().as_mut_ptr());
     }
 
@@ -149,7 +165,7 @@ pub unsafe trait VectorCore: Sized + Copy + Clone {
     ///
     /// Panics if the slice is not long enough.
     #[inline]
-    fn write<T: AsMut<[Self::Scalar]>>(self, mut to: T) {
+    fn write<T: AsMut<[Self::Scalar]>>(self, to: &mut T) {
         assert!(
             to.as_mut().len() >= Self::width(),
             "destination not large enough to store vector"

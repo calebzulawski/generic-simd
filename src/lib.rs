@@ -1,13 +1,12 @@
-/// Vector type interfaces.
 pub mod vector;
 
 #[macro_use]
 mod implementation;
 
-/// Generic vector types for any platform.
+pub mod slice;
+
 pub mod generic;
 
-/// x86/x86-64 vector types.
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 pub mod x86;
 

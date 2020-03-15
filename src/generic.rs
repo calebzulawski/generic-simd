@@ -1,3 +1,5 @@
+//! Generic vector types for any platform.
+
 /// A generic instruction set handle supported by all CPUs.
 #[derive(Clone, Copy, Debug, Default)]
 pub struct Generic(());

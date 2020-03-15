@@ -1,3 +1,5 @@
+//! x86/x86-64 vector types.
+
 /// SSE instruction set extension.
 pub mod sse {
     #[cfg(target_arch = "x86")]
