@@ -22,13 +22,13 @@ pub fn dispatch(args: TokenStream, input: TokenStream) -> TokenStream {
         #vis
         #sig
         {
-            #[target_cfg(target = "[x86|x86_64]+sse")]
+            #[target_cfg(target = "[x86|x86_64]+sse3")]
             let #feature = unsafe { safe_simd::x86::sse::Sse::new_unchecked() };
 
             #[target_cfg(target = "[x86|x86_64]+avx")]
             let #feature = unsafe { safe_simd::x86::avx::Avx::new_unchecked() };
 
-            #[target_cfg(not(any(target = "[x86|x86_64]+sse", target = "[x86|x86_64]+avx")))]
+            #[target_cfg(not(any(target = "[x86|x86_64]+sse3", target = "[x86|x86_64]+avx")))]
             let #feature = unsafe { safe_simd::generic::Generic::new_unchecked() };
 
             #block

@@ -23,7 +23,7 @@ macro_rules! arithmetic_ops {
         }
     };
     {
-        for $type:ident:
+        for $type:ty:
             add -> $add_expr:expr,
             sub -> $sub_expr:expr,
             mul -> $mul_expr:expr,
