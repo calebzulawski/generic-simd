@@ -34,6 +34,7 @@ pub mod sse {
             Self(())
         }
 
+        #[inline(never)]
         fn apply<T, F: FnOnce(Self) -> T>(self, f: F) -> T {
             #[target_feature(enable = "sse")]
             unsafe fn apply<T, F: FnOnce(Sse) -> T>(handle: Sse, f: F) -> T {
@@ -137,6 +138,7 @@ pub mod avx {
             Self(())
         }
 
+        #[inline(never)]
         fn apply<T, F: FnOnce(Self) -> T>(self, f: F) -> T {
             #[target_feature(enable = "avx")]
             unsafe fn apply<T, F: FnOnce(Avx) -> T>(handle: Avx, f: F) -> T {

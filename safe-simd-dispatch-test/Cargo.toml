@@ -1,0 +1,10 @@
+[package]
+name = "safe-simd-dispatch-test"
+version = "0.1.0"
+authors = ["Caleb Zulawski <caleb.zulawski@gmail.com>"]
+edition = "2018"
+publish = false
+
+[dependencies]
+safe-simd = { path = "../safe-simd" }
+multiversion = "0.4"
