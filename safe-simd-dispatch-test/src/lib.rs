@@ -1,4 +1,4 @@
-use safe_simd::vector::{Capability, Feature};
+use safe_simd::vector::{Feature, Loader};
 
 #[safe_simd::dispatch(handle)]
 pub fn add_one_aligned() {

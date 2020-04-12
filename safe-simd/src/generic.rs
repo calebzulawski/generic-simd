@@ -38,19 +38,19 @@ impl crate::vector::Feature for Generic {
     }
 }
 
-impl crate::vector::Capability<f32> for Generic {
+impl crate::vector::Loader<f32> for Generic {
     type Vector = Vf32;
 }
 
-impl crate::vector::Capability<f64> for Generic {
+impl crate::vector::Loader<f64> for Generic {
     type Vector = Vf64;
 }
 
-impl crate::vector::Capability<Complex<f32>> for Generic {
+impl crate::vector::Loader<Complex<f32>> for Generic {
     type Vector = Vcf32;
 }
 
-impl crate::vector::Capability<Complex<f64>> for Generic {
+impl crate::vector::Loader<Complex<f64>> for Generic {
     type Vector = Vcf64;
 }
 

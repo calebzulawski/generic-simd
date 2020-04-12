@@ -13,14 +13,17 @@ pub trait Feature: Sized + Copy + Clone {
     unsafe fn new_unchecked() -> Self;
 }
 
-/// A handle for a specific vector type.
-pub trait Capability<Scalar>: Feature {
+/// A handle for loading a specific vector type.
+///
+/// This interface provides the only safe methods of creating vectors.
+pub trait Loader<Scalar>: Feature {
     /// The supported vector type.
     type Vector: Vector<Scalar = Scalar>;
 
     /// Read a vector from a pointer.
     ///
-    /// Safety: the pointer must be valid.
+    /// # Safety
+    /// `from` must point to an array of length at least `Vector::width()`.
     #[inline]
     unsafe fn read_ptr(&self, from: *const Scalar) -> Self::Vector {
         Self::Vector::read_ptr(from)
@@ -28,7 +31,8 @@ pub trait Capability<Scalar>: Feature {
 
     /// Read a vector from a slice without checking the length.
     ///
-    /// Safety: the slice must be at least as long as the vector width.
+    /// # Safety
+    /// `from` must be length at least `Vector::width()`.
     #[inline]
     unsafe fn read_unchecked<T: AsRef<[Scalar]>>(&self, from: &T) -> Self::Vector {
         Self::Vector::read_unchecked(from)
@@ -36,7 +40,8 @@ pub trait Capability<Scalar>: Feature {
 
     /// Read a vector from a slice.
     ///
-    /// Panics if the slice is not long enough.
+    /// # Panics
+    /// Panics if the length of `from` is less than `Vector::width()`.
     #[inline]
     fn read<T: AsRef<[Scalar]>>(&self, from: &T) -> Self::Vector {
         unsafe { Self::Vector::read(from) }
@@ -48,7 +53,7 @@ pub trait Capability<Scalar>: Feature {
         unsafe { Self::Vector::splat(from) }
     }
 
-    /// Create a new vector with each lane containing the provided value.
+    /// Create a new vector with each lane zeroed.
     #[inline]
     fn zeroed(&self) -> Self::Vector {
         unsafe { Self::Vector::zeroed() }
@@ -87,6 +92,10 @@ pub trait Capability<Scalar>: Feature {
 }
 
 /// The fundamental vector type.
+///
+/// # Safety
+/// This trait may only be implemented for types that have the memory layout of an array of
+/// `Scalar` with length `width()`.
 pub unsafe trait VectorCore: Sized + Copy + Clone {
     /// The type of elements in the vector.
     type Scalar;
@@ -111,9 +120,9 @@ pub unsafe trait VectorCore: Sized + Copy + Clone {
 
     /// Read from a pointer.
     ///
-    /// Safety:
-    ///   * The CPU feature must be supported.
-    ///   * The pointer must be valid.
+    /// # Safety
+    /// * The CPU feature must be supported.
+    /// * `from` must point to an array of length at least `width()`.
     #[inline]
     unsafe fn read_ptr(from: *const Self::Scalar) -> Self {
         std::mem::transmute::<*const Self::Scalar, *const Self>(from).read_unaligned()
@@ -121,9 +130,9 @@ pub unsafe trait VectorCore: Sized + Copy + Clone {
 
     /// Read from a slice without checking the length.
     ///
-    /// Safety:
-    ///   * The CPU feature must be supported.
-    ///   * The slice must be at least as long as the vector.
+    /// # Safety
+    /// * The CPU feature must be supported.
+    /// * `from` be length at least `width()`.
     #[inline]
     unsafe fn read_unchecked<T: AsRef<[Self::Scalar]>>(from: T) -> Self {
         Self::read_ptr(from.as_ref().as_ptr())
@@ -131,9 +140,11 @@ pub unsafe trait VectorCore: Sized + Copy + Clone {
 
     /// Read from a slice.
     ///
-    /// Panics if the slice is not long enough.
+    /// # Panic
+    /// Panics if the length of `from` is less than `width()`.
     ///
-    /// Safety: the CPU feature must be supported.
+    /// # Safety
+    /// The CPU feature must be supported.
     #[inline]
     unsafe fn read<T: AsRef<[Self::Scalar]>>(from: T) -> Self {
         assert!(
@@ -145,7 +156,8 @@ pub unsafe trait VectorCore: Sized + Copy + Clone {
 
     /// Write to a pointer.
     ///
-    /// Safety: the pointer must be valid.
+    /// # Safety
+    /// `from` must point to an array of length at least `width()`
     #[inline]
     unsafe fn write_ptr(self, to: *mut Self::Scalar) {
         std::mem::transmute::<*mut Self::Scalar, *mut Self>(to).write_unaligned(self);
@@ -153,7 +165,8 @@ pub unsafe trait VectorCore: Sized + Copy + Clone {
 
     /// Write to a slice without checking the length.
     ///
-    /// Safety: the slice must be at least as long as the vector.
+    /// # Safety
+    /// `from` must be length at least `width()`.
     #[inline]
     unsafe fn write_unchecked<T: AsMut<[Self::Scalar]>>(self, to: &mut T) {
         self.write_ptr(to.as_mut().as_mut_ptr());
@@ -161,7 +174,8 @@ pub unsafe trait VectorCore: Sized + Copy + Clone {
 
     /// Write to a slice.
     ///
-    /// Panics if the slice is not long enough.
+    /// # Panics
+    /// Panics if the length of `from` is less than `width()`.
     #[inline]
     fn write<T: AsMut<[Self::Scalar]>>(self, to: &mut T) {
         assert!(
@@ -173,7 +187,8 @@ pub unsafe trait VectorCore: Sized + Copy + Clone {
 
     /// Create a new vector with each lane containing zeroes.
     ///
-    /// Safety: the CPU feature must be supported.
+    /// # Safety
+    /// The CPU feature must be supported.
     #[inline]
     unsafe fn zeroed() -> Self {
         std::mem::zeroed()
@@ -181,11 +196,12 @@ pub unsafe trait VectorCore: Sized + Copy + Clone {
 
     /// Create a new vector with each lane containing the provided value.
     ///
-    /// Safety: the CPU feature must be supported.
+    /// # Safety
+    /// The CPU feature must be supported.
     unsafe fn splat(from: Self::Scalar) -> Self;
 }
 
-/// A vector that allows arithmetic operations.
+/// A supertrait for vectors that allow arithmetic operations.
 pub trait Vector:
     VectorCore
     + Add<Self>

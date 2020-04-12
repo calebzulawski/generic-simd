@@ -49,19 +49,19 @@ pub mod sse {
         }
     }
 
-    impl crate::vector::Capability<f32> for Sse {
+    impl crate::vector::Loader<f32> for Sse {
         type Vector = Vf32;
     }
 
-    impl crate::vector::Capability<f64> for Sse {
+    impl crate::vector::Loader<f64> for Sse {
         type Vector = Vf64;
     }
 
-    impl crate::vector::Capability<Complex<f32>> for Sse {
+    impl crate::vector::Loader<Complex<f32>> for Sse {
         type Vector = Vcf32;
     }
 
-    impl crate::vector::Capability<Complex<f64>> for Sse {
+    impl crate::vector::Loader<Complex<f64>> for Sse {
         type Vector = Vcf64;
     }
 
@@ -263,19 +263,19 @@ pub mod avx {
         }
     }
 
-    impl crate::vector::Capability<f32> for Avx {
+    impl crate::vector::Loader<f32> for Avx {
         type Vector = Vf32;
     }
 
-    impl crate::vector::Capability<f64> for Avx {
+    impl crate::vector::Loader<f64> for Avx {
         type Vector = Vf64;
     }
 
-    impl crate::vector::Capability<Complex<f32>> for Avx {
+    impl crate::vector::Loader<Complex<f32>> for Avx {
         type Vector = Vcf32;
     }
 
-    impl crate::vector::Capability<Complex<f64>> for Avx {
+    impl crate::vector::Loader<Complex<f64>> for Avx {
         type Vector = Vcf64;
     }
 
