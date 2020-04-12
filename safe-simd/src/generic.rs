@@ -15,16 +15,14 @@ pub struct Vf32(f32);
 pub struct Vf64(f64);
 
 impl crate::vector::Feature for Generic {
+    #[inline]
     fn new() -> Option<Self> {
         Some(Self(()))
     }
 
+    #[inline]
     unsafe fn new_unchecked() -> Self {
         Self(())
-    }
-
-    fn apply<T, F: FnOnce(Self) -> T>(self, f: F) -> T {
-        f(self)
     }
 }
 

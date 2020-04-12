@@ -11,8 +11,6 @@ pub trait Feature: Sized + Copy + Clone {
 
     /// Create a new CPU feature handle without checking if the feature is supported.
     unsafe fn new_unchecked() -> Self;
-
-    fn apply<T, F: FnOnce(Self) -> T>(self, f: F) -> T;
 }
 
 /// A handle for a specific vector type.

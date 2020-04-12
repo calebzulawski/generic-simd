@@ -22,6 +22,7 @@ pub mod sse {
     pub struct Vf64(__m128d);
 
     impl crate::vector::Feature for Sse {
+        #[inline]
         fn new() -> Option<Self> {
             if is_x86_feature_detected!("sse") {
                 Some(Self(()))
@@ -30,17 +31,9 @@ pub mod sse {
             }
         }
 
+        #[inline]
         unsafe fn new_unchecked() -> Self {
             Self(())
-        }
-
-        #[inline(never)]
-        fn apply<T, F: FnOnce(Self) -> T>(self, f: F) -> T {
-            #[target_feature(enable = "sse")]
-            unsafe fn apply<T, F: FnOnce(Sse) -> T>(handle: Sse, f: F) -> T {
-                f(handle)
-            }
-            unsafe { apply(self, f) }
         }
     }
 
@@ -126,6 +119,7 @@ pub mod avx {
     pub struct Vf64(__m256d);
 
     impl crate::vector::Feature for Avx {
+        #[inline]
         fn new() -> Option<Self> {
             if is_x86_feature_detected!("avx") {
                 Some(Self(()))
@@ -134,17 +128,9 @@ pub mod avx {
             }
         }
 
+        #[inline]
         unsafe fn new_unchecked() -> Self {
             Self(())
-        }
-
-        #[inline(never)]
-        fn apply<T, F: FnOnce(Self) -> T>(self, f: F) -> T {
-            #[target_feature(enable = "avx")]
-            unsafe fn apply<T, F: FnOnce(Avx) -> T>(handle: Avx, f: F) -> T {
-                f(handle)
-            }
-            unsafe { apply(self, f) }
         }
     }
 
