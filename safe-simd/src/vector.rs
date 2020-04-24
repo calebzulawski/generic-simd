@@ -204,27 +204,27 @@ pub unsafe trait VectorCore: Sized + Copy + Clone {
 /// A supertrait for vectors that allow arithmetic operations.
 pub trait Vector:
     VectorCore
-    + Add<Self>
+    + Add<Self, Output = Self>
     + AddAssign<Self>
-    + Sub<Self>
+    + Sub<Self, Output = Self>
     + SubAssign<Self>
-    + Mul<Self>
+    + Mul<Self, Output = Self>
     + MulAssign<Self>
-    + Div<Self>
+    + Div<Self, Output = Self>
     + DivAssign<Self>
-    + Neg
+    + Neg<Output = Self>
 {
 }
 impl<S, V> Vector for V where
     V: VectorCore<Scalar = S>
-        + Add<Self>
+        + Add<Self, Output = Self>
         + AddAssign<Self>
-        + Sub<Self>
+        + Sub<Self, Output = Self>
         + SubAssign<Self>
-        + Mul<Self>
+        + Mul<Self, Output = Self>
         + MulAssign<Self>
-        + Div<Self>
+        + Div<Self, Output = Self>
         + DivAssign<Self>
-        + Neg
+        + Neg<Output = Self>
 {
 }
