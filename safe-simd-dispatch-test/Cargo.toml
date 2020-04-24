@@ -7,4 +7,4 @@ publish = false
 
 [dependencies]
 safe-simd = { path = "../safe-simd" }
-multiversion = "0.4"
+multiversion = "0.5"

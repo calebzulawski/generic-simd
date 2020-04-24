@@ -10,4 +10,3 @@ proc-macro = true
 [dependencies]
 syn = "1"
 quote = "1"
-multiversion = "0.4"

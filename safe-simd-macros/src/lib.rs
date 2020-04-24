@@ -14,11 +14,10 @@ pub fn dispatch(args: TokenStream, input: TokenStream) -> TokenStream {
     let feature = parse_macro_input!(args as Ident);
 
     let output = quote! {
+        #[multiversion::multiversion]
+        #[clone(target = "[x86|x86_64]+avx")]
+        #[clone(target = "[x86|x86_64]+sse3")]
         #(#attrs)*
-        #[multiversion::target_clones(
-            "[x86|x86_64]+avx",
-            "[x86|x86_64]+sse"
-        )]
         #vis
         #sig
         {
