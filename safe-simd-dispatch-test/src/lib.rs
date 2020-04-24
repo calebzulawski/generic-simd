@@ -9,7 +9,7 @@ pub fn add_one_aligned(x: &mut [f32]) {
 
     let ones = handle.splat(1f32);
     for v in vecs {
-        *v += ones;
+        *v = *v + ones;
     }
 
     for s in x.iter() {

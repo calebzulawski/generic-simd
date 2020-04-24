@@ -212,6 +212,36 @@ pub mod sse {
             Self(_mm_set_pd(from.im, from.re))
         }
     }
+
+    impl crate::vector::Complex for Vcf32 {
+        #[inline]
+        fn mul_i(self) -> Self {
+            Self(unsafe { _mm_addsub_ps(_mm_setzero_ps(), _mm_shuffle_ps(self.0, self.0, 0xb1)) })
+        }
+
+        #[inline]
+        fn mul_neg_i(self) -> Self {
+            unsafe {
+                let neg = _mm_addsub_ps(_mm_setzero_ps(), self.0);
+                Self(_mm_shuffle_ps(neg, neg, 0xb1))
+            }
+        }
+    }
+
+    impl crate::vector::Complex for Vcf64 {
+        #[inline]
+        fn mul_i(self) -> Self {
+            Self(unsafe { _mm_addsub_pd(_mm_setzero_pd(), _mm_shuffle_pd(self.0, self.0, 0x1)) })
+        }
+
+        #[inline]
+        fn mul_neg_i(self) -> Self {
+            unsafe {
+                let neg = _mm_addsub_pd(_mm_setzero_pd(), self.0);
+                Self(_mm_shuffle_pd(neg, neg, 0x1))
+            }
+        }
+    }
 }
 
 /// AVX instruction set extension.
@@ -426,6 +456,40 @@ pub mod avx {
         #[inline]
         unsafe fn splat(from: Self::Scalar) -> Self {
             Self(_mm256_setr_pd(from.re, from.im, from.re, from.im))
+        }
+    }
+
+    impl crate::vector::Complex for Vcf32 {
+        #[inline]
+        fn mul_i(self) -> Self {
+            Self(unsafe {
+                _mm256_addsub_ps(_mm256_setzero_ps(), _mm256_shuffle_ps(self.0, self.0, 0xb1))
+            })
+        }
+
+        #[inline]
+        fn mul_neg_i(self) -> Self {
+            unsafe {
+                let neg = _mm256_addsub_ps(_mm256_setzero_ps(), self.0);
+                Self(_mm256_shuffle_ps(neg, neg, 0xb1))
+            }
+        }
+    }
+
+    impl crate::vector::Complex for Vcf64 {
+        #[inline]
+        fn mul_i(self) -> Self {
+            Self(unsafe {
+                _mm256_addsub_pd(_mm256_setzero_pd(), _mm256_shuffle_pd(self.0, self.0, 0x5))
+            })
+        }
+
+        #[inline]
+        fn mul_neg_i(self) -> Self {
+            unsafe {
+                let neg = _mm256_addsub_pd(_mm256_setzero_pd(), self.0);
+                Self(_mm256_shuffle_pd(neg, neg, 0x5))
+            }
         }
     }
 }

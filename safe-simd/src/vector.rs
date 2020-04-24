@@ -228,3 +228,12 @@ impl<S, V> Vector for V where
         + Neg<Output = Self>
 {
 }
+
+/// Complex valued vectors.
+pub trait Complex: Vector {
+    /// Multiply by i.
+    fn mul_i(self) -> Self;
+
+    /// Multiply by -i.
+    fn mul_neg_i(self) -> Self;
+}
