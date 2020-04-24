@@ -230,7 +230,7 @@ impl<S, V> Vector for V where
 }
 
 /// Complex valued vectors.
-pub trait Complex: Vector {
+pub trait Complex<Real>: Vector<Scalar = num_complex::Complex<Real>> {
     /// Multiply by i.
     fn mul_i(self) -> Self;
 

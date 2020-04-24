@@ -93,9 +93,9 @@ implement! { Vcf64, Complex<f64> }
 
 macro_rules! implement_complex {
     {
-        $vector:ty
+        $vector:ty, $real:ty
     } => {
-        impl crate::vector::Complex for $vector {
+        impl crate::vector::Complex<$real> for $vector {
             #[inline]
             fn mul_i(self) -> Self {
                 Self(Complex::new(-self.0.im, self.0.re))
@@ -109,5 +109,5 @@ macro_rules! implement_complex {
     }
 }
 
-implement_complex! { Vcf32 }
-implement_complex! { Vcf64 }
+implement_complex! { Vcf32, f32 }
+implement_complex! { Vcf64, f64 }

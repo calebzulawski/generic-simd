@@ -213,7 +213,7 @@ pub mod sse {
         }
     }
 
-    impl crate::vector::Complex for Vcf32 {
+    impl crate::vector::Complex<f32> for Vcf32 {
         #[inline]
         fn mul_i(self) -> Self {
             Self(unsafe { _mm_addsub_ps(_mm_setzero_ps(), _mm_shuffle_ps(self.0, self.0, 0xb1)) })
@@ -228,7 +228,7 @@ pub mod sse {
         }
     }
 
-    impl crate::vector::Complex for Vcf64 {
+    impl crate::vector::Complex<f64> for Vcf64 {
         #[inline]
         fn mul_i(self) -> Self {
             Self(unsafe { _mm_addsub_pd(_mm_setzero_pd(), _mm_shuffle_pd(self.0, self.0, 0x1)) })
@@ -459,7 +459,7 @@ pub mod avx {
         }
     }
 
-    impl crate::vector::Complex for Vcf32 {
+    impl crate::vector::Complex<f32> for Vcf32 {
         #[inline]
         fn mul_i(self) -> Self {
             Self(unsafe {
@@ -476,7 +476,7 @@ pub mod avx {
         }
     }
 
-    impl crate::vector::Complex for Vcf64 {
+    impl crate::vector::Complex<f64> for Vcf64 {
         #[inline]
         fn mul_i(self) -> Self {
             Self(unsafe {
