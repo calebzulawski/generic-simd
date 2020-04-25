@@ -1,4 +1,4 @@
-use safe_simd::vector::{Feature, Loader};
+use safe_simd::vector::Loader;
 
 #[safe_simd::dispatch(handle)]
 pub fn add_one_aligned(x: &mut [f32]) {
