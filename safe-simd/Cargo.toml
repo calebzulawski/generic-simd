@@ -11,3 +11,8 @@ std = []
 [dependencies]
 num-complex = { version = "0.2", default-features = false }
 safe-simd-macros = { path = "../safe-simd-macros" }
+
+[dev-dependencies]
+num-complex = { version = "0.2", features = ["rand"] }
+rand = "0.5"
+num-traits = "0.2"
