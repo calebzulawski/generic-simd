@@ -7,6 +7,9 @@ use core::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAss
 pub trait Feature: Sized + Copy + Clone {
     /// Create a new CPU feature handle, returning None if the feature is not supported by the
     /// processor.
+    ///
+    /// Requires the `runtime_dispatch` feature.
+    #[cfg(feature = "std")]
     fn new() -> Option<Self>;
 
     /// Create a new CPU feature handle without checking if the feature is supported.
@@ -103,19 +106,19 @@ pub unsafe trait VectorCore: Sized + Copy + Clone {
     /// Returns the number of elements in the vector.
     #[inline]
     fn width() -> usize {
-        std::mem::size_of::<Self>() / std::mem::size_of::<Self::Scalar>()
+        core::mem::size_of::<Self>() / core::mem::size_of::<Self::Scalar>()
     }
 
     /// Returns a slice containing the vector.
     #[inline]
     fn as_slice(&self) -> &[Self::Scalar] {
-        unsafe { std::slice::from_raw_parts(self as *const _ as *const _, Self::width()) }
+        unsafe { core::slice::from_raw_parts(self as *const _ as *const _, Self::width()) }
     }
 
     /// Returns a mutable slice containing the vector.
     #[inline]
     fn as_slice_mut(&mut self) -> &mut [Self::Scalar] {
-        unsafe { std::slice::from_raw_parts_mut(self as *mut _ as *mut _, Self::width()) }
+        unsafe { core::slice::from_raw_parts_mut(self as *mut _ as *mut _, Self::width()) }
     }
 
     /// Read from a pointer.
@@ -125,7 +128,7 @@ pub unsafe trait VectorCore: Sized + Copy + Clone {
     /// * `from` must point to an array of length at least `width()`.
     #[inline]
     unsafe fn read_ptr(from: *const Self::Scalar) -> Self {
-        std::mem::transmute::<*const Self::Scalar, *const Self>(from).read_unaligned()
+        core::mem::transmute::<*const Self::Scalar, *const Self>(from).read_unaligned()
     }
 
     /// Read from a slice without checking the length.
@@ -160,7 +163,7 @@ pub unsafe trait VectorCore: Sized + Copy + Clone {
     /// `from` must point to an array of length at least `width()`
     #[inline]
     unsafe fn write_ptr(self, to: *mut Self::Scalar) {
-        std::mem::transmute::<*mut Self::Scalar, *mut Self>(to).write_unaligned(self);
+        core::mem::transmute::<*mut Self::Scalar, *mut Self>(to).write_unaligned(self);
     }
 
     /// Write to a slice without checking the length.
@@ -191,7 +194,7 @@ pub unsafe trait VectorCore: Sized + Copy + Clone {
     /// The CPU feature must be supported.
     #[inline]
     unsafe fn zeroed() -> Self {
-        std::mem::zeroed()
+        core::mem::zeroed()
     }
 
     /// Create a new vector with each lane containing the provided value.

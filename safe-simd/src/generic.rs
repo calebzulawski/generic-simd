@@ -27,6 +27,7 @@ pub struct Vcf32(Complex<f32>);
 pub struct Vcf64(Complex<f64>);
 
 impl crate::vector::Feature for Generic {
+    #[cfg(feature = "std")]
     #[inline]
     fn new() -> Option<Self> {
         Some(Self(()))

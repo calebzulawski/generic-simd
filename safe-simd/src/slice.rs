@@ -1,7 +1,7 @@
 //! Slices of vectors.
 
 use crate::vector::VectorCore;
-use std::marker::PhantomData;
+use core::marker::PhantomData;
 
 /// Wrapper for producing a mutable reference from an unaligned pointer.
 pub struct RefMut<'a, V>
@@ -26,7 +26,7 @@ where
     }
 }
 
-impl<'a, V> std::ops::Deref for RefMut<'a, V>
+impl<'a, V> core::ops::Deref for RefMut<'a, V>
 where
     V: VectorCore,
 {
@@ -36,7 +36,7 @@ where
     }
 }
 
-impl<'a, V> std::ops::DerefMut for RefMut<'a, V>
+impl<'a, V> core::ops::DerefMut for RefMut<'a, V>
 where
     V: VectorCore,
 {
@@ -45,7 +45,7 @@ where
     }
 }
 
-impl<'a, V> std::ops::Drop for RefMut<'a, V>
+impl<'a, V> core::ops::Drop for RefMut<'a, V>
 where
     V: VectorCore,
 {

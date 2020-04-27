@@ -1,3 +1,5 @@
+#![cfg_attr(not(feature = "std"), no_std)]
+
 pub use safe_simd_macros::dispatch;
 
 pub mod vector;

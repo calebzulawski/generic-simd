@@ -34,6 +34,7 @@ pub mod sse {
     pub struct Vcf64(__m128d);
 
     impl crate::vector::Feature for Sse {
+        #[cfg(feature = "std")]
         #[inline]
         fn new() -> Option<Self> {
             if is_x86_feature_detected!("sse3") {
@@ -278,6 +279,7 @@ pub mod avx {
     pub struct Vcf64(__m256d);
 
     impl crate::vector::Feature for Avx {
+        #[cfg(feature = "std")]
         #[inline]
         fn new() -> Option<Self> {
             if is_x86_feature_detected!("avx") {
