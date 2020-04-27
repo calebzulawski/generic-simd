@@ -9,7 +9,6 @@ pub trait Feature: Sized + Copy + Clone {
     /// processor.
     ///
     /// Requires the `runtime_dispatch` feature.
-    #[cfg(feature = "std")]
     fn new() -> Option<Self>;
 
     /// Create a new CPU feature handle without checking if the feature is supported.
