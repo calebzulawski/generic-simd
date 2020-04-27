@@ -351,9 +351,9 @@ pub mod avx {
 
     #[target_feature(enable = "avx")]
     unsafe fn cmul_f64(a: __m256d, b: __m256d) -> __m256d {
-        let re = _mm256_shuffle_pd(a, a, 0x00);
-        let im = _mm256_shuffle_pd(a, a, 0x03);
-        let sh = _mm256_shuffle_pd(b, b, 0x01);
+        let re = _mm256_unpacklo_pd(a, a);
+        let im = _mm256_unpackhi_pd(a, a);
+        let sh = _mm256_shuffle_pd(b, b, 0x5);
         _mm256_addsub_pd(_mm256_mul_pd(re, b), _mm256_mul_pd(im, sh))
     }
 
@@ -375,9 +375,9 @@ pub mod avx {
 
     #[target_feature(enable = "avx")]
     unsafe fn cdiv_f64(a: __m256d, b: __m256d) -> __m256d {
-        let b_re = _mm256_shuffle_pd(b, b, 0x00);
-        let b_im = _mm256_shuffle_pd(b, b, 0x03);
-        let a_flip = _mm256_shuffle_pd(a, a, 0x01);
+        let b_re = _mm256_unpacklo_pd(b, b);
+        let b_im = _mm256_unpackhi_pd(b, b);
+        let a_flip = _mm256_shuffle_pd(a, a, 0x5);
         let norm_sqr = _mm256_add_pd(_mm256_mul_pd(b_re, b_re), _mm256_mul_pd(b_im, b_im));
         _mm256_div_pd(
             _mm256_addsub_pd(
