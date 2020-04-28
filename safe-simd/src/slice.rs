@@ -34,7 +34,7 @@ where
     F: Feature,
     V: Vector + ProvidedBy<F>,
 {
-    unsafe { Overlapping::new(feature, slice) }
+    Overlapping::new(feature, slice)
 }
 
 /// Create a mutable slice of overlapping vectors from a slice of scalars.
@@ -44,7 +44,7 @@ where
     F: Feature,
     V: Vector + ProvidedBy<F>,
 {
-    unsafe { OverlappingMut::new(feature, slice) }
+    OverlappingMut::new(feature, slice)
 }
 
 /// Wrapper for producing a mutable reference from an unaligned pointer.
@@ -182,10 +182,8 @@ where
     V: Vector + ProvidedBy<F>,
 {
     /// Create a new overlapping vector slice.
-    ///
-    /// Safety: the CPU must support the vector type.
     #[inline]
-    pub unsafe fn new(feature: F, slice: &'a mut [V::Scalar]) -> Self {
+    pub fn new(feature: F, slice: &'a mut [V::Scalar]) -> Self {
         assert!(
             slice.len() >= V::WIDTH,
             "slice must be at least as wide as the vector"
