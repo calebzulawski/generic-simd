@@ -1,32 +1,38 @@
 //! Generic vector types for any platform.
 
+use crate::vector::{Feature, ProvidedBy, Vector, Widest};
 use num_complex::Complex;
 
 /// A generic instruction set handle supported by all CPUs.
 #[derive(Clone, Copy, Debug, Default)]
+#[allow(non_camel_case_types)]
 pub struct Generic(());
 
 /// A generic vector of one `f32`.
 #[derive(Clone, Copy, Debug)]
 #[repr(transparent)]
-pub struct Vf32(f32);
+#[allow(non_camel_case_types)]
+pub struct f32x1(f32);
 
 /// A generic vector of one `f64`.
 #[derive(Clone, Copy, Debug)]
 #[repr(transparent)]
-pub struct Vf64(f64);
+#[allow(non_camel_case_types)]
+pub struct f64x1(f64);
 
 /// A generic vector of one `Complex<f32>`.
 #[derive(Clone, Copy, Debug)]
 #[repr(transparent)]
-pub struct Vcf32(Complex<f32>);
+#[allow(non_camel_case_types)]
+pub struct cf32x1(Complex<f32>);
 
 /// A generic vector of one `Complex<f64>`.
 #[derive(Clone, Copy, Debug)]
 #[repr(transparent)]
-pub struct Vcf64(Complex<f64>);
+#[allow(non_camel_case_types)]
+pub struct cf64x1(Complex<f64>);
 
-impl crate::vector::Feature for Generic {
+impl Feature for Generic {
     #[inline]
     fn new() -> Option<Self> {
         Some(Self(()))
@@ -38,20 +44,22 @@ impl crate::vector::Feature for Generic {
     }
 }
 
-impl crate::vector::Loader<f32> for Generic {
-    type Vector = Vf32;
-}
+unsafe impl<F> ProvidedBy<F> for f32x1 where F: Feature {}
+unsafe impl<F> ProvidedBy<F> for f64x1 where F: Feature {}
+unsafe impl<F> ProvidedBy<F> for cf32x1 where F: Feature {}
+unsafe impl<F> ProvidedBy<F> for cf64x1 where F: Feature {}
 
-impl crate::vector::Loader<f64> for Generic {
-    type Vector = Vf64;
+impl Widest<f32> for Generic {
+    type Widest = f32x1;
 }
-
-impl crate::vector::Loader<Complex<f32>> for Generic {
-    type Vector = Vcf32;
+impl Widest<f64> for Generic {
+    type Widest = f64x1;
 }
-
-impl crate::vector::Loader<Complex<f64>> for Generic {
-    type Vector = Vcf64;
+impl Widest<Complex<f32>> for Generic {
+    type Widest = cf32x1;
+}
+impl Widest<Complex<f64>> for Generic {
+    type Widest = cf64x1;
 }
 
 macro_rules! implement {
@@ -75,21 +83,25 @@ macro_rules! implement {
 
         as_slice! { $vector }
 
-        unsafe impl crate::vector::VectorCore for $vector {
+        unsafe impl Vector for $vector {
             type Scalar = $scalar;
 
             #[inline]
-            unsafe fn splat(from: Self::Scalar) -> Self {
+            fn splat<F>(_: F, from: Self::Scalar) -> Self
+            where
+                F: Feature,
+                Self: ProvidedBy<F>,
+            {
                 Self(from)
             }
         }
     }
 }
 
-implement! { Vf32, f32 }
-implement! { Vf64, f64 }
-implement! { Vcf32, Complex<f32> }
-implement! { Vcf64, Complex<f64> }
+implement! { f32x1, f32 }
+implement! { f64x1, f64 }
+implement! { cf32x1, Complex<f32> }
+implement! { cf64x1, Complex<f64> }
 
 macro_rules! implement_complex {
     {
@@ -109,5 +121,5 @@ macro_rules! implement_complex {
     }
 }
 
-implement_complex! { Vcf32, f32 }
-implement_complex! { Vcf64, f64 }
+implement_complex! { cf32x1, f32 }
+implement_complex! { cf64x1, f64 }

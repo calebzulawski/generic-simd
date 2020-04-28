@@ -44,31 +44,31 @@ macro_rules! as_slice {
     {
         $type:ty
     } => {
-        impl AsRef<[<$type as crate::vector::VectorCore>::Scalar]> for $type {
-            fn as_ref(&self) -> &[<$type as crate::vector::VectorCore>::Scalar] {
-                use crate::vector::VectorCore;
+        impl AsRef<[<$type as crate::vector::Vector>::Scalar]> for $type {
+            fn as_ref(&self) -> &[<$type as crate::vector::Vector>::Scalar] {
+                use crate::vector::Vector;
                 self.as_slice()
             }
         }
 
-        impl AsMut<[<$type as crate::vector::VectorCore>::Scalar]> for $type {
-            fn as_mut(&mut self) -> &mut [<$type as crate::vector::VectorCore>::Scalar] {
-                use crate::vector::VectorCore;
+        impl AsMut<[<$type as crate::vector::Vector>::Scalar]> for $type {
+            fn as_mut(&mut self) -> &mut [<$type as crate::vector::Vector>::Scalar] {
+                use crate::vector::Vector;
                 self.as_slice_mut()
             }
         }
 
         impl<I> core::ops::Index<I> for $type
-            where I: core::slice::SliceIndex<[<Self as crate::vector::VectorCore>::Scalar]>
+            where I: core::slice::SliceIndex<[<Self as crate::vector::Vector>::Scalar]>
         {
-            type Output = <I as core::slice::SliceIndex<[<Self as crate::vector::VectorCore>::Scalar]>>::Output;
+            type Output = <I as core::slice::SliceIndex<[<Self as crate::vector::Vector>::Scalar]>>::Output;
             fn index(&self, index: I) -> &Self::Output {
                 &self.as_ref()[index]
             }
         }
 
         impl<I> core::ops::IndexMut<I> for $type
-            where I: core::slice::SliceIndex<[<Self as crate::vector::VectorCore>::Scalar]>
+            where I: core::slice::SliceIndex<[<Self as crate::vector::Vector>::Scalar]>
         {
             fn index_mut(&mut self, index: I) -> &mut Self::Output {
                 &mut self.as_mut()[index]
