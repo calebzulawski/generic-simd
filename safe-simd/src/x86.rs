@@ -1,6 +1,6 @@
 //! x86/x86-64 vector types.
 
-use crate::vector::{Feature, ProvidedBy, Vector, Widest};
+use crate::vector::{FeatureDetect, ProvidedBy, Vector, Widest};
 
 #[cfg(target_arch = "x86")]
 use core::arch::x86::*;
@@ -13,9 +13,9 @@ use num_complex::Complex;
 #[derive(Clone, Copy, Debug)]
 pub struct Sse(());
 
-impl Feature for Sse {
+impl FeatureDetect for Sse {
     #[inline]
-    fn new() -> Option<Self> {
+    fn detect() -> Option<Self> {
         #[cfg(feature = "std")]
         {
             if is_x86_feature_detected!("sse3") {
@@ -37,7 +37,7 @@ impl Feature for Sse {
     }
 
     #[inline]
-    unsafe fn new_unchecked() -> Self {
+    unsafe fn new() -> Self {
         Self(())
     }
 }
@@ -46,9 +46,9 @@ impl Feature for Sse {
 #[derive(Clone, Copy, Debug)]
 pub struct Avx(());
 
-impl Feature for Avx {
+impl FeatureDetect for Avx {
     #[inline]
-    fn new() -> Option<Self> {
+    fn detect() -> Option<Self> {
         #[cfg(feature = "std")]
         {
             if is_x86_feature_detected!("avx") {
@@ -70,7 +70,7 @@ impl Feature for Avx {
     }
 
     #[inline]
-    unsafe fn new_unchecked() -> Self {
+    unsafe fn new() -> Self {
         Self(())
     }
 }
@@ -393,7 +393,6 @@ unsafe impl Vector for f32x4 {
     #[inline]
     fn splat<F>(_: F, from: Self::Scalar) -> Self
     where
-        F: Feature,
         Self: ProvidedBy<F>,
     {
         Self(unsafe { _mm_set1_ps(from) })
@@ -406,7 +405,6 @@ unsafe impl Vector for f64x2 {
     #[inline]
     fn splat<F>(_: F, from: Self::Scalar) -> Self
     where
-        F: Feature,
         Self: ProvidedBy<F>,
     {
         Self(unsafe { _mm_set1_pd(from) })
@@ -419,7 +417,6 @@ unsafe impl Vector for cf32x2 {
     #[inline]
     fn splat<F>(_: F, from: Self::Scalar) -> Self
     where
-        F: Feature,
         Self: ProvidedBy<F>,
     {
         Self(unsafe { _mm_set_ps(from.im, from.re, from.im, from.re) })
@@ -432,7 +429,6 @@ unsafe impl Vector for cf64x1 {
     #[inline]
     fn splat<F>(_: F, from: Self::Scalar) -> Self
     where
-        F: Feature,
         Self: ProvidedBy<F>,
     {
         Self(unsafe { _mm_set_pd(from.im, from.re) })
@@ -445,7 +441,6 @@ unsafe impl Vector for f32x8 {
     #[inline]
     fn splat<F>(_: F, from: Self::Scalar) -> Self
     where
-        F: Feature,
         Self: ProvidedBy<F>,
     {
         Self(unsafe { _mm256_set1_ps(from) })
@@ -458,7 +453,6 @@ unsafe impl Vector for f64x4 {
     #[inline]
     fn splat<F>(_: F, from: Self::Scalar) -> Self
     where
-        F: Feature,
         Self: ProvidedBy<F>,
     {
         Self(unsafe { _mm256_set1_pd(from) })
@@ -471,7 +465,6 @@ unsafe impl Vector for cf32x4 {
     #[inline]
     fn splat<F>(_: F, from: Self::Scalar) -> Self
     where
-        F: Feature,
         Self: ProvidedBy<F>,
     {
         unsafe {
@@ -488,7 +481,6 @@ unsafe impl Vector for cf64x2 {
     #[inline]
     fn splat<F>(_: F, from: Self::Scalar) -> Self
     where
-        F: Feature,
         Self: ProvidedBy<F>,
     {
         Self(unsafe { _mm256_setr_pd(from.re, from.im, from.re, from.im) })

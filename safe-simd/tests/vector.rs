@@ -2,15 +2,15 @@ use num_complex::Complex;
 use num_traits::Num;
 use rand::distributions::Standard;
 use rand::prelude::*;
-use safe_simd::vector::{Feature, Float, Vector, Widest};
+use safe_simd::vector::{FeatureDetect, Signed, Vector, Widest};
 
 #[inline]
 fn ops_impl<T, D, F>(distribution: D, feature: F)
 where
     T: Num + core::ops::Neg<Output = T> + core::fmt::Debug + Copy,
     D: rand::distributions::Distribution<T> + Copy,
-    F: Feature + Widest<T>,
-    F::Widest: Float,
+    F: FeatureDetect + Widest<T>,
+    F::Widest: Signed<T>,
 {
     let mut a = F::Widest::zeroed(feature);
     let mut b = F::Widest::zeroed(feature);
@@ -27,7 +27,7 @@ where
     {
         let c = a + b;
         for i in 0..F::Widest::WIDTH {
-            assert_eq!(c.as_slice()[i], a.as_slice()[i] + b.as_slice()[i])
+            assert_eq!(c[i], a[i] + b[i])
         }
     }
 
@@ -35,7 +35,7 @@ where
     {
         let c = a - b;
         for i in 0..F::Widest::WIDTH {
-            assert_eq!(c.as_slice()[i], a.as_slice()[i] - b.as_slice()[i])
+            assert_eq!(c[i], a[i] - b[i])
         }
     }
 
@@ -43,7 +43,7 @@ where
     {
         let c = a * b;
         for i in 0..F::Widest::WIDTH {
-            assert_eq!(c.as_slice()[i], a.as_slice()[i] * b.as_slice()[i])
+            assert_eq!(c[i], a[i] * b[i])
         }
     }
 
@@ -51,7 +51,7 @@ where
     {
         let c = a / b;
         for i in 0..F::Widest::WIDTH {
-            assert_eq!(c.as_slice()[i], a.as_slice()[i] / b.as_slice()[i])
+            assert_eq!(c[i], a[i] / b[i])
         }
     }
 
@@ -59,7 +59,7 @@ where
     {
         let c = -a;
         for i in 0..F::Widest::WIDTH {
-            assert_eq!(c.as_slice()[i], -a.as_slice()[i])
+            assert_eq!(c[i], -a[i])
         }
     }
 }
@@ -97,15 +97,15 @@ macro_rules! ops_test {
     }
 }
 
-ops_test! { ops_generic_f32, safe_simd::generic::Generic, safe_simd::generic::Generic::new(), f32 }
-ops_test! { ops_generic_f64, safe_simd::generic::Generic, safe_simd::generic::Generic::new(), f64 }
-ops_test! { ops_generic_cf32, safe_simd::generic::Generic, safe_simd::generic::Generic::new(), Complex<f32> }
-ops_test! { ops_generic_cf64, safe_simd::generic::Generic, safe_simd::generic::Generic::new(), Complex<f32> }
-ops_test! { ops_sse_f32, safe_simd::x86::Sse, safe_simd::x86::Sse::new(), f32 }
-ops_test! { ops_sse_f64, safe_simd::x86::Sse, safe_simd::x86::Sse::new(), f64 }
-ops_test! { ops_sse_cf32, safe_simd::x86::Sse, safe_simd::x86::Sse::new(), Complex<f32> }
-ops_test! { ops_sse_cf64, safe_simd::x86::Sse, safe_simd::x86::Sse::new(), Complex<f32> }
-ops_test! { ops_avx_f32, safe_simd::x86::Avx, safe_simd::x86::Avx::new(), f32 }
-ops_test! { ops_avx_f64, safe_simd::x86::Avx, safe_simd::x86::Avx::new(), f64 }
-ops_test! { ops_avx_cf32, safe_simd::x86::Avx, safe_simd::x86::Avx::new(), Complex<f32> }
-ops_test! { ops_avx_cf64, safe_simd::x86::Avx, safe_simd::x86::Avx::new(), Complex<f32> }
+ops_test! { ops_generic_f32, safe_simd::generic::Generic, safe_simd::generic::Generic::detect(), f32 }
+ops_test! { ops_generic_f64, safe_simd::generic::Generic, safe_simd::generic::Generic::detect(), f64 }
+ops_test! { ops_generic_cf32, safe_simd::generic::Generic, safe_simd::generic::Generic::detect(), Complex<f32> }
+ops_test! { ops_generic_cf64, safe_simd::generic::Generic, safe_simd::generic::Generic::detect(), Complex<f32> }
+ops_test! { ops_sse_f32, safe_simd::x86::Sse, safe_simd::x86::Sse::detect(), f32 }
+ops_test! { ops_sse_f64, safe_simd::x86::Sse, safe_simd::x86::Sse::detect(), f64 }
+ops_test! { ops_sse_cf32, safe_simd::x86::Sse, safe_simd::x86::Sse::detect(), Complex<f32> }
+ops_test! { ops_sse_cf64, safe_simd::x86::Sse, safe_simd::x86::Sse::detect(), Complex<f32> }
+ops_test! { ops_avx_f32, safe_simd::x86::Avx, safe_simd::x86::Avx::detect(), f32 }
+ops_test! { ops_avx_f64, safe_simd::x86::Avx, safe_simd::x86::Avx::detect(), f64 }
+ops_test! { ops_avx_cf32, safe_simd::x86::Avx, safe_simd::x86::Avx::detect(), Complex<f32> }
+ops_test! { ops_avx_cf64, safe_simd::x86::Avx, safe_simd::x86::Avx::detect(), Complex<f32> }

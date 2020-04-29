@@ -58,20 +58,16 @@ macro_rules! as_slice {
             }
         }
 
-        impl<I> core::ops::Index<I> for $type
-            where I: core::slice::SliceIndex<[<Self as crate::vector::Vector>::Scalar]>
-        {
-            type Output = <I as core::slice::SliceIndex<[<Self as crate::vector::Vector>::Scalar]>>::Output;
-            fn index(&self, index: I) -> &Self::Output {
-                &self.as_ref()[index]
+        impl core::ops::Deref for $type {
+            type Target = [<Self as crate::vector::Vector>::Scalar];
+            fn deref(&self) -> &Self::Target {
+                self.as_slice()
             }
         }
 
-        impl<I> core::ops::IndexMut<I> for $type
-            where I: core::slice::SliceIndex<[<Self as crate::vector::Vector>::Scalar]>
-        {
-            fn index_mut(&mut self, index: I) -> &mut Self::Output {
-                &mut self.as_mut()[index]
+        impl core::ops::DerefMut for $type {
+            fn deref_mut(&mut self) -> &mut <Self as core::ops::Deref>::Target {
+                self.as_slice_mut()
             }
         }
     }

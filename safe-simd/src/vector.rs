@@ -1,28 +1,26 @@
 //! Vector type interfaces.
 
-use core::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign};
+use core::ops::{
+    Add, AddAssign, Deref, DerefMut, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign,
+};
 
 /// A handle for a CPU feature.
-pub trait Feature: Sized + Copy + Clone {
-    /// Create a new CPU feature handle, returning None if the feature is not supported by the
-    /// processor.
-    ///
-    /// Requires the `runtime_dispatch` feature.
-    fn new() -> Option<Self>;
+pub trait FeatureDetect: Copy {
+    /// Detect support of this CPU feature.
+    fn detect() -> Option<Self>;
 
     /// Create a new CPU feature handle without checking if the feature is supported.
-    unsafe fn new_unchecked() -> Self;
+    unsafe fn new() -> Self;
 }
 
 /// Marker indicating features that provide a vector.
-pub unsafe trait ProvidedBy<F>: Vector
-where
-    F: Feature,
-{
-}
+pub unsafe trait ProvidedBy<F>: Vector {}
 
 /// The widest vector available.
-pub trait Widest<T>: Feature {
+pub trait Widest<T>: FeatureDetect
+where
+    T: Copy,
+{
     type Widest: Vector<Scalar = T> + ProvidedBy<Self>;
 }
 
@@ -31,9 +29,9 @@ pub trait Widest<T>: Feature {
 /// # Safety
 /// This trait may only be implemented for types that have the memory layout of an array of
 /// `Scalar` with length `WIDTH`.
-pub unsafe trait Vector: Sized + Copy + Clone {
+pub unsafe trait Vector: Copy {
     /// The type of elements in the vector.
-    type Scalar;
+    type Scalar: Copy;
 
     /// The number of elements in the vector.
     const WIDTH: usize = core::mem::size_of::<Self>() / core::mem::size_of::<Self::Scalar>();
@@ -57,7 +55,7 @@ pub unsafe trait Vector: Sized + Copy + Clone {
     #[inline]
     unsafe fn read_ptr<F>(_: F, from: *const Self::Scalar) -> Self
     where
-        F: Feature,
+        F: Copy,
         Self: ProvidedBy<F>,
     {
         core::mem::transmute::<*const Self::Scalar, *const Self>(from).read_unaligned()
@@ -70,8 +68,8 @@ pub unsafe trait Vector: Sized + Copy + Clone {
     #[inline]
     unsafe fn read_unchecked<T, F>(feature: F, from: T) -> Self
     where
+        F: Copy,
         T: AsRef<[Self::Scalar]>,
-        F: Feature,
         Self: ProvidedBy<F>,
     {
         Self::read_ptr(feature, from.as_ref().as_ptr())
@@ -84,8 +82,8 @@ pub unsafe trait Vector: Sized + Copy + Clone {
     #[inline]
     fn read<T, F>(feature: F, from: T) -> Self
     where
+        F: Copy,
         T: AsRef<[Self::Scalar]>,
-        F: Feature,
         Self: ProvidedBy<F>,
     {
         assert!(
@@ -130,7 +128,7 @@ pub unsafe trait Vector: Sized + Copy + Clone {
     #[inline]
     fn zeroed<F>(_: F) -> Self
     where
-        F: Feature,
+        F: Copy,
         Self: ProvidedBy<F>,
     {
         unsafe { core::mem::zeroed() }
@@ -139,13 +137,16 @@ pub unsafe trait Vector: Sized + Copy + Clone {
     /// Create a new vector with each lane containing the provided value.
     fn splat<F>(_: F, from: Self::Scalar) -> Self
     where
-        F: Feature,
+        F: Copy,
         Self: ProvidedBy<F>;
 }
 
-/// A supertrait for vectors that allow arithmetic operations.
-pub trait Float:
+pub trait Ops<T>:
     Vector
+    + AsRef<[T]>
+    + AsMut<[T]>
+    + Deref<Target = [T]>
+    + DerefMut
     + Add<Self, Output = Self>
     + AddAssign<Self>
     + Sub<Self, Output = Self>
@@ -154,25 +155,41 @@ pub trait Float:
     + MulAssign<Self>
     + Div<Self, Output = Self>
     + DivAssign<Self>
-    + Neg<Output = Self>
 {
 }
-impl<S, V> Float for V where
-    V: Vector<Scalar = S>
-        + Add<Self, Output = Self>
-        + AddAssign<Self>
-        + Sub<Self, Output = Self>
-        + SubAssign<Self>
-        + Mul<Self, Output = Self>
-        + MulAssign<Self>
-        + Div<Self, Output = Self>
-        + DivAssign<Self>
-        + Neg<Output = Self>
+impl<T, V> Ops<T> for V
+where
+    T: Copy,
+    V: Vector<Scalar = T>
+        + AsRef<[T]>
+        + AsMut<[T]>
+        + Deref<Target = [T]>
+        + DerefMut
+        + Add<V, Output = V>
+        + AddAssign<V>
+        + Sub<V, Output = V>
+        + SubAssign<V>
+        + Mul<V, Output = V>
+        + MulAssign<V>
+        + Div<V, Output = V>
+        + DivAssign<V>,
+{
+}
+
+/// A supertrait for vectors that allow arithmetic operations.
+pub trait Signed<T>: Ops<T> + Neg<Output = Self> {}
+impl<T, V> Signed<T> for V
+where
+    T: Copy,
+    V: Ops<T> + Neg<Output = V>,
 {
 }
 
 /// Complex valued vectors.
-pub trait Complex<Real>: Float<Scalar = num_complex::Complex<Real>> {
+pub trait Complex<Real>: Signed<num_complex::Complex<Real>>
+where
+    Real: Copy,
+{
     /// Multiply by i.
     fn mul_i(self) -> Self;
 

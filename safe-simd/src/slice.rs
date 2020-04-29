@@ -1,6 +1,6 @@
 //! Slices of vectors.
 
-use crate::vector::{Feature, ProvidedBy, Vector};
+use crate::vector::{ProvidedBy, Vector};
 use core::marker::PhantomData;
 
 /// Extract a slice of aligned vectors, as if by [`align_to`].
@@ -9,7 +9,7 @@ use core::marker::PhantomData;
 #[inline]
 pub fn align<V, F>(_: F, slice: &[V::Scalar]) -> (&[V::Scalar], &[V], &[V::Scalar])
 where
-    F: Feature,
+    F: Copy,
     V: Vector + ProvidedBy<F>,
 {
     unsafe { slice.align_to() }
@@ -21,7 +21,7 @@ where
 #[inline]
 fn align_mut<V, F>(_: F, slice: &mut [V::Scalar]) -> (&mut [V::Scalar], &mut [V], &mut [V::Scalar])
 where
-    F: Feature,
+    F: Copy,
     V: Vector + ProvidedBy<F>,
 {
     unsafe { slice.align_to_mut() }
@@ -31,7 +31,7 @@ where
 #[inline]
 fn overlapping<'a, V, F>(feature: F, slice: &'a [V::Scalar]) -> Overlapping<'a, V, F>
 where
-    F: Feature,
+    F: Copy,
     V: Vector + ProvidedBy<F>,
 {
     Overlapping::new(feature, slice)
@@ -41,7 +41,7 @@ where
 #[inline]
 fn overlapping_mut<'a, V, F>(feature: F, slice: &'a mut [V::Scalar]) -> OverlappingMut<'a, V, F>
 where
-    F: Feature,
+    F: Copy,
     V: Vector + ProvidedBy<F>,
 {
     OverlappingMut::new(feature, slice)
@@ -63,7 +63,7 @@ where
 {
     fn new<F>(feature: F, source: *mut V::Scalar) -> Self
     where
-        F: Feature,
+        F: Copy,
         V: ProvidedBy<F>,
     {
         Self {
@@ -107,7 +107,7 @@ where
 /// Wrapper for indexing into overlapping vectors.
 pub struct Overlapping<'a, V, F>
 where
-    F: Feature,
+    F: Copy,
     V: Vector + ProvidedBy<F>,
 {
     feature: F,
@@ -117,7 +117,7 @@ where
 
 impl<'a, V, F> Overlapping<'a, V, F>
 where
-    F: Feature,
+    F: Copy,
     V: Vector + ProvidedBy<F>,
 {
     /// Create a new overlapping vector slice.
@@ -168,8 +168,8 @@ where
 /// Wrapper for indexing into overlapping mutable vectors.
 pub struct OverlappingMut<'a, V, F>
 where
-    V: Vector,
-    F: Feature,
+    F: Copy,
+    V: Vector + ProvidedBy<F>,
 {
     feature: F,
     slice: &'a mut [V::Scalar],
@@ -178,7 +178,7 @@ where
 
 impl<'a, V, F> OverlappingMut<'a, V, F>
 where
-    F: Feature,
+    F: Copy,
     V: Vector + ProvidedBy<F>,
 {
     /// Create a new overlapping vector slice.

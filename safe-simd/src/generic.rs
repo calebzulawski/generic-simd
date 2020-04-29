@@ -1,6 +1,6 @@
 //! Generic vector types for any platform.
 
-use crate::vector::{Feature, ProvidedBy, Vector, Widest};
+use crate::vector::{FeatureDetect, ProvidedBy, Vector, Widest};
 use num_complex::Complex;
 
 /// A generic instruction set handle supported by all CPUs.
@@ -32,22 +32,22 @@ pub struct cf32x1(Complex<f32>);
 #[allow(non_camel_case_types)]
 pub struct cf64x1(Complex<f64>);
 
-impl Feature for Generic {
+impl FeatureDetect for Generic {
     #[inline]
-    fn new() -> Option<Self> {
+    fn detect() -> Option<Self> {
         Some(Self(()))
     }
 
     #[inline]
-    unsafe fn new_unchecked() -> Self {
+    unsafe fn new() -> Self {
         Self(())
     }
 }
 
-unsafe impl<F> ProvidedBy<F> for f32x1 where F: Feature {}
-unsafe impl<F> ProvidedBy<F> for f64x1 where F: Feature {}
-unsafe impl<F> ProvidedBy<F> for cf32x1 where F: Feature {}
-unsafe impl<F> ProvidedBy<F> for cf64x1 where F: Feature {}
+unsafe impl<F> ProvidedBy<F> for f32x1 where F: FeatureDetect {}
+unsafe impl<F> ProvidedBy<F> for f64x1 where F: FeatureDetect {}
+unsafe impl<F> ProvidedBy<F> for cf32x1 where F: FeatureDetect {}
+unsafe impl<F> ProvidedBy<F> for cf64x1 where F: FeatureDetect {}
 
 impl Widest<f32> for Generic {
     type Widest = f32x1;
@@ -89,7 +89,6 @@ macro_rules! implement {
             #[inline]
             fn splat<F>(_: F, from: Self::Scalar) -> Self
             where
-                F: Feature,
                 Self: ProvidedBy<F>,
             {
                 Self(from)
