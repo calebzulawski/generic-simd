@@ -7,7 +7,10 @@ use core::marker::PhantomData;
 ///
 /// [`align_to`]: https://doc.rust-lang.org/std/primitive.slice.html#method.align_to
 #[inline]
-pub fn align<V>(feature: V::Feature, slice: &[V::Scalar]) -> (&[V::Scalar], &[V], &[V::Scalar])
+pub fn align<V>(
+    #[allow(unused_variables)] feature: V::Feature,
+    slice: &[V::Scalar],
+) -> (&[V::Scalar], &[V], &[V::Scalar])
 where
     V: Vector,
 {
@@ -18,8 +21,8 @@ where
 ///
 /// [`align_to_mut`]: https://doc.rust-lang.org/std/primitive.slice.html#method.align_to_mut
 #[inline]
-fn align_mut<V>(
-    feature: V::Feature,
+pub fn align_mut<V>(
+    #[allow(unused_variables)] feature: V::Feature,
     slice: &mut [V::Scalar],
 ) -> (&mut [V::Scalar], &mut [V], &mut [V::Scalar])
 where
@@ -30,7 +33,7 @@ where
 
 /// Create a slice of overlapping vectors from a slice of scalars.
 #[inline]
-fn overlapping<'a, V>(feature: V::Feature, slice: &'a [V::Scalar]) -> Overlapping<'a, V>
+pub fn overlapping<V>(feature: V::Feature, slice: &[V::Scalar]) -> Overlapping<'_, V>
 where
     V: Vector,
 {
@@ -39,7 +42,7 @@ where
 
 /// Create a mutable slice of overlapping vectors from a slice of scalars.
 #[inline]
-fn overlapping_mut<'a, V>(feature: V::Feature, slice: &'a mut [V::Scalar]) -> OverlappingMut<'a, V>
+pub fn overlapping_mut<V>(feature: V::Feature, slice: &mut [V::Scalar]) -> OverlappingMut<'_, V>
 where
     V: Vector,
 {
@@ -108,13 +111,14 @@ where
     phantom: PhantomData<V>,
 }
 
+#[allow(clippy::len_without_is_empty)]
 impl<'a, V> Overlapping<'a, V>
 where
     V: Vector,
 {
     /// Create a new overlapping vector slice.
     #[inline]
-    pub fn new(feature: V::Feature, slice: &'a [V::Scalar]) -> Self {
+    pub fn new(#[allow(unused_variables)] feature: V::Feature, slice: &'a [V::Scalar]) -> Self {
         assert!(
             slice.len() >= V::WIDTH,
             "slice must be at least as wide as the vector"
@@ -145,7 +149,8 @@ where
 
     /// Returns the vector offset `index` into the slice of scalars.
     ///
-    /// Safety: index must be less than `len()`, i.e. the underlying slice must be at least `index
+    /// # Safety
+    /// Index must be less than `len()`, i.e. the underlying slice must be at least `index
     /// + V::WIDTH` long.
     #[inline]
     pub unsafe fn get_unchecked(&self, index: usize) -> V
@@ -165,13 +170,14 @@ where
     phantom: PhantomData<V>,
 }
 
+#[allow(clippy::len_without_is_empty)]
 impl<'a, V> OverlappingMut<'a, V>
 where
     V: Vector,
 {
     /// Create a new overlapping vector slice.
     #[inline]
-    pub fn new(feature: V::Feature, slice: &'a mut [V::Scalar]) -> Self {
+    pub fn new(#[allow(unused_variables)] feature: V::Feature, slice: &'a mut [V::Scalar]) -> Self {
         assert!(
             slice.len() >= V::WIDTH,
             "slice must be at least as wide as the vector"
@@ -202,7 +208,8 @@ where
 
     /// Returns the vector offset `index` into the slice of scalars.
     ///
-    /// Safety: index must be less than `len()`, i.e. the underlying slice must be at least `index
+    /// # Safety
+    /// Index must be less than `len()`, i.e. the underlying slice must be at least `index
     /// + V::WIDTH` long.
     #[inline]
     pub unsafe fn get_unchecked(&self, index: usize) -> V {
@@ -221,7 +228,8 @@ where
 
     /// Returns the mutable vector offset `index` into the slice of scalars.
     ///
-    /// Safety: index must be less than `len()`, i.e. the underlying slice must be at least `index
+    /// # Safety
+    /// Index must be less than `len()`, i.e. the underlying slice must be at least `index
     /// + V::WIDTH` long.
     #[inline]
     pub unsafe fn get_unchecked_mut(&'a mut self, index: usize) -> RefMut<'a, V> {

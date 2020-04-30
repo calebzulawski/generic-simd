@@ -10,6 +10,9 @@ pub trait FeatureDetect: Copy {
     fn detect() -> Option<Self>;
 
     /// Create a new CPU feature handle without checking if the feature is supported.
+    ///
+    /// # Safety
+    /// This feature must be supported by the CPU.
     unsafe fn new() -> Self;
 }
 
@@ -53,8 +56,11 @@ pub unsafe trait Vector: Copy {
     /// # Safety
     /// * `from` must point to an array of length at least `WIDTH`.
     #[inline]
-    unsafe fn read_ptr(feature: Self::Feature, from: *const Self::Scalar) -> Self {
-        core::mem::transmute::<*const Self::Scalar, *const Self>(from).read_unaligned()
+    unsafe fn read_ptr(
+        #[allow(unused_variables)] feature: Self::Feature,
+        from: *const Self::Scalar,
+    ) -> Self {
+        (from as *const Self).read_unaligned()
     }
 
     /// Read from a slice without checking the length.
@@ -85,7 +91,7 @@ pub unsafe trait Vector: Copy {
     /// `from` must point to an array of length at least `WIDTH`
     #[inline]
     unsafe fn write_ptr(self, to: *mut Self::Scalar) {
-        core::mem::transmute::<*mut Self::Scalar, *mut Self>(to).write_unaligned(self);
+        (to as *mut Self).write_unaligned(self);
     }
 
     /// Write to a slice without checking the length.
@@ -112,7 +118,7 @@ pub unsafe trait Vector: Copy {
 
     /// Create a new vector with each lane containing zeroes.
     #[inline]
-    fn zeroed(feature: Self::Feature) -> Self {
+    fn zeroed(#[allow(unused_variables)] feature: Self::Feature) -> Self {
         unsafe { core::mem::zeroed() }
     }
 
