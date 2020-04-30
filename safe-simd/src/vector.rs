@@ -148,13 +148,21 @@ pub trait Ops<T>:
     + Deref<Target = [T]>
     + DerefMut
     + Add<Self, Output = Self>
+    + Add<T, Output = Self>
     + AddAssign<Self>
+    + AddAssign<T>
     + Sub<Self, Output = Self>
+    + Sub<T, Output = Self>
     + SubAssign<Self>
+    + SubAssign<T>
     + Mul<Self, Output = Self>
+    + Mul<T, Output = Self>
     + MulAssign<Self>
+    + MulAssign<T>
     + Div<Self, Output = Self>
+    + Div<T, Output = Self>
     + DivAssign<Self>
+    + DivAssign<T>
 {
 }
 impl<T, V> Ops<T> for V
@@ -166,13 +174,21 @@ where
         + Deref<Target = [T]>
         + DerefMut
         + Add<V, Output = V>
+        + Add<T, Output = V>
         + AddAssign<V>
+        + AddAssign<T>
         + Sub<V, Output = V>
+        + Sub<T, Output = V>
         + SubAssign<V>
+        + SubAssign<T>
         + Mul<V, Output = V>
+        + Mul<T, Output = V>
         + MulAssign<V>
+        + MulAssign<T>
         + Div<V, Output = V>
-        + DivAssign<V>,
+        + Div<T, Output = V>
+        + DivAssign<V>
+        + DivAssign<T>,
 {
 }
 

@@ -67,6 +67,7 @@ macro_rules! implement {
         $vector:ty, $scalar:ty
     } => {
         arithmetic_ops! {
+            feature: crate::generic::Generic::new(),
             for $vector:
                 add -> core::ops::Add::add,
                 sub -> core::ops::Sub::sub,

@@ -1,16 +1,50 @@
-use num_complex::Complex;
+use num_complex::{Complex, ComplexDistribution};
 use num_traits::Num;
 use rand::distributions::Standard;
 use rand::prelude::*;
 use safe_simd::vector::{FeatureDetect, Signed, Vector, Widest};
 
 #[inline]
-fn ops_impl<T, D, F>(distribution: D, feature: F)
-where
+fn unary_op_impl<T, D, F, VFunc, SFunc>(
+    _tag: T,
+    distribution: D,
+    feature: F,
+    vfunc: VFunc,
+    sfunc: SFunc,
+) where
     T: Num + core::ops::Neg<Output = T> + core::fmt::Debug + Copy,
     D: rand::distributions::Distribution<T> + Copy,
     F: FeatureDetect + Widest<T>,
     F::Widest: Signed<T>,
+    VFunc: Fn(F::Widest) -> F::Widest,
+    SFunc: Fn(T) -> T,
+{
+    let mut input = F::Widest::zeroed(feature);
+    let mut rng = rand::thread_rng();
+    for x in input.as_slice_mut() {
+        *x = rng.sample(distribution);
+    }
+
+    let output = vfunc(input);
+    for i in 0..F::Widest::WIDTH {
+        assert_eq!(output[i], sfunc(input[i]))
+    }
+}
+
+#[inline]
+fn binary_op_impl<T, D, F, VFunc, SFunc>(
+    _tag: T,
+    distribution: D,
+    feature: F,
+    vfunc: VFunc,
+    sfunc: SFunc,
+) where
+    T: Num + core::ops::Neg<Output = T> + core::fmt::Debug + Copy,
+    D: rand::distributions::Distribution<T> + Copy,
+    F: FeatureDetect + Widest<T>,
+    F::Widest: Signed<T>,
+    VFunc: Fn(F::Widest, F::Widest) -> F::Widest,
+    SFunc: Fn(T, T) -> T,
 {
     let mut a = F::Widest::zeroed(feature);
     let mut b = F::Widest::zeroed(feature);
@@ -23,89 +57,141 @@ where
         *x = rng.sample(distribution);
     }
 
-    // Add
-    {
-        let c = a + b;
-        for i in 0..F::Widest::WIDTH {
-            assert_eq!(c[i], a[i] + b[i])
-        }
+    let output = vfunc(a, b);
+    for i in 0..F::Widest::WIDTH {
+        assert_eq!(output[i], sfunc(a[i], b[i]))
+    }
+}
+
+#[inline]
+fn binary_scalar_op_impl<T, D, F, VFunc, SFunc>(
+    _tag: T,
+    distribution: D,
+    feature: F,
+    vfunc: VFunc,
+    sfunc: SFunc,
+) where
+    T: Num + core::ops::Neg<Output = T> + core::fmt::Debug + Copy,
+    D: rand::distributions::Distribution<T> + Copy,
+    F: FeatureDetect + Widest<T>,
+    F::Widest: Signed<T>,
+    VFunc: Fn(F::Widest, T) -> F::Widest,
+    SFunc: Fn(T, T) -> T,
+{
+    let mut rng = rand::thread_rng();
+    let mut a = F::Widest::zeroed(feature);
+    let b = rng.sample(distribution);
+    for x in a.as_slice_mut() {
+        *x = rng.sample(distribution);
     }
 
-    // Sub
-    {
-        let c = a - b;
-        for i in 0..F::Widest::WIDTH {
-            assert_eq!(c[i], a[i] - b[i])
-        }
+    let output = vfunc(a, b);
+    for i in 0..F::Widest::WIDTH {
+        assert_eq!(output[i], sfunc(a[i], b))
+    }
+}
+
+#[inline]
+fn assign_op_impl<T, D, F, VFunc, SFunc>(
+    _tag: T,
+    distribution: D,
+    feature: F,
+    vfunc: VFunc,
+    sfunc: SFunc,
+) where
+    T: Num + core::ops::Neg<Output = T> + core::fmt::Debug + Copy,
+    D: rand::distributions::Distribution<T> + Copy,
+    F: FeatureDetect + Widest<T>,
+    F::Widest: Signed<T>,
+    VFunc: Fn(&mut F::Widest, F::Widest),
+    SFunc: Fn(&mut T, T),
+{
+    let mut a = F::Widest::zeroed(feature);
+    let mut b = F::Widest::zeroed(feature);
+
+    let mut rng = rand::thread_rng();
+    for x in a.as_slice_mut() {
+        *x = rng.sample(distribution);
+    }
+    for x in b.as_slice_mut() {
+        *x = rng.sample(distribution);
     }
 
-    // Mul
-    {
-        let c = a * b;
-        for i in 0..F::Widest::WIDTH {
-            assert_eq!(c[i], a[i] * b[i])
-        }
+    let mut output = a.clone();
+    vfunc(&mut output, b);
+    for i in 0..F::Widest::WIDTH {
+        sfunc(&mut a[i], b[i]);
+        assert_eq!(output[i], a[i])
+    }
+}
+
+#[inline]
+fn assign_scalar_op_impl<T, D, F, VFunc, SFunc>(
+    _tag: T,
+    distribution: D,
+    feature: F,
+    vfunc: VFunc,
+    sfunc: SFunc,
+) where
+    T: Num + core::ops::Neg<Output = T> + core::fmt::Debug + Copy,
+    D: rand::distributions::Distribution<T> + Copy,
+    F: FeatureDetect + Widest<T>,
+    F::Widest: Signed<T>,
+    VFunc: Fn(&mut F::Widest, T),
+    SFunc: Fn(&mut T, T),
+{
+    let mut rng = rand::thread_rng();
+    let mut a = F::Widest::zeroed(feature);
+    let b = rng.sample(distribution);
+    for x in a.as_slice_mut() {
+        *x = rng.sample(distribution);
     }
 
-    // Div
-    {
-        let c = a / b;
-        for i in 0..F::Widest::WIDTH {
-            assert_eq!(c[i], a[i] / b[i])
-        }
-    }
-
-    // Neg
-    {
-        let c = -a;
-        for i in 0..F::Widest::WIDTH {
-            assert_eq!(c[i], -a[i])
-        }
+    let mut output = a.clone();
+    vfunc(&mut output, b);
+    for i in 0..F::Widest::WIDTH {
+        sfunc(&mut a[i], b);
+        assert_eq!(output[i], a[i])
     }
 }
 
 macro_rules! ops_test {
     {
-        $name:ident, $handle:path, $handleinit:expr, $type:ty
+        $name:ident, $handle:path, $handleinit:expr
     } => {
         #[test]
         fn $name() {
             if let Some(handle) = $handleinit {
-                ops_impl::<$type, ops_test!(@distty $type), $handle>(ops_test!(@distinit $type), handle);
+                ops_test!{ @impl binary_op_impl, handle, core::ops::Add::add }
+                ops_test!{ @impl binary_op_impl, handle, core::ops::Sub::sub }
+                ops_test!{ @impl binary_op_impl, handle, core::ops::Mul::mul }
+                ops_test!{ @impl binary_op_impl, handle, core::ops::Div::div }
+                ops_test!{ @impl binary_scalar_op_impl, handle, core::ops::Add::add }
+                ops_test!{ @impl binary_scalar_op_impl, handle, core::ops::Sub::sub }
+                ops_test!{ @impl binary_scalar_op_impl, handle, core::ops::Mul::mul }
+                ops_test!{ @impl binary_scalar_op_impl, handle, core::ops::Div::div }
+                ops_test!{ @impl assign_op_impl, handle, core::ops::AddAssign::add_assign }
+                ops_test!{ @impl assign_op_impl, handle, core::ops::SubAssign::sub_assign }
+                ops_test!{ @impl assign_op_impl, handle, core::ops::MulAssign::mul_assign }
+                ops_test!{ @impl assign_op_impl, handle, core::ops::DivAssign::div_assign }
+                ops_test!{ @impl assign_scalar_op_impl, handle, core::ops::AddAssign::add_assign }
+                ops_test!{ @impl assign_scalar_op_impl, handle, core::ops::SubAssign::sub_assign }
+                ops_test!{ @impl assign_scalar_op_impl, handle, core::ops::MulAssign::mul_assign }
+                ops_test!{ @impl assign_scalar_op_impl, handle, core::ops::DivAssign::div_assign }
+                ops_test!{ @impl unary_op_impl, handle, core::ops::Neg::neg }
             }
         }
     };
     {
-        @distty Complex<$type:ty>
+        @impl $test:ident, $handle:ident, $func:path
     } => {
-        ComplexDistribution<$type>
+        $test(0f32, Standard, $handle, $func, $func);
+        $test(0f64, Standard, $handle, $func, $func);
+        $test(Complex::<f32>::default(), ComplexDistribution::new(Standard, Standard), $handle, $func, $func);
+        $test(Complex::<f64>::default(), ComplexDistribution::new(Standard, Standard), $handle, $func, $func);
     };
-    {
-        @distty $type:ty
-    } => {
-        Standard
-    };
-    {
-        @distinit Complex<$type:ty>
-    } => {
-        ComplexDistribution::new(Standard, Standard)
-    };
-    {
-        @distinit $type:ty
-    } => {
-        Standard
-    }
 }
 
-ops_test! { ops_generic_f32, safe_simd::generic::Generic, safe_simd::generic::Generic::detect(), f32 }
-ops_test! { ops_generic_f64, safe_simd::generic::Generic, safe_simd::generic::Generic::detect(), f64 }
-ops_test! { ops_generic_cf32, safe_simd::generic::Generic, safe_simd::generic::Generic::detect(), Complex<f32> }
-ops_test! { ops_generic_cf64, safe_simd::generic::Generic, safe_simd::generic::Generic::detect(), Complex<f32> }
-ops_test! { ops_sse_f32, safe_simd::x86::Sse, safe_simd::x86::Sse::detect(), f32 }
-ops_test! { ops_sse_f64, safe_simd::x86::Sse, safe_simd::x86::Sse::detect(), f64 }
-ops_test! { ops_sse_cf32, safe_simd::x86::Sse, safe_simd::x86::Sse::detect(), Complex<f32> }
-ops_test! { ops_sse_cf64, safe_simd::x86::Sse, safe_simd::x86::Sse::detect(), Complex<f32> }
-ops_test! { ops_avx_f32, safe_simd::x86::Avx, safe_simd::x86::Avx::detect(), f32 }
-ops_test! { ops_avx_f64, safe_simd::x86::Avx, safe_simd::x86::Avx::detect(), f64 }
-ops_test! { ops_avx_cf32, safe_simd::x86::Avx, safe_simd::x86::Avx::detect(), Complex<f32> }
-ops_test! { ops_avx_cf64, safe_simd::x86::Avx, safe_simd::x86::Avx::detect(), Complex<f32> }
+ops_test! { ops_generic, safe_simd::generic::Generic, safe_simd::generic::Generic::detect() }
+ops_test! { ops_sse, safe_simd::x86::Sse, safe_simd::x86::Sse::detect() }
+ops_test! { ops_avx, safe_simd::x86::Avx, safe_simd::x86::Avx::detect() }

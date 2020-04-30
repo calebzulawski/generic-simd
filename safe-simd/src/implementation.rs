@@ -1,6 +1,6 @@
 macro_rules! arithmetic_ops {
     {
-        @new $type:ty, $trait:ident, $func:ident, $op:expr
+        @new $type:ty, $feature:expr, $trait:ident, $func:ident, $op:expr
     } => {
         impl core::ops::$trait<$type> for $type {
             type Output = Self;
@@ -10,9 +10,17 @@ macro_rules! arithmetic_ops {
                 Self(unsafe { $op(self.0, rhs.0) })
             }
         }
+
+        impl core::ops::$trait<<$type as Vector>::Scalar> for $type {
+            type Output = Self;
+            #[inline]
+            fn $func(self, rhs: <$type as Vector>::Scalar) -> Self {
+                self.$func(<$type>::splat(unsafe { $feature }, rhs))
+            }
+        }
     };
     {
-        @assign $type:ty, $trait:ident, $func:ident, $op:expr
+        @assign $type:ty, $feature:expr, $trait:ident, $func:ident, $op:expr
     } => {
         impl core::ops::$trait<$type> for $type {
             #[allow(unused_unsafe)]
@@ -21,22 +29,30 @@ macro_rules! arithmetic_ops {
                 self.0 = unsafe { $op(self.0, rhs.0) };
             }
         }
+
+        impl core::ops::$trait<<$type as Vector>::Scalar> for $type {
+            #[inline]
+            fn $func(&mut self, rhs: <$type as Vector>::Scalar) {
+                self.$func(<$type>::splat(unsafe { $feature }, rhs))
+            }
+        }
     };
     {
+        feature: $feature:expr,
         for $type:ty:
             add -> $add_expr:expr,
             sub -> $sub_expr:expr,
             mul -> $mul_expr:expr,
             div -> $div_expr:expr
     } => {
-        arithmetic_ops!{@new $type, Add, add, $add_expr}
-        arithmetic_ops!{@new $type, Sub, sub, $sub_expr}
-        arithmetic_ops!{@new $type, Mul, mul, $mul_expr}
-        arithmetic_ops!{@new $type, Div, div, $div_expr}
-        arithmetic_ops!{@assign $type, AddAssign, add_assign, $add_expr}
-        arithmetic_ops!{@assign $type, SubAssign, sub_assign, $sub_expr}
-        arithmetic_ops!{@assign $type, MulAssign, mul_assign, $mul_expr}
-        arithmetic_ops!{@assign $type, DivAssign, div_assign, $div_expr}
+        arithmetic_ops!{@new $type, $feature, Add, add, $add_expr}
+        arithmetic_ops!{@new $type, $feature, Sub, sub, $sub_expr}
+        arithmetic_ops!{@new $type, $feature, Mul, mul, $mul_expr}
+        arithmetic_ops!{@new $type, $feature, Div, div, $div_expr}
+        arithmetic_ops!{@assign $type, $feature, AddAssign, add_assign, $add_expr}
+        arithmetic_ops!{@assign $type, $feature, SubAssign, sub_assign, $sub_expr}
+        arithmetic_ops!{@assign $type, $feature, MulAssign, mul_assign, $mul_expr}
+        arithmetic_ops!{@assign $type, $feature, DivAssign, div_assign, $div_expr}
     };
 }
 

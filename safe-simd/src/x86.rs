@@ -165,6 +165,7 @@ impl Widest<Complex<f64>> for Avx {
 }
 
 arithmetic_ops! {
+    feature: crate::x86::Sse::new(),
     for f32x4:
         add -> _mm_add_ps,
         sub -> _mm_sub_ps,
@@ -173,6 +174,7 @@ arithmetic_ops! {
 }
 
 arithmetic_ops! {
+    feature: crate::x86::Sse::new(),
     for f64x2:
         add -> _mm_add_pd,
         sub -> _mm_sub_pd,
@@ -181,6 +183,7 @@ arithmetic_ops! {
 }
 
 arithmetic_ops! {
+    feature: crate::x86::Sse::new(),
     for cf32x2:
         add -> _mm_add_ps,
         sub -> _mm_sub_ps,
@@ -189,6 +192,7 @@ arithmetic_ops! {
 }
 
 arithmetic_ops! {
+    feature: crate::x86::Sse::new(),
     for cf64x1:
         add -> _mm_add_pd,
         sub -> _mm_sub_pd,
@@ -197,6 +201,7 @@ arithmetic_ops! {
 }
 
 arithmetic_ops! {
+    feature: crate::x86::Avx::new(),
     for f32x8:
         add -> _mm256_add_ps,
         sub -> _mm256_sub_ps,
@@ -205,6 +210,7 @@ arithmetic_ops! {
 }
 
 arithmetic_ops! {
+    feature: crate::x86::Avx::new(),
     for f64x4:
         add -> _mm256_add_pd,
         sub -> _mm256_sub_pd,
@@ -213,6 +219,7 @@ arithmetic_ops! {
 }
 
 arithmetic_ops! {
+    feature: crate::x86::Avx::new(),
     for cf32x4:
         add -> _mm256_add_ps,
         sub -> _mm256_sub_ps,
@@ -221,6 +228,7 @@ arithmetic_ops! {
 }
 
 arithmetic_ops! {
+    feature: crate::x86::Avx::new(),
     for cf64x2:
         add -> _mm256_add_pd,
         sub -> _mm256_sub_pd,
