@@ -1,6 +1,6 @@
 //! Generic vector types for any platform.
 
-use crate::vector::{FeatureDetect, ProvidedBy, Vector, Widest};
+use crate::vector::{FeatureDetect, Vector, Widest};
 use num_complex::Complex;
 
 /// A generic instruction set handle supported by all CPUs.
@@ -44,11 +44,6 @@ impl FeatureDetect for Generic {
     }
 }
 
-unsafe impl<F> ProvidedBy<F> for f32x1 where F: FeatureDetect {}
-unsafe impl<F> ProvidedBy<F> for f64x1 where F: FeatureDetect {}
-unsafe impl<F> ProvidedBy<F> for cf32x1 where F: FeatureDetect {}
-unsafe impl<F> ProvidedBy<F> for cf64x1 where F: FeatureDetect {}
-
 impl Widest<f32> for Generic {
     type Widest = f32x1;
 }
@@ -87,10 +82,10 @@ macro_rules! implement {
         unsafe impl Vector for $vector {
             type Scalar = $scalar;
 
+            type Feature = Generic;
+
             #[inline]
-            fn splat<F>(_: F, from: Self::Scalar) -> Self
-            where
-                Self: ProvidedBy<F>,
+            fn splat(_: Self::Feature, from: Self::Scalar) -> Self
             {
                 Self(from)
             }

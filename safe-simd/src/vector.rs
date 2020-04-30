@@ -13,15 +13,12 @@ pub trait FeatureDetect: Copy {
     unsafe fn new() -> Self;
 }
 
-/// Marker indicating features that provide a vector.
-pub unsafe trait ProvidedBy<F>: Vector {}
-
 /// The widest vector available.
 pub trait Widest<T>: FeatureDetect
 where
     T: Copy,
 {
-    type Widest: Vector<Scalar = T> + ProvidedBy<Self>;
+    type Widest: Vector<Scalar = T, Feature = Self>;
 }
 
 /// The fundamental vector type.
@@ -32,6 +29,9 @@ where
 pub unsafe trait Vector: Copy {
     /// The type of elements in the vector.
     type Scalar: Copy;
+
+    /// The feature required to use this vector type.
+    type Feature: FeatureDetect;
 
     /// The number of elements in the vector.
     const WIDTH: usize = core::mem::size_of::<Self>() / core::mem::size_of::<Self::Scalar>();
@@ -53,11 +53,7 @@ pub unsafe trait Vector: Copy {
     /// # Safety
     /// * `from` must point to an array of length at least `WIDTH`.
     #[inline]
-    unsafe fn read_ptr<F>(_: F, from: *const Self::Scalar) -> Self
-    where
-        F: Copy,
-        Self: ProvidedBy<F>,
-    {
+    unsafe fn read_ptr(feature: Self::Feature, from: *const Self::Scalar) -> Self {
         core::mem::transmute::<*const Self::Scalar, *const Self>(from).read_unaligned()
     }
 
@@ -66,13 +62,8 @@ pub unsafe trait Vector: Copy {
     /// # Safety
     /// * `from` be length at least `WIDTH`.
     #[inline]
-    unsafe fn read_unchecked<T, F>(feature: F, from: T) -> Self
-    where
-        F: Copy,
-        T: AsRef<[Self::Scalar]>,
-        Self: ProvidedBy<F>,
-    {
-        Self::read_ptr(feature, from.as_ref().as_ptr())
+    unsafe fn read_unchecked(feature: Self::Feature, from: &[Self::Scalar]) -> Self {
+        Self::read_ptr(feature, from.as_ptr())
     }
 
     /// Read from a slice.
@@ -80,14 +71,9 @@ pub unsafe trait Vector: Copy {
     /// # Panic
     /// Panics if the length of `from` is less than `WIDTH`.
     #[inline]
-    fn read<T, F>(feature: F, from: T) -> Self
-    where
-        F: Copy,
-        T: AsRef<[Self::Scalar]>,
-        Self: ProvidedBy<F>,
-    {
+    fn read(feature: Self::Feature, from: &[Self::Scalar]) -> Self {
         assert!(
-            from.as_ref().len() >= Self::WIDTH,
+            from.len() >= Self::WIDTH,
             "source not larget enough to load vector"
         );
         unsafe { Self::read_unchecked(feature, from) }
@@ -107,8 +93,8 @@ pub unsafe trait Vector: Copy {
     /// # Safety
     /// `from` must be length at least `WIDTH`.
     #[inline]
-    unsafe fn write_unchecked<T: AsMut<[Self::Scalar]>>(self, to: &mut T) {
-        self.write_ptr(to.as_mut().as_mut_ptr());
+    unsafe fn write_unchecked(self, to: &mut [Self::Scalar]) {
+        self.write_ptr(to.as_mut_ptr());
     }
 
     /// Write to a slice.
@@ -116,9 +102,9 @@ pub unsafe trait Vector: Copy {
     /// # Panics
     /// Panics if the length of `from` is less than `WIDTH`.
     #[inline]
-    fn write<T: AsMut<[Self::Scalar]>>(self, to: &mut T) {
+    fn write(self, to: &mut [Self::Scalar]) {
         assert!(
-            to.as_mut().len() >= Self::WIDTH,
+            to.len() >= Self::WIDTH,
             "destination not large enough to store vector"
         );
         unsafe { self.write_unchecked(to) };
@@ -126,19 +112,12 @@ pub unsafe trait Vector: Copy {
 
     /// Create a new vector with each lane containing zeroes.
     #[inline]
-    fn zeroed<F>(_: F) -> Self
-    where
-        F: Copy,
-        Self: ProvidedBy<F>,
-    {
+    fn zeroed(feature: Self::Feature) -> Self {
         unsafe { core::mem::zeroed() }
     }
 
     /// Create a new vector with each lane containing the provided value.
-    fn splat<F>(_: F, from: Self::Scalar) -> Self
-    where
-        F: Copy,
-        Self: ProvidedBy<F>;
+    fn splat(feature: Self::Feature, from: Self::Scalar) -> Self;
 }
 
 pub trait Ops<T>:

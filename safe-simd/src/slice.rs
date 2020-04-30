@@ -1,16 +1,15 @@
 //! Slices of vectors.
 
-use crate::vector::{ProvidedBy, Vector};
+use crate::vector::{FeatureDetect, Vector};
 use core::marker::PhantomData;
 
 /// Extract a slice of aligned vectors, as if by [`align_to`].
 ///
 /// [`align_to`]: https://doc.rust-lang.org/std/primitive.slice.html#method.align_to
 #[inline]
-pub fn align<V, F>(_: F, slice: &[V::Scalar]) -> (&[V::Scalar], &[V], &[V::Scalar])
+pub fn align<V>(feature: V::Feature, slice: &[V::Scalar]) -> (&[V::Scalar], &[V], &[V::Scalar])
 where
-    F: Copy,
-    V: Vector + ProvidedBy<F>,
+    V: Vector,
 {
     unsafe { slice.align_to() }
 }
@@ -19,30 +18,30 @@ where
 ///
 /// [`align_to_mut`]: https://doc.rust-lang.org/std/primitive.slice.html#method.align_to_mut
 #[inline]
-fn align_mut<V, F>(_: F, slice: &mut [V::Scalar]) -> (&mut [V::Scalar], &mut [V], &mut [V::Scalar])
+fn align_mut<V>(
+    feature: V::Feature,
+    slice: &mut [V::Scalar],
+) -> (&mut [V::Scalar], &mut [V], &mut [V::Scalar])
 where
-    F: Copy,
-    V: Vector + ProvidedBy<F>,
+    V: Vector,
 {
     unsafe { slice.align_to_mut() }
 }
 
 /// Create a slice of overlapping vectors from a slice of scalars.
 #[inline]
-fn overlapping<'a, V, F>(feature: F, slice: &'a [V::Scalar]) -> Overlapping<'a, V, F>
+fn overlapping<'a, V>(feature: V::Feature, slice: &'a [V::Scalar]) -> Overlapping<'a, V>
 where
-    F: Copy,
-    V: Vector + ProvidedBy<F>,
+    V: Vector,
 {
     Overlapping::new(feature, slice)
 }
 
 /// Create a mutable slice of overlapping vectors from a slice of scalars.
 #[inline]
-fn overlapping_mut<'a, V, F>(feature: F, slice: &'a mut [V::Scalar]) -> OverlappingMut<'a, V, F>
+fn overlapping_mut<'a, V>(feature: V::Feature, slice: &'a mut [V::Scalar]) -> OverlappingMut<'a, V>
 where
-    F: Copy,
-    V: Vector + ProvidedBy<F>,
+    V: Vector,
 {
     OverlappingMut::new(feature, slice)
 }
@@ -61,11 +60,7 @@ impl<'a, V> RefMut<'a, V>
 where
     V: Vector,
 {
-    fn new<F>(feature: F, source: *mut V::Scalar) -> Self
-    where
-        F: Copy,
-        V: ProvidedBy<F>,
-    {
+    fn new(feature: V::Feature, source: *mut V::Scalar) -> Self {
         Self {
             source,
             temp: V::zeroed(feature),
@@ -105,30 +100,26 @@ where
 }
 
 /// Wrapper for indexing into overlapping vectors.
-pub struct Overlapping<'a, V, F>
+pub struct Overlapping<'a, V>
 where
-    F: Copy,
-    V: Vector + ProvidedBy<F>,
+    V: Vector,
 {
-    feature: F,
     slice: &'a [V::Scalar],
     phantom: PhantomData<V>,
 }
 
-impl<'a, V, F> Overlapping<'a, V, F>
+impl<'a, V> Overlapping<'a, V>
 where
-    F: Copy,
-    V: Vector + ProvidedBy<F>,
+    V: Vector,
 {
     /// Create a new overlapping vector slice.
     #[inline]
-    pub fn new(feature: F, slice: &'a [V::Scalar]) -> Self {
+    pub fn new(feature: V::Feature, slice: &'a [V::Scalar]) -> Self {
         assert!(
             slice.len() >= V::WIDTH,
             "slice must be at least as wide as the vector"
         );
         Self {
-            feature,
             slice,
             phantom: PhantomData,
         }
@@ -161,35 +152,31 @@ where
     where
         V: Vector,
     {
-        V::read_ptr(self.feature, self.slice.as_ptr().add(index))
+        V::read_ptr(V::Feature::new(), self.slice.as_ptr().add(index))
     }
 }
 
 /// Wrapper for indexing into overlapping mutable vectors.
-pub struct OverlappingMut<'a, V, F>
+pub struct OverlappingMut<'a, V>
 where
-    F: Copy,
-    V: Vector + ProvidedBy<F>,
+    V: Vector,
 {
-    feature: F,
     slice: &'a mut [V::Scalar],
     phantom: PhantomData<V>,
 }
 
-impl<'a, V, F> OverlappingMut<'a, V, F>
+impl<'a, V> OverlappingMut<'a, V>
 where
-    F: Copy,
-    V: Vector + ProvidedBy<F>,
+    V: Vector,
 {
     /// Create a new overlapping vector slice.
     #[inline]
-    pub fn new(feature: F, slice: &'a mut [V::Scalar]) -> Self {
+    pub fn new(feature: V::Feature, slice: &'a mut [V::Scalar]) -> Self {
         assert!(
             slice.len() >= V::WIDTH,
             "slice must be at least as wide as the vector"
         );
         Self {
-            feature,
             slice,
             phantom: PhantomData,
         }
@@ -219,7 +206,7 @@ where
     /// + V::WIDTH` long.
     #[inline]
     pub unsafe fn get_unchecked(&self, index: usize) -> V {
-        V::read_ptr(self.feature, self.slice.as_ptr().add(index))
+        V::read_ptr(V::Feature::new(), self.slice.as_ptr().add(index))
     }
 
     /// Returns the mutable vector offset `index` into the slice of scalars.
@@ -238,6 +225,6 @@ where
     /// + V::WIDTH` long.
     #[inline]
     pub unsafe fn get_unchecked_mut(&'a mut self, index: usize) -> RefMut<'a, V> {
-        RefMut::new(self.feature, self.slice.as_mut_ptr().add(index))
+        RefMut::new(V::Feature::new(), self.slice.as_mut_ptr().add(index))
     }
 }
