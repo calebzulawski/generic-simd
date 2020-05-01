@@ -4,7 +4,7 @@ use core::ops::{
     Add, AddAssign, Deref, DerefMut, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign,
 };
 
-/// A handle for a CPU feature.
+/// Detects a CPU feature.
 pub trait FeatureDetect: Copy {
     /// Detect support of this CPU feature.
     fn detect() -> Option<Self>;
@@ -16,12 +16,69 @@ pub trait FeatureDetect: Copy {
     unsafe fn new() -> Self;
 }
 
-/// The widest vector available.
+/// Operations using the widest vector available to a CPU feature.
 pub trait Widest<T>: FeatureDetect
 where
     T: Copy,
 {
+    /// The widest vector available
     type Widest: Vector<Scalar = T, Feature = Self>;
+
+    /// Splat a scalar to the widest vector.
+    ///
+    /// See [`splat`](trait.Vector.html#tymethod.splat).
+    #[inline]
+    fn splat_widest(self, scalar: T) -> Self::Widest {
+        Self::Widest::splat(self, scalar)
+    }
+
+    /// Create a zeroed copy of the widest vector.
+    ///
+    /// See [`zeroed`](trait.Vector.html#tymethod.zeroed).
+    #[inline]
+    fn zeroed_widest(self) -> Self::Widest {
+        Self::Widest::zeroed(self)
+    }
+
+    /// Align a slice of scalars to the widest vector.
+    ///
+    /// See [`align`](../slice/fn.align.html).
+    #[inline]
+    fn align_widest(self, slice: &[T]) -> (&[T], &[Self::Widest], &[T]) {
+        crate::slice::align(self, slice)
+    }
+
+    /// Align a mutable slice of scalars to the widest vector.
+    ///
+    /// See [`align_mut`](../slice/fn.align_mut.html).
+    #[inline]
+    fn align_widest_mut(self, slice: &mut [T]) -> (&mut [T], &mut [Self::Widest], &mut [T]) {
+        crate::slice::align_mut(self, slice)
+    }
+
+    /// Create a slice of overlapping vectors from a slice of scalars.
+    ///
+    /// See [`overlapping`](../slice/fn.overlapping.html).
+    #[inline]
+    fn overlapping_widest(self, slice: &[T]) -> crate::slice::Overlapping<'_, Self::Widest> {
+        crate::slice::Overlapping::new(self, slice)
+    }
+
+    /// Create a mutable slice of overlapping vectors from a slice of scalars.
+    ///
+    /// See [`overlapping_mut`](../slice/fn.overlapping_mut.html).
+    #[inline]
+    fn overlapping_widest_mut(
+        self,
+        slice: &mut [T],
+    ) -> crate::slice::OverlappingMut<'_, Self::Widest> {
+        crate::slice::OverlappingMut::new(self, slice)
+    }
+}
+
+pub trait Feature:
+    Widest<f32> + Widest<f64> + Widest<num_complex::Complex<f32>> + Widest<num_complex::Complex<f64>>
+{
 }
 
 /// The fundamental vector type.
@@ -126,6 +183,7 @@ pub unsafe trait Vector: Copy {
     fn splat(feature: Self::Feature, from: Self::Scalar) -> Self;
 }
 
+/// A supertrait for vectors supporting typical operations.
 pub trait Ops<T>:
     Vector
     + AsRef<[T]>

@@ -1,13 +1,13 @@
-use safe_simd::vector::Loader;
+use safe_simd::vector::Widest;
 
-#[safe_simd::dispatch(handle)]
+#[safe_simd::dispatch(feature)]
 pub fn add_one_aligned(x: &mut [f32]) {
-    let (start, vecs, end) = handle.align_mut(x.as_mut());
+    let (start, vecs, end) = feature.align_widest_mut(x.as_mut());
     for s in start.iter_mut().chain(end.iter_mut()) {
         *s += 1.;
     }
 
-    let ones = handle.splat(1f32);
+    let ones = feature.splat_widest(1f32);
     for v in vecs {
         *v = *v + ones;
     }
