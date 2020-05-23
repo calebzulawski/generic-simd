@@ -1,12 +1,10 @@
 //! Generic vector types for any platform.
 
-use crate::vector::{FeatureDetect, Vector, Widest};
+use crate::vector::{Native, Vector};
+use arch_types::Features;
 use num_complex::Complex;
 
-/// A generic instruction set handle supported by all CPUs.
-#[derive(Clone, Copy, Debug, Default)]
-#[allow(non_camel_case_types)]
-pub struct Generic(());
+arch_types::new_features_type! { #[doc = "A generic instruction set handle supported by all CPUs."] pub Generic => }
 
 /// A generic vector of one `f32`.
 #[derive(Clone, Copy, Debug)]
@@ -32,29 +30,17 @@ pub struct cf32x1(Complex<f32>);
 #[allow(non_camel_case_types)]
 pub struct cf64x1(Complex<f64>);
 
-impl FeatureDetect for Generic {
-    #[inline]
-    fn detect() -> Option<Self> {
-        Some(Self(()))
-    }
-
-    #[inline]
-    unsafe fn new() -> Self {
-        Self(())
-    }
+impl Native<f32> for Generic {
+    type Vector = f32x1;
 }
-
-impl Widest<f32> for Generic {
-    type Widest = f32x1;
+impl Native<f64> for Generic {
+    type Vector = f64x1;
 }
-impl Widest<f64> for Generic {
-    type Widest = f64x1;
+impl Native<Complex<f32>> for Generic {
+    type Vector = cf32x1;
 }
-impl Widest<Complex<f32>> for Generic {
-    type Widest = cf32x1;
-}
-impl Widest<Complex<f64>> for Generic {
-    type Widest = cf64x1;
+impl Native<Complex<f64>> for Generic {
+    type Vector = cf64x1;
 }
 
 macro_rules! implement {
@@ -62,7 +48,7 @@ macro_rules! implement {
         $vector:ty, $scalar:ty
     } => {
         arithmetic_ops! {
-            feature: crate::generic::Generic::new(),
+            feature: crate::generic::Generic::new_unchecked(),
             for $vector:
                 add -> core::ops::Add::add,
                 sub -> core::ops::Sub::sub,

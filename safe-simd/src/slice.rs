@@ -1,6 +1,7 @@
 //! Slices of vectors.
 
-use crate::vector::{FeatureDetect, Vector};
+use crate::vector::Vector;
+use arch_types::Features;
 use core::marker::PhantomData;
 
 /// Extract a slice of aligned vectors, as if by [`align_to`].
@@ -157,7 +158,7 @@ where
     where
         V: Vector,
     {
-        V::read_ptr(V::Feature::new(), self.slice.as_ptr().add(index))
+        V::read_ptr(V::Feature::new_unchecked(), self.slice.as_ptr().add(index))
     }
 }
 
@@ -213,7 +214,7 @@ where
     /// + V::WIDTH` long.
     #[inline]
     pub unsafe fn get_unchecked(&self, index: usize) -> V {
-        V::read_ptr(V::Feature::new(), self.slice.as_ptr().add(index))
+        V::read_ptr(V::Feature::new_unchecked(), self.slice.as_ptr().add(index))
     }
 
     /// Returns the mutable vector offset `index` into the slice of scalars.
@@ -233,6 +234,9 @@ where
     /// + V::WIDTH` long.
     #[inline]
     pub unsafe fn get_unchecked_mut(&'a mut self, index: usize) -> RefMut<'a, V> {
-        RefMut::new(V::Feature::new(), self.slice.as_mut_ptr().add(index))
+        RefMut::new(
+            V::Feature::new_unchecked(),
+            self.slice.as_mut_ptr().add(index),
+        )
     }
 }

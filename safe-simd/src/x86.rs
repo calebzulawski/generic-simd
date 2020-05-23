@@ -1,6 +1,7 @@
 //! x86/x86-64 vector types.
 
-use crate::vector::{FeatureDetect, Vector, Widest};
+use crate::vector::{Native, Vector};
+use arch_types::Features;
 
 #[cfg(target_arch = "x86")]
 use core::arch::x86::*;
@@ -9,71 +10,8 @@ use core::arch::x86_64::*;
 
 use num_complex::Complex;
 
-/// SSE instruction set feature.
-#[derive(Clone, Copy, Debug)]
-pub struct Sse(());
-
-impl FeatureDetect for Sse {
-    #[inline]
-    fn detect() -> Option<Self> {
-        #[cfg(feature = "std")]
-        {
-            if is_x86_feature_detected!("sse3") {
-                Some(Self(()))
-            } else {
-                None
-            }
-        }
-
-        #[cfg(all(not(feature = "std"), target_feature = "sse3"))]
-        {
-            Some(Self(()))
-        }
-
-        #[cfg(all(not(feature = "std"), not(target_feature = "sse3")))]
-        {
-            None
-        }
-    }
-
-    #[inline]
-    unsafe fn new() -> Self {
-        Self(())
-    }
-}
-
-/// AVX instruction set handle.
-#[derive(Clone, Copy, Debug)]
-pub struct Avx(());
-
-impl FeatureDetect for Avx {
-    #[inline]
-    fn detect() -> Option<Self> {
-        #[cfg(feature = "std")]
-        {
-            if is_x86_feature_detected!("avx") {
-                Some(Self(()))
-            } else {
-                None
-            }
-        }
-
-        #[cfg(all(not(feature = "std"), target_feature = "avx"))]
-        {
-            Some(Self(()))
-        }
-
-        #[cfg(all(not(feature = "std"), not(target_feature = "avx")))]
-        {
-            None
-        }
-    }
-
-    #[inline]
-    unsafe fn new() -> Self {
-        Self(())
-    }
-}
+arch_types::new_features_type! { #[doc = "SSE instruction set handle."] pub Sse => "sse3" }
+arch_types::new_features_type! { #[doc = "AVX instruction set handle."] pub Avx => "avx" }
 
 /// An SSE vector of `f32`s.
 #[derive(Clone, Copy, Debug)]
@@ -123,34 +61,34 @@ pub struct cf32x4(__m256);
 #[allow(non_camel_case_types)]
 pub struct cf64x2(__m256d);
 
-impl Widest<f32> for Sse {
-    type Widest = f32x4;
+impl Native<f32> for Sse {
+    type Vector = f32x4;
 }
-impl Widest<f64> for Sse {
-    type Widest = f64x2;
+impl Native<f64> for Sse {
+    type Vector = f64x2;
 }
-impl Widest<Complex<f32>> for Sse {
-    type Widest = cf32x2;
+impl Native<Complex<f32>> for Sse {
+    type Vector = cf32x2;
 }
-impl Widest<Complex<f64>> for Sse {
-    type Widest = cf64x1;
+impl Native<Complex<f64>> for Sse {
+    type Vector = cf64x1;
 }
 
-impl Widest<f32> for Avx {
-    type Widest = f32x8;
+impl Native<f32> for Avx {
+    type Vector = f32x8;
 }
-impl Widest<f64> for Avx {
-    type Widest = f64x4;
+impl Native<f64> for Avx {
+    type Vector = f64x4;
 }
-impl Widest<Complex<f32>> for Avx {
-    type Widest = cf32x4;
+impl Native<Complex<f32>> for Avx {
+    type Vector = cf32x4;
 }
-impl Widest<Complex<f64>> for Avx {
-    type Widest = cf64x2;
+impl Native<Complex<f64>> for Avx {
+    type Vector = cf64x2;
 }
 
 arithmetic_ops! {
-    feature: crate::x86::Sse::new(),
+    feature: crate::x86::Sse::new_unchecked(),
     for f32x4:
         add -> _mm_add_ps,
         sub -> _mm_sub_ps,
@@ -159,7 +97,7 @@ arithmetic_ops! {
 }
 
 arithmetic_ops! {
-    feature: crate::x86::Sse::new(),
+    feature: crate::x86::Sse::new_unchecked(),
     for f64x2:
         add -> _mm_add_pd,
         sub -> _mm_sub_pd,
@@ -168,7 +106,7 @@ arithmetic_ops! {
 }
 
 arithmetic_ops! {
-    feature: crate::x86::Sse::new(),
+    feature: crate::x86::Sse::new_unchecked(),
     for cf32x2:
         add -> _mm_add_ps,
         sub -> _mm_sub_ps,
@@ -177,7 +115,7 @@ arithmetic_ops! {
 }
 
 arithmetic_ops! {
-    feature: crate::x86::Sse::new(),
+    feature: crate::x86::Sse::new_unchecked(),
     for cf64x1:
         add -> _mm_add_pd,
         sub -> _mm_sub_pd,
@@ -186,7 +124,7 @@ arithmetic_ops! {
 }
 
 arithmetic_ops! {
-    feature: crate::x86::Avx::new(),
+    feature: crate::x86::Avx::new_unchecked(),
     for f32x8:
         add -> _mm256_add_ps,
         sub -> _mm256_sub_ps,
@@ -195,7 +133,7 @@ arithmetic_ops! {
 }
 
 arithmetic_ops! {
-    feature: crate::x86::Avx::new(),
+    feature: crate::x86::Avx::new_unchecked(),
     for f64x4:
         add -> _mm256_add_pd,
         sub -> _mm256_sub_pd,
@@ -204,7 +142,7 @@ arithmetic_ops! {
 }
 
 arithmetic_ops! {
-    feature: crate::x86::Avx::new(),
+    feature: crate::x86::Avx::new_unchecked(),
     for cf32x4:
         add -> _mm256_add_ps,
         sub -> _mm256_sub_ps,
@@ -213,7 +151,7 @@ arithmetic_ops! {
 }
 
 arithmetic_ops! {
-    feature: crate::x86::Avx::new(),
+    feature: crate::x86::Avx::new_unchecked(),
     for cf64x2:
         add -> _mm256_add_pd,
         sub -> _mm256_sub_pd,

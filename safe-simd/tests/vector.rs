@@ -2,7 +2,7 @@ use num_complex::{Complex, ComplexDistribution};
 use num_traits::Num;
 use rand::distributions::Standard;
 use rand::prelude::*;
-use safe_simd::vector::{FeatureDetect, Signed, Vector, Widest};
+use safe_simd::vector::{Features, Native, Signed, Vector};
 
 #[inline]
 fn unary_op_impl<T, D, F, VFunc, SFunc>(
@@ -14,19 +14,19 @@ fn unary_op_impl<T, D, F, VFunc, SFunc>(
 ) where
     T: Num + core::ops::Neg<Output = T> + core::fmt::Debug + Copy,
     D: rand::distributions::Distribution<T> + Copy,
-    F: FeatureDetect + Widest<T>,
-    F::Widest: Signed<T>,
-    VFunc: Fn(F::Widest) -> F::Widest,
+    F: Features + Native<T>,
+    F::Vector: Signed<T>,
+    VFunc: Fn(F::Vector) -> F::Vector,
     SFunc: Fn(T) -> T,
 {
-    let mut input = F::Widest::zeroed(feature);
+    let mut input = F::Vector::zeroed(feature);
     let mut rng = rand::thread_rng();
     for x in input.as_slice_mut() {
         *x = rng.sample(distribution);
     }
 
     let output = vfunc(input);
-    for i in 0..F::Widest::WIDTH {
+    for i in 0..F::Vector::WIDTH {
         assert_eq!(output[i], sfunc(input[i]))
     }
 }
@@ -41,13 +41,13 @@ fn binary_op_impl<T, D, F, VFunc, SFunc>(
 ) where
     T: Num + core::ops::Neg<Output = T> + core::fmt::Debug + Copy,
     D: rand::distributions::Distribution<T> + Copy,
-    F: FeatureDetect + Widest<T>,
-    F::Widest: Signed<T>,
-    VFunc: Fn(F::Widest, F::Widest) -> F::Widest,
+    F: Features + Native<T>,
+    F::Vector: Signed<T>,
+    VFunc: Fn(F::Vector, F::Vector) -> F::Vector,
     SFunc: Fn(T, T) -> T,
 {
-    let mut a = F::Widest::zeroed(feature);
-    let mut b = F::Widest::zeroed(feature);
+    let mut a = F::Vector::zeroed(feature);
+    let mut b = F::Vector::zeroed(feature);
 
     let mut rng = rand::thread_rng();
     for x in a.as_slice_mut() {
@@ -58,7 +58,7 @@ fn binary_op_impl<T, D, F, VFunc, SFunc>(
     }
 
     let output = vfunc(a, b);
-    for i in 0..F::Widest::WIDTH {
+    for i in 0..F::Vector::WIDTH {
         assert_eq!(output[i], sfunc(a[i], b[i]))
     }
 }
@@ -73,20 +73,20 @@ fn binary_scalar_op_impl<T, D, F, VFunc, SFunc>(
 ) where
     T: Num + core::ops::Neg<Output = T> + core::fmt::Debug + Copy,
     D: rand::distributions::Distribution<T> + Copy,
-    F: FeatureDetect + Widest<T>,
-    F::Widest: Signed<T>,
-    VFunc: Fn(F::Widest, T) -> F::Widest,
+    F: Features + Native<T>,
+    F::Vector: Signed<T>,
+    VFunc: Fn(F::Vector, T) -> F::Vector,
     SFunc: Fn(T, T) -> T,
 {
     let mut rng = rand::thread_rng();
-    let mut a = F::Widest::zeroed(feature);
+    let mut a = F::Vector::zeroed(feature);
     let b = rng.sample(distribution);
     for x in a.as_slice_mut() {
         *x = rng.sample(distribution);
     }
 
     let output = vfunc(a, b);
-    for i in 0..F::Widest::WIDTH {
+    for i in 0..F::Vector::WIDTH {
         assert_eq!(output[i], sfunc(a[i], b))
     }
 }
@@ -101,13 +101,13 @@ fn assign_op_impl<T, D, F, VFunc, SFunc>(
 ) where
     T: Num + core::ops::Neg<Output = T> + core::fmt::Debug + Copy,
     D: rand::distributions::Distribution<T> + Copy,
-    F: FeatureDetect + Widest<T>,
-    F::Widest: Signed<T>,
-    VFunc: Fn(&mut F::Widest, F::Widest),
+    F: Features + Native<T>,
+    F::Vector: Signed<T>,
+    VFunc: Fn(&mut F::Vector, F::Vector),
     SFunc: Fn(&mut T, T),
 {
-    let mut a = F::Widest::zeroed(feature);
-    let mut b = F::Widest::zeroed(feature);
+    let mut a = F::Vector::zeroed(feature);
+    let mut b = F::Vector::zeroed(feature);
 
     let mut rng = rand::thread_rng();
     for x in a.as_slice_mut() {
@@ -119,7 +119,7 @@ fn assign_op_impl<T, D, F, VFunc, SFunc>(
 
     let mut output = a.clone();
     vfunc(&mut output, b);
-    for i in 0..F::Widest::WIDTH {
+    for i in 0..F::Vector::WIDTH {
         sfunc(&mut a[i], b[i]);
         assert_eq!(output[i], a[i])
     }
@@ -135,13 +135,13 @@ fn assign_scalar_op_impl<T, D, F, VFunc, SFunc>(
 ) where
     T: Num + core::ops::Neg<Output = T> + core::fmt::Debug + Copy,
     D: rand::distributions::Distribution<T> + Copy,
-    F: FeatureDetect + Widest<T>,
-    F::Widest: Signed<T>,
-    VFunc: Fn(&mut F::Widest, T),
+    F: Features + Native<T>,
+    F::Vector: Signed<T>,
+    VFunc: Fn(&mut F::Vector, T),
     SFunc: Fn(&mut T, T),
 {
     let mut rng = rand::thread_rng();
-    let mut a = F::Widest::zeroed(feature);
+    let mut a = F::Vector::zeroed(feature);
     let b = rng.sample(distribution);
     for x in a.as_slice_mut() {
         *x = rng.sample(distribution);
@@ -149,7 +149,7 @@ fn assign_scalar_op_impl<T, D, F, VFunc, SFunc>(
 
     let mut output = a.clone();
     vfunc(&mut output, b);
-    for i in 0..F::Widest::WIDTH {
+    for i in 0..F::Vector::WIDTH {
         sfunc(&mut a[i], b);
         assert_eq!(output[i], a[i])
     }
@@ -192,6 +192,6 @@ macro_rules! ops_test {
     };
 }
 
-ops_test! { ops_generic, safe_simd::generic::Generic, safe_simd::generic::Generic::detect() }
-ops_test! { ops_sse, safe_simd::x86::Sse, safe_simd::x86::Sse::detect() }
-ops_test! { ops_avx, safe_simd::x86::Avx, safe_simd::x86::Avx::detect() }
+ops_test! { ops_generic, safe_simd::generic::Generic, safe_simd::generic::Generic::new() }
+ops_test! { ops_sse, safe_simd::x86::Sse, safe_simd::x86::Sse::new() }
+ops_test! { ops_avx, safe_simd::x86::Avx, safe_simd::x86::Avx::new() }

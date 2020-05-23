@@ -4,55 +4,45 @@ use core::ops::{
     Add, AddAssign, Deref, DerefMut, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign,
 };
 
-/// Detects a CPU feature.
-pub trait FeatureDetect: Copy {
-    /// Detect support of this CPU feature.
-    fn detect() -> Option<Self>;
+pub use arch_types::Features;
 
-    /// Create a new CPU feature handle without checking if the feature is supported.
-    ///
-    /// # Safety
-    /// This feature must be supported by the CPU.
-    unsafe fn new() -> Self;
-}
-
-/// Operations using the widest vector available to a CPU feature.
-pub trait Widest<T>: FeatureDetect
+/// Operations using the native vector type for a CPU feature.
+pub trait Native<T>: Features
 where
     T: Copy,
 {
     /// The widest vector available
-    type Widest: Vector<Scalar = T, Feature = Self>;
+    type Vector: Vector<Scalar = T, Feature = Self>;
 
-    /// Splat a scalar to the widest vector.
+    /// Splat a scalar to the native vector.
     ///
     /// See [`splat`](trait.Vector.html#tymethod.splat).
     #[inline]
-    fn splat_widest(self, scalar: T) -> Self::Widest {
-        Self::Widest::splat(self, scalar)
+    fn splat_native(self, scalar: T) -> Self::Vector {
+        Self::Vector::splat(self, scalar)
     }
 
-    /// Create a zeroed copy of the widest vector.
+    /// Create a zeroed copy of the native vector.
     ///
     /// See [`zeroed`](trait.Vector.html#tymethod.zeroed).
     #[inline]
-    fn zeroed_widest(self) -> Self::Widest {
-        Self::Widest::zeroed(self)
+    fn zeroed_native(self) -> Self::Vector {
+        Self::Vector::zeroed(self)
     }
 
-    /// Align a slice of scalars to the widest vector.
+    /// Align a slice of scalars to the native vector.
     ///
     /// See [`align`](../slice/fn.align.html).
     #[inline]
-    fn align_widest(self, slice: &[T]) -> (&[T], &[Self::Widest], &[T]) {
+    fn align_native(self, slice: &[T]) -> (&[T], &[Self::Vector], &[T]) {
         crate::slice::align(self, slice)
     }
 
-    /// Align a mutable slice of scalars to the widest vector.
+    /// Align a mutable slice of scalars to the native vector.
     ///
     /// See [`align_mut`](../slice/fn.align_mut.html).
     #[inline]
-    fn align_widest_mut(self, slice: &mut [T]) -> (&mut [T], &mut [Self::Widest], &mut [T]) {
+    fn align_native_mut(self, slice: &mut [T]) -> (&mut [T], &mut [Self::Vector], &mut [T]) {
         crate::slice::align_mut(self, slice)
     }
 
@@ -60,7 +50,7 @@ where
     ///
     /// See [`overlapping`](../slice/fn.overlapping.html).
     #[inline]
-    fn overlapping_widest(self, slice: &[T]) -> crate::slice::Overlapping<'_, Self::Widest> {
+    fn overlapping_native(self, slice: &[T]) -> crate::slice::Overlapping<'_, Self::Vector> {
         crate::slice::Overlapping::new(self, slice)
     }
 
@@ -68,16 +58,16 @@ where
     ///
     /// See [`overlapping_mut`](../slice/fn.overlapping_mut.html).
     #[inline]
-    fn overlapping_widest_mut(
+    fn overlapping_native_mut(
         self,
         slice: &mut [T],
-    ) -> crate::slice::OverlappingMut<'_, Self::Widest> {
+    ) -> crate::slice::OverlappingMut<'_, Self::Vector> {
         crate::slice::OverlappingMut::new(self, slice)
     }
 }
 
 pub trait Feature:
-    Widest<f32> + Widest<f64> + Widest<num_complex::Complex<f32>> + Widest<num_complex::Complex<f64>>
+    Native<f32> + Native<f64> + Native<num_complex::Complex<f32>> + Native<num_complex::Complex<f64>>
 {
 }
 
@@ -91,7 +81,7 @@ pub unsafe trait Vector: Copy {
     type Scalar: Copy;
 
     /// The feature required to use this vector type.
-    type Feature: FeatureDetect;
+    type Feature: arch_types::Features;
 
     /// The number of elements in the vector.
     const WIDTH: usize = core::mem::size_of::<Self>() / core::mem::size_of::<Self::Scalar>();
