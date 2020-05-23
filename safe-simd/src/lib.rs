@@ -2,6 +2,7 @@
 
 pub use safe_simd_macros::dispatch;
 
+pub mod shim;
 pub mod vector;
 
 #[macro_use]
