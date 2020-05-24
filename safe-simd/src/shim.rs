@@ -1,87 +1,30 @@
 use crate::vector::{Complex, Vector};
 use core::marker::PhantomData;
 
-#[derive(Copy, Clone, Debug)]
-pub struct Shim2<Underlying, Scalar>([Underlying; 2], PhantomData<Scalar>);
-
-#[derive(Copy, Clone, Debug)]
-pub struct Shim4<Underlying, Scalar>([Underlying; 4], PhantomData<Scalar>);
-
-#[derive(Copy, Clone, Debug)]
-pub struct Shim8<Underlying, Scalar>([Underlying; 8], PhantomData<Scalar>);
-
-unsafe impl<Underlying, Scalar> Vector for Shim2<Underlying, Scalar>
-where
-    Underlying: Vector<Scalar = Scalar>,
-    Scalar: Copy,
-{
-    type Scalar = Scalar;
-    type Feature = <Underlying as Vector>::Feature;
-
-    #[inline]
-    fn splat(feature: Self::Feature, from: Self::Scalar) -> Self {
-        Self(
-            [
-                Underlying::splat(feature, from),
-                Underlying::splat(feature, from),
-            ],
-            PhantomData,
-        )
-    }
-}
-
-unsafe impl<Underlying, Scalar> Vector for Shim4<Underlying, Scalar>
-where
-    Underlying: Vector<Scalar = Scalar>,
-    Scalar: Copy,
-{
-    type Scalar = Scalar;
-    type Feature = <Underlying as Vector>::Feature;
-
-    #[inline]
-    fn splat(feature: Self::Feature, from: Self::Scalar) -> Self {
-        Self(
-            [
-                Underlying::splat(feature, from),
-                Underlying::splat(feature, from),
-                Underlying::splat(feature, from),
-                Underlying::splat(feature, from),
-            ],
-            PhantomData,
-        )
-    }
-}
-
-unsafe impl<Underlying, Scalar> Vector for Shim8<Underlying, Scalar>
-where
-    Underlying: Vector<Scalar = Scalar>,
-    Scalar: Copy,
-{
-    type Scalar = Scalar;
-    type Feature = <Underlying as Vector>::Feature;
-
-    #[inline]
-    fn splat(feature: Self::Feature, from: Self::Scalar) -> Self {
-        Self(
-            [
-                Underlying::splat(feature, from),
-                Underlying::splat(feature, from),
-                Underlying::splat(feature, from),
-                Underlying::splat(feature, from),
-                Underlying::splat(feature, from),
-                Underlying::splat(feature, from),
-                Underlying::splat(feature, from),
-                Underlying::splat(feature, from),
-            ],
-            PhantomData,
-        )
-    }
-}
-
 macro_rules! implement {
     {
-        $type:ident
+        $type:ident, $size_lit:literal, $size_string:literal
     } => {
+        #[doc = "Shim for a vector of "]
+        #[doc = $size_string]
+        #[doc = " native vectors"]
+        #[derive(Copy, Clone, Debug)]
+        pub struct $type<Underlying, Scalar>([Underlying; $size_lit], PhantomData<Scalar>);
+
+        unsafe impl<Underlying, Scalar> Vector for $type<Underlying, Scalar>
+        where
+            Underlying: Vector<Scalar = Scalar>,
+            Scalar: Copy,
+        {
+            type Scalar = Scalar;
+            type Feature = <Underlying as Vector>::Feature;
+
+            #[inline]
+            fn splat(feature: Self::Feature, from: Self::Scalar) -> Self {
+                Self([Underlying::splat(feature, from); $size_lit], PhantomData)
+            }
+        }
+
         impl<Underlying, Scalar> AsRef<[Scalar]> for $type<Underlying, Scalar>
         where
             Underlying: Vector<Scalar = Scalar>,
@@ -226,6 +169,6 @@ macro_rules! implement {
     };
 }
 
-implement! { Shim2 }
-implement! { Shim4 }
-implement! { Shim8 }
+implement! { Shim2, 2, "2" }
+implement! { Shim4, 4, "4" }
+implement! { Shim8, 8, "8" }
