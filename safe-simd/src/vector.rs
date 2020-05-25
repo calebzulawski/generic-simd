@@ -1,13 +1,15 @@
 //! Vector type interfaces.
 
+use arch_types::{
+    marker::{Identity, Superset},
+    Features,
+};
 use core::ops::{
     Add, AddAssign, Deref, DerefMut, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign,
 };
 
-pub use arch_types::Features;
-
 /// Operations using the native vector type for a CPU feature.
-pub trait Native<T>: Features
+pub trait Native<T>: Features + Identity
 where
     T: Copy,
 {
@@ -81,7 +83,7 @@ pub unsafe trait Vector: Copy {
     type Scalar: Copy;
 
     /// The feature required to use this vector type.
-    type Feature: arch_types::Features;
+    type Feature: Features + Identity;
 
     /// The number of elements in the vector.
     const WIDTH: usize = core::mem::size_of::<Self>() / core::mem::size_of::<Self::Scalar>();
@@ -104,7 +106,7 @@ pub unsafe trait Vector: Copy {
     /// * `from` must point to an array of length at least `WIDTH`.
     #[inline]
     unsafe fn read_ptr(
-        #[allow(unused_variables)] feature: Self::Feature,
+        #[allow(unused_variables)] feature: impl Superset<Self::Feature>,
         from: *const Self::Scalar,
     ) -> Self {
         (from as *const Self).read_unaligned()
@@ -115,7 +117,7 @@ pub unsafe trait Vector: Copy {
     /// # Safety
     /// * `from` be length at least `WIDTH`.
     #[inline]
-    unsafe fn read_unchecked(feature: Self::Feature, from: &[Self::Scalar]) -> Self {
+    unsafe fn read_unchecked(feature: impl Superset<Self::Feature>, from: &[Self::Scalar]) -> Self {
         Self::read_ptr(feature, from.as_ptr())
     }
 
@@ -124,7 +126,7 @@ pub unsafe trait Vector: Copy {
     /// # Panic
     /// Panics if the length of `from` is less than `WIDTH`.
     #[inline]
-    fn read(feature: Self::Feature, from: &[Self::Scalar]) -> Self {
+    fn read(feature: impl Superset<Self::Feature>, from: &[Self::Scalar]) -> Self {
         assert!(
             from.len() >= Self::WIDTH,
             "source not larget enough to load vector"

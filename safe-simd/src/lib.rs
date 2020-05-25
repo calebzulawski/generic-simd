@@ -1,5 +1,8 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
+#[doc(hidden)]
+pub use arch_types;
+
 pub use safe_simd_macros::dispatch;
 
 pub mod shim;

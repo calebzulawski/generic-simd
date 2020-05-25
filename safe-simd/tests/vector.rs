@@ -1,8 +1,9 @@
+use arch_types::Features;
 use num_complex::{Complex, ComplexDistribution};
 use num_traits::Num;
 use rand::distributions::Standard;
 use rand::prelude::*;
-use safe_simd::vector::{Features, Native, Signed, Vector};
+use safe_simd::vector::{Native, Signed, Vector};
 
 #[inline]
 fn unary_op_impl<T, D, F, VFunc, SFunc>(
