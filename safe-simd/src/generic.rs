@@ -1,7 +1,8 @@
 //! Generic vector types for any platform.
 
-use crate::vector::{Native, Vector};
-use arch_types::Features;
+use crate::shim::{Shim2, Shim4, Shim8};
+use crate::vector::{Handle, Native, Vector};
+use arch_types::{marker::Superset, Features};
 use num_complex::Complex;
 
 arch_types::new_features_type! { #[doc = "A generic instruction set handle supported by all CPUs."] pub Generic => }
@@ -43,6 +44,58 @@ impl Native<Complex<f64>> for Generic {
     type Vector = cf64x1;
 }
 
+impl Handle<f32> for Generic {
+    type FeatureNative = Generic;
+    type Feature1 = Generic;
+    type Feature2 = Generic;
+    type Feature4 = Generic;
+    type Feature8 = Generic;
+    type VectorNative = f32x1;
+    type Vector1 = f32x1;
+    type Vector2 = Shim2<f32x1, f32>;
+    type Vector4 = Shim4<f32x1, f32>;
+    type Vector8 = Shim8<f32x1, f32>;
+}
+
+impl Handle<f64> for Generic {
+    type FeatureNative = Generic;
+    type Feature1 = Generic;
+    type Feature2 = Generic;
+    type Feature4 = Generic;
+    type Feature8 = Generic;
+    type VectorNative = f64x1;
+    type Vector1 = f64x1;
+    type Vector2 = Shim2<f64x1, f64>;
+    type Vector4 = Shim4<f64x1, f64>;
+    type Vector8 = Shim8<f64x1, f64>;
+}
+
+impl Handle<Complex<f32>> for Generic {
+    type FeatureNative = Generic;
+    type Feature1 = Generic;
+    type Feature2 = Generic;
+    type Feature4 = Generic;
+    type Feature8 = Generic;
+    type VectorNative = cf32x1;
+    type Vector1 = cf32x1;
+    type Vector2 = Shim2<cf32x1, Complex<f32>>;
+    type Vector4 = Shim4<cf32x1, Complex<f32>>;
+    type Vector8 = Shim8<cf32x1, Complex<f32>>;
+}
+
+impl Handle<Complex<f64>> for Generic {
+    type FeatureNative = Generic;
+    type Feature1 = Generic;
+    type Feature2 = Generic;
+    type Feature4 = Generic;
+    type Feature8 = Generic;
+    type VectorNative = cf64x1;
+    type Vector1 = cf64x1;
+    type Vector2 = Shim2<cf64x1, Complex<f64>>;
+    type Vector4 = Shim4<cf64x1, Complex<f64>>;
+    type Vector8 = Shim8<cf64x1, Complex<f64>>;
+}
+
 macro_rules! implement {
     {
         $vector:ty, $scalar:ty
@@ -71,7 +124,7 @@ macro_rules! implement {
             type Feature = Generic;
 
             #[inline]
-            fn splat(_: Self::Feature, from: Self::Scalar) -> Self
+            fn splat(_: impl Superset<Self::Feature>, from: Self::Scalar) -> Self
             {
                 Self(from)
             }

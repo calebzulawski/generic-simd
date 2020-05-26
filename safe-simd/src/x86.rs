@@ -1,7 +1,8 @@
 //! x86/x86-64 vector types.
 
-use crate::vector::{Native, Vector};
-use arch_types::Features;
+use crate::shim::{Shim2, Shim4, Shim8};
+use crate::vector::{Handle, Native, Vector};
+use arch_types::{marker::Superset, Features};
 
 #[cfg(target_arch = "x86")]
 use core::arch::x86::*;
@@ -10,8 +11,8 @@ use core::arch::x86_64::*;
 
 use num_complex::Complex;
 
-arch_types::new_features_type! { #[doc = "SSE instruction set handle."] pub Sse => "sse3" }
-arch_types::new_features_type! { #[doc = "AVX instruction set handle."] pub Avx => "avx" }
+arch_types::new_features_type! { #[doc = "SSE instruction set handle."] pub Sse => "sse", "sse3" }
+arch_types::new_features_type! { #[doc = "AVX instruction set handle."] pub Avx => "sse", "sse3", "avx" }
 
 /// An SSE vector of `f32`s.
 #[derive(Clone, Copy, Debug)]
@@ -85,6 +86,110 @@ impl Native<Complex<f32>> for Avx {
 }
 impl Native<Complex<f64>> for Avx {
     type Vector = cf64x2;
+}
+
+impl Handle<f32> for Sse {
+    type FeatureNative = Sse;
+    type Feature1 = crate::generic::Generic;
+    type Feature2 = crate::generic::Generic;
+    type Feature4 = Sse;
+    type Feature8 = Sse;
+    type VectorNative = f32x4;
+    type Vector1 = crate::generic::f32x1;
+    type Vector2 = Shim2<crate::generic::f32x1, f32>;
+    type Vector4 = f32x4;
+    type Vector8 = Shim2<f32x4, f32>;
+}
+
+impl Handle<f64> for Sse {
+    type FeatureNative = Sse;
+    type Feature1 = crate::generic::Generic;
+    type Feature2 = Sse;
+    type Feature4 = Sse;
+    type Feature8 = Sse;
+    type VectorNative = f64x2;
+    type Vector1 = crate::generic::f64x1;
+    type Vector2 = f64x2;
+    type Vector4 = Shim2<f64x2, f64>;
+    type Vector8 = Shim4<f64x2, f64>;
+}
+
+impl Handle<Complex<f32>> for Sse {
+    type FeatureNative = Sse;
+    type Feature1 = crate::generic::Generic;
+    type Feature2 = Sse;
+    type Feature4 = Sse;
+    type Feature8 = Sse;
+    type VectorNative = cf32x2;
+    type Vector1 = crate::generic::cf32x1;
+    type Vector2 = cf32x2;
+    type Vector4 = Shim2<cf32x2, Complex<f32>>;
+    type Vector8 = Shim4<cf32x2, Complex<f32>>;
+}
+
+impl Handle<Complex<f64>> for Sse {
+    type FeatureNative = Sse;
+    type Feature1 = Sse;
+    type Feature2 = Sse;
+    type Feature4 = Sse;
+    type Feature8 = Sse;
+    type VectorNative = cf64x1;
+    type Vector1 = cf64x1;
+    type Vector2 = Shim2<cf64x1, Complex<f64>>;
+    type Vector4 = Shim4<cf64x1, Complex<f64>>;
+    type Vector8 = Shim8<cf64x1, Complex<f64>>;
+}
+
+impl Handle<f32> for Avx {
+    type FeatureNative = Avx;
+    type Feature1 = crate::generic::Generic;
+    type Feature2 = crate::generic::Generic;
+    type Feature4 = Sse;
+    type Feature8 = Avx;
+    type VectorNative = f32x8;
+    type Vector1 = crate::generic::f32x1;
+    type Vector2 = Shim2<crate::generic::f32x1, f32>;
+    type Vector4 = f32x4;
+    type Vector8 = f32x8;
+}
+
+impl Handle<f64> for Avx {
+    type FeatureNative = Avx;
+    type Feature1 = crate::generic::Generic;
+    type Feature2 = Sse;
+    type Feature4 = Avx;
+    type Feature8 = Avx;
+    type VectorNative = f64x4;
+    type Vector1 = crate::generic::f64x1;
+    type Vector2 = f64x2;
+    type Vector4 = f64x4;
+    type Vector8 = Shim2<f64x4, f64>;
+}
+
+impl Handle<Complex<f32>> for Avx {
+    type FeatureNative = Avx;
+    type Feature1 = crate::generic::Generic;
+    type Feature2 = Sse;
+    type Feature4 = Avx;
+    type Feature8 = Avx;
+    type VectorNative = cf32x4;
+    type Vector1 = crate::generic::cf32x1;
+    type Vector2 = cf32x2;
+    type Vector4 = cf32x4;
+    type Vector8 = Shim2<cf32x4, Complex<f32>>;
+}
+
+impl Handle<Complex<f64>> for Avx {
+    type FeatureNative = Avx;
+    type Feature1 = Sse;
+    type Feature2 = Avx;
+    type Feature4 = Avx;
+    type Feature8 = Avx;
+    type VectorNative = cf64x2;
+    type Vector1 = cf64x1;
+    type Vector2 = cf64x2;
+    type Vector4 = Shim2<cf64x2, Complex<f64>>;
+    type Vector8 = Shim4<cf64x2, Complex<f64>>;
 }
 
 arithmetic_ops! {
@@ -324,7 +429,7 @@ unsafe impl Vector for f32x4 {
     type Feature = Sse;
 
     #[inline]
-    fn splat(_: Self::Feature, from: Self::Scalar) -> Self {
+    fn splat(_: impl Superset<Self::Feature>, from: Self::Scalar) -> Self {
         Self(unsafe { _mm_set1_ps(from) })
     }
 }
@@ -335,7 +440,7 @@ unsafe impl Vector for f64x2 {
     type Feature = Sse;
 
     #[inline]
-    fn splat(_: Self::Feature, from: Self::Scalar) -> Self {
+    fn splat(_: impl Superset<Self::Feature>, from: Self::Scalar) -> Self {
         Self(unsafe { _mm_set1_pd(from) })
     }
 }
@@ -346,7 +451,7 @@ unsafe impl Vector for cf32x2 {
     type Feature = Sse;
 
     #[inline]
-    fn splat(_: Self::Feature, from: Self::Scalar) -> Self {
+    fn splat(_: impl Superset<Self::Feature>, from: Self::Scalar) -> Self {
         Self(unsafe { _mm_set_ps(from.im, from.re, from.im, from.re) })
     }
 }
@@ -357,7 +462,7 @@ unsafe impl Vector for cf64x1 {
     type Feature = Sse;
 
     #[inline]
-    fn splat(_: Self::Feature, from: Self::Scalar) -> Self {
+    fn splat(_: impl Superset<Self::Feature>, from: Self::Scalar) -> Self {
         Self(unsafe { _mm_set_pd(from.im, from.re) })
     }
 }
@@ -368,7 +473,7 @@ unsafe impl Vector for f32x8 {
     type Feature = Avx;
 
     #[inline]
-    fn splat(_: Self::Feature, from: Self::Scalar) -> Self {
+    fn splat(_: impl Superset<Self::Feature>, from: Self::Scalar) -> Self {
         Self(unsafe { _mm256_set1_ps(from) })
     }
 }
@@ -379,7 +484,7 @@ unsafe impl Vector for f64x4 {
     type Feature = Avx;
 
     #[inline]
-    fn splat(_: Self::Feature, from: Self::Scalar) -> Self {
+    fn splat(_: impl Superset<Self::Feature>, from: Self::Scalar) -> Self {
         Self(unsafe { _mm256_set1_pd(from) })
     }
 }
@@ -390,7 +495,7 @@ unsafe impl Vector for cf32x4 {
     type Feature = Avx;
 
     #[inline]
-    fn splat(_: Self::Feature, from: Self::Scalar) -> Self {
+    fn splat(_: impl Superset<Self::Feature>, from: Self::Scalar) -> Self {
         unsafe {
             Self(_mm256_setr_ps(
                 from.re, from.im, from.re, from.im, from.re, from.im, from.re, from.im,
@@ -405,7 +510,7 @@ unsafe impl Vector for cf64x2 {
     type Feature = Avx;
 
     #[inline]
-    fn splat(_: Self::Feature, from: Self::Scalar) -> Self {
+    fn splat(_: impl Superset<Self::Feature>, from: Self::Scalar) -> Self {
         Self(unsafe { _mm256_setr_pd(from.re, from.im, from.re, from.im) })
     }
 }

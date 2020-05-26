@@ -1,12 +1,79 @@
 //! Vector type interfaces.
 
 use arch_types::{
-    marker::{Identity, Superset},
+    marker::{Identity, Subset, Superset},
     Features,
 };
 use core::ops::{
     Add, AddAssign, Deref, DerefMut, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign,
 };
+
+macro_rules! handle_impl {
+    {
+        $width:literal, $feature:ident, $vector:ident, $read_ptr:ident, $read_unchecked:ident, $read:ident, $zeroed:ident, $splat:ident
+    } => {
+        #[doc = "Feature for creating vectors with "]
+        #[doc = $width]
+        #[doc = "."]
+        type $feature: Features + Identity + Subset<Self>;
+
+        #[doc = "Vector with "]
+        #[doc = $width]
+        #[doc = "."]
+        type $vector: Vector<Scalar = Scalar, Feature = Self::$feature>;
+
+        #[doc = "Read a vector with "]
+        #[doc = $width]
+        #[doc = " from a pointer."]
+        #[inline]
+        unsafe fn $read_ptr(self, from: *const Scalar) -> Self::$vector {
+            Self::$vector::read_ptr(self, from)
+        }
+
+        #[doc = "Read a vector with "]
+        #[doc = $width]
+        #[doc = " from a slice without checking the length."]
+        #[inline]
+        unsafe fn $read_unchecked(self, from: &[Scalar]) -> Self::$vector {
+            Self::$vector::read_unchecked(self, from)
+        }
+
+        #[doc = "Read a vector with "]
+        #[doc = $width]
+        #[doc = " from a slice."]
+        #[inline]
+        fn $read(self, from: &[Scalar]) -> Self::$vector {
+            Self::$vector::read(self, from)
+        }
+
+        #[doc = "Create a vector with "]
+        #[doc = $width]
+        #[doc = " set to zero."]
+        #[inline]
+        fn $zeroed(self) -> Self::$vector {
+           Self::$vector::zeroed(self)
+        }
+
+        #[doc = "Splat a scalar to "]
+        #[doc = $width]
+        #[doc = "."]
+        #[inline]
+        fn $splat(self, scalar: Scalar) -> Self::$vector {
+            Self::$vector::splat(self, scalar)
+        }
+    }
+}
+
+pub trait Handle<Scalar>: Features + Identity
+where
+    Scalar: Copy,
+{
+    handle_impl! { "the native number of lanes", FeatureNative, VectorNative, read_native_ptr, read_native_unchecked, read_native, zeroed_native, splat_native }
+    handle_impl! { "1 lane",  Feature1, Vector1, read1_ptr, read1_unchecked, read1, zeroed1, splat1 }
+    handle_impl! { "2 lanes", Feature2, Vector2, read2_ptr, read2_unchecked, read2, zeroed2, splat2 }
+    handle_impl! { "4 lanes", Feature4, Vector4, read4_ptr, read4_unchecked, read4, zeroed4, splat4 }
+    handle_impl! { "8 lanes", Feature8, Vector8, read8_ptr, read8_unchecked, read8, zeroed8, splat8 }
+}
 
 /// Operations using the native vector type for a CPU feature.
 pub trait Native<T>: Features + Identity
@@ -66,11 +133,6 @@ where
     ) -> crate::slice::OverlappingMut<'_, Self::Vector> {
         crate::slice::OverlappingMut::new(self, slice)
     }
-}
-
-pub trait Feature:
-    Native<f32> + Native<f64> + Native<num_complex::Complex<f32>> + Native<num_complex::Complex<f64>>
-{
 }
 
 /// The fundamental vector type.
@@ -167,12 +229,12 @@ pub unsafe trait Vector: Copy {
 
     /// Create a new vector with each lane containing zeroes.
     #[inline]
-    fn zeroed(#[allow(unused_variables)] feature: Self::Feature) -> Self {
+    fn zeroed(#[allow(unused_variables)] feature: impl Superset<Self::Feature>) -> Self {
         unsafe { core::mem::zeroed() }
     }
 
     /// Create a new vector with each lane containing the provided value.
-    fn splat(feature: Self::Feature, from: Self::Scalar) -> Self;
+    fn splat(feature: impl Superset<Self::Feature>, from: Self::Scalar) -> Self;
 }
 
 /// A supertrait for vectors supporting typical operations.

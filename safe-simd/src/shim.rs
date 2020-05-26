@@ -1,4 +1,7 @@
+//! Shims for unsupported vector widths.
+
 use crate::vector::{Complex, Vector};
+use arch_types::marker::Superset;
 use core::marker::PhantomData;
 
 macro_rules! implement {
@@ -20,7 +23,7 @@ macro_rules! implement {
             type Feature = <Underlying as Vector>::Feature;
 
             #[inline]
-            fn splat(feature: Self::Feature, from: Self::Scalar) -> Self {
+            fn splat(feature: impl Superset<Self::Feature>, from: Self::Scalar) -> Self {
                 Self([Underlying::splat(feature, from); $size_lit], PhantomData)
             }
         }
