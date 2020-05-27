@@ -3,53 +3,47 @@ use num_complex::{Complex, ComplexDistribution};
 use num_traits::Num;
 use rand::distributions::Standard;
 use rand::prelude::*;
-use safe_simd::vector::{Native, Signed, Vector};
+use safe_simd::vector::{Handle, Signed, Vector};
 
 #[inline]
-fn unary_op_impl<T, D, F, VFunc, SFunc>(
+fn unary_op_impl<T, D, V, VFunc, SFunc>(
     _tag: T,
     distribution: D,
-    feature: F,
+    mut vector: V,
     vfunc: VFunc,
     sfunc: SFunc,
 ) where
     T: Num + core::ops::Neg<Output = T> + core::fmt::Debug + Copy,
     D: rand::distributions::Distribution<T> + Copy,
-    F: Features + Native<T>,
-    F::Vector: Signed<T>,
-    VFunc: Fn(F::Vector) -> F::Vector,
+    V: Vector<Scalar = T> + Signed<T>,
+    VFunc: Fn(V) -> V,
     SFunc: Fn(T) -> T,
 {
-    let mut input = F::Vector::zeroed(feature);
     let mut rng = rand::thread_rng();
-    for x in input.as_slice_mut() {
+    for x in vector.as_slice_mut() {
         *x = rng.sample(distribution);
     }
 
-    let output = vfunc(input);
-    for i in 0..F::Vector::WIDTH {
-        assert_eq!(output[i], sfunc(input[i]))
+    let output = vfunc(vector);
+    for i in 0..V::WIDTH {
+        assert_eq!(output[i], sfunc(vector[i]))
     }
 }
 
 #[inline]
-fn binary_op_impl<T, D, F, VFunc, SFunc>(
+fn binary_op_impl<T, D, V, VFunc, SFunc>(
     _tag: T,
     distribution: D,
-    feature: F,
+    (mut a, mut b): (V, V),
     vfunc: VFunc,
     sfunc: SFunc,
 ) where
     T: Num + core::ops::Neg<Output = T> + core::fmt::Debug + Copy,
     D: rand::distributions::Distribution<T> + Copy,
-    F: Features + Native<T>,
-    F::Vector: Signed<T>,
-    VFunc: Fn(F::Vector, F::Vector) -> F::Vector,
+    V: Vector<Scalar = T> + Signed<T>,
+    VFunc: Fn(V, V) -> V,
     SFunc: Fn(T, T) -> T,
 {
-    let mut a = F::Vector::zeroed(feature);
-    let mut b = F::Vector::zeroed(feature);
-
     let mut rng = rand::thread_rng();
     for x in a.as_slice_mut() {
         *x = rng.sample(distribution);
@@ -59,57 +53,51 @@ fn binary_op_impl<T, D, F, VFunc, SFunc>(
     }
 
     let output = vfunc(a, b);
-    for i in 0..F::Vector::WIDTH {
+    for i in 0..V::WIDTH {
         assert_eq!(output[i], sfunc(a[i], b[i]))
     }
 }
 
 #[inline]
-fn binary_scalar_op_impl<T, D, F, VFunc, SFunc>(
+fn binary_scalar_op_impl<T, D, V, VFunc, SFunc>(
     _tag: T,
     distribution: D,
-    feature: F,
+    mut a: V,
     vfunc: VFunc,
     sfunc: SFunc,
 ) where
     T: Num + core::ops::Neg<Output = T> + core::fmt::Debug + Copy,
     D: rand::distributions::Distribution<T> + Copy,
-    F: Features + Native<T>,
-    F::Vector: Signed<T>,
-    VFunc: Fn(F::Vector, T) -> F::Vector,
+    V: Vector<Scalar = T> + Signed<T>,
+    VFunc: Fn(V, T) -> V,
     SFunc: Fn(T, T) -> T,
 {
     let mut rng = rand::thread_rng();
-    let mut a = F::Vector::zeroed(feature);
     let b = rng.sample(distribution);
     for x in a.as_slice_mut() {
         *x = rng.sample(distribution);
     }
 
     let output = vfunc(a, b);
-    for i in 0..F::Vector::WIDTH {
+    for i in 0..V::WIDTH {
         assert_eq!(output[i], sfunc(a[i], b))
     }
 }
 
 #[inline]
-fn assign_op_impl<T, D, F, VFunc, SFunc>(
+fn assign_op_impl<T, D, V, VFunc, SFunc>(
     _tag: T,
     distribution: D,
-    feature: F,
+    (mut a, mut b): (V, V),
     vfunc: VFunc,
     sfunc: SFunc,
 ) where
     T: Num + core::ops::Neg<Output = T> + core::fmt::Debug + Copy,
     D: rand::distributions::Distribution<T> + Copy,
-    F: Features + Native<T>,
-    F::Vector: Signed<T>,
-    VFunc: Fn(&mut F::Vector, F::Vector),
+    V: Vector<Scalar = T> + Signed<T>,
+    VFunc: Fn(&mut V, V),
     SFunc: Fn(&mut T, T),
 {
-    let mut a = F::Vector::zeroed(feature);
-    let mut b = F::Vector::zeroed(feature);
-
     let mut rng = rand::thread_rng();
     for x in a.as_slice_mut() {
         *x = rng.sample(distribution);
@@ -120,29 +108,27 @@ fn assign_op_impl<T, D, F, VFunc, SFunc>(
 
     let mut output = a.clone();
     vfunc(&mut output, b);
-    for i in 0..F::Vector::WIDTH {
+    for i in 0..V::WIDTH {
         sfunc(&mut a[i], b[i]);
         assert_eq!(output[i], a[i])
     }
 }
 
 #[inline]
-fn assign_scalar_op_impl<T, D, F, VFunc, SFunc>(
+fn assign_scalar_op_impl<T, D, V, VFunc, SFunc>(
     _tag: T,
     distribution: D,
-    feature: F,
+    mut a: V,
     vfunc: VFunc,
     sfunc: SFunc,
 ) where
     T: Num + core::ops::Neg<Output = T> + core::fmt::Debug + Copy,
     D: rand::distributions::Distribution<T> + Copy,
-    F: Features + Native<T>,
-    F::Vector: Signed<T>,
-    VFunc: Fn(&mut F::Vector, T),
+    V: Vector<Scalar = T> + Signed<T>,
+    VFunc: Fn(&mut V, T),
     SFunc: Fn(&mut T, T),
 {
     let mut rng = rand::thread_rng();
-    let mut a = F::Vector::zeroed(feature);
     let b = rng.sample(distribution);
     for x in a.as_slice_mut() {
         *x = rng.sample(distribution);
@@ -150,7 +136,7 @@ fn assign_scalar_op_impl<T, D, F, VFunc, SFunc>(
 
     let mut output = a.clone();
     vfunc(&mut output, b);
-    for i in 0..F::Vector::WIDTH {
+    for i in 0..V::WIDTH {
         sfunc(&mut a[i], b);
         assert_eq!(output[i], a[i])
     }
@@ -186,10 +172,44 @@ macro_rules! ops_test {
     {
         @impl $test:ident, $handle:ident, $func:path
     } => {
-        $test(0f32, Standard, $handle, $func, $func);
-        $test(0f64, Standard, $handle, $func, $func);
-        $test(Complex::<f32>::default(), ComplexDistribution::new(Standard, Standard), $handle, $func, $func);
-        $test(Complex::<f64>::default(), ComplexDistribution::new(Standard, Standard), $handle, $func, $func);
+        ops_test!{@types $test, $handle, zeroed_native, $func}
+        ops_test!{@types $test, $handle, zeroed1, $func}
+        ops_test!{@types $test, $handle, zeroed2, $func}
+        ops_test!{@types $test, $handle, zeroed4, $func}
+        ops_test!{@types $test, $handle, zeroed8, $func}
+    };
+    {
+        @types $test:ident, $handle:ident, $init:ident, $func:path
+    } => {
+        $test(0f32, Standard, ops_test!(@init $test, f32, $handle, $init), $func, $func);
+        $test(0f64, Standard, ops_test!(@init $test, f64, $handle, $init), $func, $func);
+        $test(Complex::<f32>::default(), ComplexDistribution::new(Standard, Standard), ops_test!(@init $test, Complex<f32>, $handle, $init), $func, $func);
+        $test(Complex::<f64>::default(), ComplexDistribution::new(Standard, Standard), ops_test!(@init $test, Complex<f64>, $handle, $init), $func, $func);
+    };
+    {
+        @init unary_op_impl, $type:ty, $handle:ident, $init:ident
+    } => {
+        Handle::<$type>::$init($handle)
+    };
+    {
+        @init binary_op_impl, $type:ty, $handle:ident, $init:ident
+    } => {
+        (Handle::<$type>::$init($handle), Handle::<$type>::$init($handle))
+    };
+    {
+        @init binary_scalar_op_impl, $type:ty, $handle:ident, $init:ident
+    } => {
+        Handle::<$type>::$init($handle)
+    };
+    {
+        @init assign_op_impl, $type:ty, $handle:ident, $init:ident
+    } => {
+        (Handle::<$type>::$init($handle), Handle::<$type>::$init($handle))
+    };
+    {
+        @init assign_scalar_op_impl, $type:ty, $handle:ident, $init:ident
+    } => {
+        Handle::<$type>::$init($handle)
     };
 }
 

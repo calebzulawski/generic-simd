@@ -1,4 +1,4 @@
-use safe_simd::vector::Native;
+use safe_simd::vector::Handle;
 
 #[safe_simd::dispatch(feature)]
 pub fn add_one_aligned(x: &mut [f32]) {

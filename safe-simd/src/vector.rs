@@ -10,7 +10,18 @@ use core::ops::{
 
 macro_rules! handle_impl {
     {
-        $width:literal, $feature:ident, $vector:ident, $read_ptr:ident, $read_unchecked:ident, $read:ident, $zeroed:ident, $splat:ident
+        $width:literal,
+        $feature:ident,
+        $vector:ident,
+        $read_ptr:ident,
+        $read_unchecked:ident,
+        $read:ident,
+        $zeroed:ident,
+        $splat:ident,
+        $align:ident,
+        $align_mut:ident,
+        $overlapping:ident,
+        $overlapping_mut:ident
     } => {
         #[doc = "Feature for creating vectors with "]
         #[doc = $width]
@@ -61,78 +72,133 @@ macro_rules! handle_impl {
         fn $splat(self, scalar: Scalar) -> Self::$vector {
             Self::$vector::splat(self, scalar)
         }
+
+        #[doc = "Align a slice of scalars to vectors with "]
+        #[doc = $width]
+        #[doc = ".\n\nSee [`align`](../slice/fn.align.html)."]
+        #[inline]
+        fn $align(self, slice: &[Scalar]) -> (&[Scalar], &[Self::$vector], &[Scalar]) {
+            let shrank: Self::$feature = self.shrink().unwrap(); // coerce type
+            crate::slice::align(shrank, slice)
+        }
+
+        #[doc = "Align a slice of scalars to vectors with "]
+        #[doc = $width]
+        #[doc = ".\n\nSee [`align`](../slice/fn.align.html)."]
+        #[inline]
+        fn $align_mut(self, slice: &mut [Scalar]) -> (&mut [Scalar], &mut [Self::$vector], &mut [Scalar]) {
+            let shrank: Self::$feature = self.shrink().unwrap(); // coerce type
+            crate::slice::align_mut(shrank, slice)
+        }
+
+        #[doc = "Create a slice of overlapping vectors of "]
+        #[doc = $width]
+        #[doc = "from a slice of scalars.\n\nSee [`overlapping`](../slice/fn.overlapping.html)."]
+        #[inline]
+        fn $overlapping(self, slice: &[Scalar]) -> crate::slice::Overlapping<'_, Self::$vector> {
+            let shrank: Self::$feature = self.shrink().unwrap(); // coerce type
+            crate::slice::Overlapping::new(shrank, slice)
+        }
+
+        #[doc = "Create a mutable slice of overlapping vectors of "]
+        #[doc = $width]
+        #[doc = "from a slice of scalars.\n\nSee [`overlapping_mut`](../slice/fn.overlapping_mut.html)."]
+        #[inline]
+        fn $overlapping_mut(
+            self,
+            slice: &mut [Scalar],
+        ) -> crate::slice::OverlappingMut<'_, Self::$vector> {
+            let shrank: Self::$feature = self.shrink().unwrap(); // coerce type
+            crate::slice::OverlappingMut::new(shrank, slice)
+        }
     }
 }
 
+/// Indicates the fastest feature sets for a feature set.
 pub trait Handle<Scalar>: Features + Identity
 where
     Scalar: Copy,
 {
-    handle_impl! { "the native number of lanes", FeatureNative, VectorNative, read_native_ptr, read_native_unchecked, read_native, zeroed_native, splat_native }
-    handle_impl! { "1 lane",  Feature1, Vector1, read1_ptr, read1_unchecked, read1, zeroed1, splat1 }
-    handle_impl! { "2 lanes", Feature2, Vector2, read2_ptr, read2_unchecked, read2, zeroed2, splat2 }
-    handle_impl! { "4 lanes", Feature4, Vector4, read4_ptr, read4_unchecked, read4, zeroed4, splat4 }
-    handle_impl! { "8 lanes", Feature8, Vector8, read8_ptr, read8_unchecked, read8, zeroed8, splat8 }
-}
+    /// The native vector type.
+    type VectorNative: Vector<Scalar = Scalar, Feature = Self>;
 
-/// Operations using the native vector type for a CPU feature.
-pub trait Native<T>: Features + Identity
-where
-    T: Copy,
-{
-    /// The widest vector available
-    type Vector: Vector<Scalar = T, Feature = Self>;
-
-    /// Splat a scalar to the native vector.
-    ///
-    /// See [`splat`](trait.Vector.html#tymethod.splat).
+    /// Read the native vector from a pointer.
     #[inline]
-    fn splat_native(self, scalar: T) -> Self::Vector {
-        Self::Vector::splat(self, scalar)
+    unsafe fn read_native_ptr(self, from: *const Scalar) -> Self::VectorNative {
+        Self::VectorNative::read_ptr(self, from)
     }
 
-    /// Create a zeroed copy of the native vector.
-    ///
-    /// See [`zeroed`](trait.Vector.html#tymethod.zeroed).
+    /// Read the native vector from a slice without checking the length.
     #[inline]
-    fn zeroed_native(self) -> Self::Vector {
-        Self::Vector::zeroed(self)
+    unsafe fn read_native_unchecked(self, from: &[Scalar]) -> Self::VectorNative {
+        Self::VectorNative::read_unchecked(self, from)
     }
 
-    /// Align a slice of scalars to the native vector.
+    /// Read the native vector from a slice.
+    #[inline]
+    fn read_native(self, from: &[Scalar]) -> Self::VectorNative {
+        Self::VectorNative::read(self, from)
+    }
+
+    /// Create a native vector set to zero.
+    #[inline]
+    fn zeroed_native(self) -> Self::VectorNative {
+        Self::VectorNative::zeroed(self)
+    }
+
+    /// Splat a scalar to a native vector.
+    #[inline]
+    fn splat_native(self, scalar: Scalar) -> Self::VectorNative {
+        Self::VectorNative::splat(self, scalar)
+    }
+
+    /// Align a slice of scalars to native vectors.
     ///
     /// See [`align`](../slice/fn.align.html).
     #[inline]
-    fn align_native(self, slice: &[T]) -> (&[T], &[Self::Vector], &[T]) {
+    fn align_native(self, slice: &[Scalar]) -> (&[Scalar], &[Self::VectorNative], &[Scalar]) {
         crate::slice::align(self, slice)
     }
 
-    /// Align a mutable slice of scalars to the native vector.
+    /// Align a slice of scalars to native vectors.
     ///
-    /// See [`align_mut`](../slice/fn.align_mut.html).
+    /// See [`align`](../slice/fn.align.html).
     #[inline]
-    fn align_native_mut(self, slice: &mut [T]) -> (&mut [T], &mut [Self::Vector], &mut [T]) {
+    fn align_native_mut(
+        self,
+        slice: &mut [Scalar],
+    ) -> (&mut [Scalar], &mut [Self::VectorNative], &mut [Scalar]) {
         crate::slice::align_mut(self, slice)
     }
 
-    /// Create a slice of overlapping vectors from a slice of scalars.
+    /// Create a slice of overlapping native vectors from a slice of scalars.
+    ///
     ///
     /// See [`overlapping`](../slice/fn.overlapping.html).
     #[inline]
-    fn overlapping_native(self, slice: &[T]) -> crate::slice::Overlapping<'_, Self::Vector> {
+    fn overlapping_native(
+        self,
+        slice: &[Scalar],
+    ) -> crate::slice::Overlapping<'_, Self::VectorNative> {
         crate::slice::Overlapping::new(self, slice)
     }
 
-    /// Create a mutable slice of overlapping vectors from a slice of scalars.
+    /// Create a mutable slice of overlapping native vectors from a slice of scalars.
+    ///
     ///
     /// See [`overlapping_mut`](../slice/fn.overlapping_mut.html).
     #[inline]
     fn overlapping_native_mut(
         self,
-        slice: &mut [T],
-    ) -> crate::slice::OverlappingMut<'_, Self::Vector> {
+        slice: &mut [Scalar],
+    ) -> crate::slice::OverlappingMut<'_, Self::VectorNative> {
         crate::slice::OverlappingMut::new(self, slice)
     }
+
+    handle_impl! { "1 lane",  Feature1, Vector1, read1_ptr, read1_unchecked, read1, zeroed1, splat1, align1, align1_mut, overlapping1, overlapping1_mut }
+    handle_impl! { "2 lanes", Feature2, Vector2, read2_ptr, read2_unchecked, read2, zeroed2, splat2, align2, align2_mut, overlapping2, overlapping2_mut }
+    handle_impl! { "4 lanes", Feature4, Vector4, read4_ptr, read4_unchecked, read4, zeroed4, splat4, align4, align4_mut, overlapping4, overlapping4_mut }
+    handle_impl! { "8 lanes", Feature8, Vector8, read8_ptr, read8_unchecked, read8, zeroed8, splat8, align8, align8_mut, overlapping8, overlapping8_mut }
 }
 
 /// The fundamental vector type.

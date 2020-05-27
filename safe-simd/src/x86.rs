@@ -1,7 +1,7 @@
 //! x86/x86-64 vector types.
 
 use crate::shim::{Shim2, Shim4, Shim8};
-use crate::vector::{Handle, Native, Vector};
+use crate::vector::{Handle, Vector};
 use arch_types::{marker::Superset, Features};
 
 #[cfg(target_arch = "x86")]
@@ -62,39 +62,12 @@ pub struct cf32x4(__m256);
 #[allow(non_camel_case_types)]
 pub struct cf64x2(__m256d);
 
-impl Native<f32> for Sse {
-    type Vector = f32x4;
-}
-impl Native<f64> for Sse {
-    type Vector = f64x2;
-}
-impl Native<Complex<f32>> for Sse {
-    type Vector = cf32x2;
-}
-impl Native<Complex<f64>> for Sse {
-    type Vector = cf64x1;
-}
-
-impl Native<f32> for Avx {
-    type Vector = f32x8;
-}
-impl Native<f64> for Avx {
-    type Vector = f64x4;
-}
-impl Native<Complex<f32>> for Avx {
-    type Vector = cf32x4;
-}
-impl Native<Complex<f64>> for Avx {
-    type Vector = cf64x2;
-}
-
 impl Handle<f32> for Sse {
-    type FeatureNative = Sse;
+    type VectorNative = f32x4;
     type Feature1 = crate::generic::Generic;
     type Feature2 = crate::generic::Generic;
     type Feature4 = Sse;
     type Feature8 = Sse;
-    type VectorNative = f32x4;
     type Vector1 = crate::generic::f32x1;
     type Vector2 = Shim2<crate::generic::f32x1, f32>;
     type Vector4 = f32x4;
@@ -102,12 +75,11 @@ impl Handle<f32> for Sse {
 }
 
 impl Handle<f64> for Sse {
-    type FeatureNative = Sse;
+    type VectorNative = f64x2;
     type Feature1 = crate::generic::Generic;
     type Feature2 = Sse;
     type Feature4 = Sse;
     type Feature8 = Sse;
-    type VectorNative = f64x2;
     type Vector1 = crate::generic::f64x1;
     type Vector2 = f64x2;
     type Vector4 = Shim2<f64x2, f64>;
@@ -115,12 +87,11 @@ impl Handle<f64> for Sse {
 }
 
 impl Handle<Complex<f32>> for Sse {
-    type FeatureNative = Sse;
+    type VectorNative = cf32x2;
     type Feature1 = crate::generic::Generic;
     type Feature2 = Sse;
     type Feature4 = Sse;
     type Feature8 = Sse;
-    type VectorNative = cf32x2;
     type Vector1 = crate::generic::cf32x1;
     type Vector2 = cf32x2;
     type Vector4 = Shim2<cf32x2, Complex<f32>>;
@@ -128,12 +99,11 @@ impl Handle<Complex<f32>> for Sse {
 }
 
 impl Handle<Complex<f64>> for Sse {
-    type FeatureNative = Sse;
+    type VectorNative = cf64x1;
     type Feature1 = Sse;
     type Feature2 = Sse;
     type Feature4 = Sse;
     type Feature8 = Sse;
-    type VectorNative = cf64x1;
     type Vector1 = cf64x1;
     type Vector2 = Shim2<cf64x1, Complex<f64>>;
     type Vector4 = Shim4<cf64x1, Complex<f64>>;
@@ -141,12 +111,11 @@ impl Handle<Complex<f64>> for Sse {
 }
 
 impl Handle<f32> for Avx {
-    type FeatureNative = Avx;
+    type VectorNative = f32x8;
     type Feature1 = crate::generic::Generic;
     type Feature2 = crate::generic::Generic;
     type Feature4 = Sse;
     type Feature8 = Avx;
-    type VectorNative = f32x8;
     type Vector1 = crate::generic::f32x1;
     type Vector2 = Shim2<crate::generic::f32x1, f32>;
     type Vector4 = f32x4;
@@ -154,12 +123,11 @@ impl Handle<f32> for Avx {
 }
 
 impl Handle<f64> for Avx {
-    type FeatureNative = Avx;
+    type VectorNative = f64x4;
     type Feature1 = crate::generic::Generic;
     type Feature2 = Sse;
     type Feature4 = Avx;
     type Feature8 = Avx;
-    type VectorNative = f64x4;
     type Vector1 = crate::generic::f64x1;
     type Vector2 = f64x2;
     type Vector4 = f64x4;
@@ -167,12 +135,11 @@ impl Handle<f64> for Avx {
 }
 
 impl Handle<Complex<f32>> for Avx {
-    type FeatureNative = Avx;
+    type VectorNative = cf32x4;
     type Feature1 = crate::generic::Generic;
     type Feature2 = Sse;
     type Feature4 = Avx;
     type Feature8 = Avx;
-    type VectorNative = cf32x4;
     type Vector1 = crate::generic::cf32x1;
     type Vector2 = cf32x2;
     type Vector4 = cf32x4;
@@ -180,12 +147,11 @@ impl Handle<Complex<f32>> for Avx {
 }
 
 impl Handle<Complex<f64>> for Avx {
-    type FeatureNative = Avx;
+    type VectorNative = cf64x2;
     type Feature1 = Sse;
     type Feature2 = Avx;
     type Feature4 = Avx;
     type Feature8 = Avx;
-    type VectorNative = cf64x2;
     type Vector1 = cf64x1;
     type Vector2 = cf64x2;
     type Vector4 = Shim2<cf64x2, Complex<f64>>;

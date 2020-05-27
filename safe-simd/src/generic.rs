@@ -1,7 +1,7 @@
 //! Generic vector types for any platform.
 
 use crate::shim::{Shim2, Shim4, Shim8};
-use crate::vector::{Handle, Native, Vector};
+use crate::vector::{Handle, Vector};
 use arch_types::{marker::Superset, Features};
 use num_complex::Complex;
 
@@ -31,26 +31,12 @@ pub struct cf32x1(Complex<f32>);
 #[allow(non_camel_case_types)]
 pub struct cf64x1(Complex<f64>);
 
-impl Native<f32> for Generic {
-    type Vector = f32x1;
-}
-impl Native<f64> for Generic {
-    type Vector = f64x1;
-}
-impl Native<Complex<f32>> for Generic {
-    type Vector = cf32x1;
-}
-impl Native<Complex<f64>> for Generic {
-    type Vector = cf64x1;
-}
-
 impl Handle<f32> for Generic {
-    type FeatureNative = Generic;
+    type VectorNative = f32x1;
     type Feature1 = Generic;
     type Feature2 = Generic;
     type Feature4 = Generic;
     type Feature8 = Generic;
-    type VectorNative = f32x1;
     type Vector1 = f32x1;
     type Vector2 = Shim2<f32x1, f32>;
     type Vector4 = Shim4<f32x1, f32>;
@@ -58,12 +44,11 @@ impl Handle<f32> for Generic {
 }
 
 impl Handle<f64> for Generic {
-    type FeatureNative = Generic;
+    type VectorNative = f64x1;
     type Feature1 = Generic;
     type Feature2 = Generic;
     type Feature4 = Generic;
     type Feature8 = Generic;
-    type VectorNative = f64x1;
     type Vector1 = f64x1;
     type Vector2 = Shim2<f64x1, f64>;
     type Vector4 = Shim4<f64x1, f64>;
@@ -71,12 +56,11 @@ impl Handle<f64> for Generic {
 }
 
 impl Handle<Complex<f32>> for Generic {
-    type FeatureNative = Generic;
+    type VectorNative = cf32x1;
     type Feature1 = Generic;
     type Feature2 = Generic;
     type Feature4 = Generic;
     type Feature8 = Generic;
-    type VectorNative = cf32x1;
     type Vector1 = cf32x1;
     type Vector2 = Shim2<cf32x1, Complex<f32>>;
     type Vector4 = Shim4<cf32x1, Complex<f32>>;
@@ -84,12 +68,11 @@ impl Handle<Complex<f32>> for Generic {
 }
 
 impl Handle<Complex<f64>> for Generic {
-    type FeatureNative = Generic;
+    type VectorNative = cf64x1;
     type Feature1 = Generic;
     type Feature2 = Generic;
     type Feature4 = Generic;
     type Feature8 = Generic;
-    type VectorNative = cf64x1;
     type Vector1 = cf64x1;
     type Vector2 = Shim2<cf64x1, Complex<f64>>;
     type Vector4 = Shim4<cf64x1, Complex<f64>>;

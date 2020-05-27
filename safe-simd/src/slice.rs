@@ -1,7 +1,7 @@
 //! Slices of vectors.
 
 use crate::vector::Vector;
-use arch_types::Features;
+use arch_types::{marker::Superset, Features};
 use core::marker::PhantomData;
 
 /// Extract a slice of aligned vectors, as if by [`align_to`].
@@ -9,7 +9,7 @@ use core::marker::PhantomData;
 /// [`align_to`]: https://doc.rust-lang.org/std/primitive.slice.html#method.align_to
 #[inline]
 pub fn align<V>(
-    #[allow(unused_variables)] feature: V::Feature,
+    #[allow(unused_variables)] feature: impl Superset<V::Feature>,
     slice: &[V::Scalar],
 ) -> (&[V::Scalar], &[V], &[V::Scalar])
 where
@@ -23,7 +23,7 @@ where
 /// [`align_to_mut`]: https://doc.rust-lang.org/std/primitive.slice.html#method.align_to_mut
 #[inline]
 pub fn align_mut<V>(
-    #[allow(unused_variables)] feature: V::Feature,
+    #[allow(unused_variables)] feature: impl Superset<V::Feature>,
     slice: &mut [V::Scalar],
 ) -> (&mut [V::Scalar], &mut [V], &mut [V::Scalar])
 where
@@ -34,7 +34,7 @@ where
 
 /// Create a slice of overlapping vectors from a slice of scalars.
 #[inline]
-pub fn overlapping<V>(feature: V::Feature, slice: &[V::Scalar]) -> Overlapping<'_, V>
+pub fn overlapping<V>(feature: impl Superset<V::Feature>, slice: &[V::Scalar]) -> Overlapping<'_, V>
 where
     V: Vector,
 {
@@ -43,7 +43,10 @@ where
 
 /// Create a mutable slice of overlapping vectors from a slice of scalars.
 #[inline]
-pub fn overlapping_mut<V>(feature: V::Feature, slice: &mut [V::Scalar]) -> OverlappingMut<'_, V>
+pub fn overlapping_mut<V>(
+    feature: impl Superset<V::Feature>,
+    slice: &mut [V::Scalar],
+) -> OverlappingMut<'_, V>
 where
     V: Vector,
 {
@@ -64,7 +67,7 @@ impl<'a, V> RefMut<'a, V>
 where
     V: Vector,
 {
-    fn new(feature: V::Feature, source: *mut V::Scalar) -> Self {
+    fn new(feature: impl Superset<V::Feature>, source: *mut V::Scalar) -> Self {
         Self {
             source,
             temp: V::zeroed(feature),
@@ -119,7 +122,10 @@ where
 {
     /// Create a new overlapping vector slice.
     #[inline]
-    pub fn new(#[allow(unused_variables)] feature: V::Feature, slice: &'a [V::Scalar]) -> Self {
+    pub fn new(
+        #[allow(unused_variables)] feature: impl Superset<V::Feature>,
+        slice: &'a [V::Scalar],
+    ) -> Self {
         assert!(
             slice.len() >= V::WIDTH,
             "slice must be at least as wide as the vector"
@@ -178,7 +184,10 @@ where
 {
     /// Create a new overlapping vector slice.
     #[inline]
-    pub fn new(#[allow(unused_variables)] feature: V::Feature, slice: &'a mut [V::Scalar]) -> Self {
+    pub fn new(
+        #[allow(unused_variables)] feature: impl Superset<V::Feature>,
+        slice: &'a mut [V::Scalar],
+    ) -> Self {
         assert!(
             slice.len() >= V::WIDTH,
             "slice must be at least as wide as the vector"
