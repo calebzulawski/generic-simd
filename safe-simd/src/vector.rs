@@ -304,71 +304,64 @@ pub unsafe trait Vector: Copy {
 }
 
 /// A supertrait for vectors supporting typical operations.
-pub trait Ops<T>:
+pub trait Ops:
     Vector
-    + AsRef<[T]>
-    + AsMut<[T]>
-    + Deref<Target = [T]>
+    + AsRef<[<Self as Vector>::Scalar]>
+    + AsMut<[<Self as Vector>::Scalar]>
+    + Deref<Target = [<Self as Vector>::Scalar]>
     + DerefMut
     + Add<Self, Output = Self>
-    + Add<T, Output = Self>
+    + Add<<Self as Vector>::Scalar, Output = Self>
     + AddAssign<Self>
-    + AddAssign<T>
+    + AddAssign<<Self as Vector>::Scalar>
     + Sub<Self, Output = Self>
-    + Sub<T, Output = Self>
+    + Sub<<Self as Vector>::Scalar, Output = Self>
     + SubAssign<Self>
-    + SubAssign<T>
+    + SubAssign<<Self as Vector>::Scalar>
     + Mul<Self, Output = Self>
-    + Mul<T, Output = Self>
+    + Mul<<Self as Vector>::Scalar, Output = Self>
     + MulAssign<Self>
-    + MulAssign<T>
+    + MulAssign<<Self as Vector>::Scalar>
     + Div<Self, Output = Self>
-    + Div<T, Output = Self>
+    + Div<<Self as Vector>::Scalar, Output = Self>
     + DivAssign<Self>
-    + DivAssign<T>
+    + DivAssign<<Self as Vector>::Scalar>
 {
 }
-impl<T, V> Ops<T> for V
-where
-    T: Copy,
-    V: Vector<Scalar = T>
-        + AsRef<[T]>
-        + AsMut<[T]>
-        + Deref<Target = [T]>
+impl<V> Ops for V where
+    V: Vector
+        + AsRef<[<V as Vector>::Scalar]>
+        + AsMut<[<V as Vector>::Scalar]>
+        + Deref<Target = [<V as Vector>::Scalar]>
         + DerefMut
         + Add<V, Output = V>
-        + Add<T, Output = V>
+        + Add<<V as Vector>::Scalar, Output = V>
         + AddAssign<V>
-        + AddAssign<T>
+        + AddAssign<<V as Vector>::Scalar>
         + Sub<V, Output = V>
-        + Sub<T, Output = V>
+        + Sub<<V as Vector>::Scalar, Output = V>
         + SubAssign<V>
-        + SubAssign<T>
+        + SubAssign<<V as Vector>::Scalar>
         + Mul<V, Output = V>
-        + Mul<T, Output = V>
+        + Mul<<V as Vector>::Scalar, Output = V>
         + MulAssign<V>
-        + MulAssign<T>
+        + MulAssign<<V as Vector>::Scalar>
         + Div<V, Output = V>
-        + Div<T, Output = V>
+        + Div<<V as Vector>::Scalar, Output = V>
         + DivAssign<V>
-        + DivAssign<T>,
+        + DivAssign<<V as Vector>::Scalar>
 {
 }
 
 /// A supertrait for vectors that allow arithmetic operations.
-pub trait Signed<T>: Ops<T> + Neg<Output = Self> {}
-impl<T, V> Signed<T> for V
-where
-    T: Copy,
-    V: Ops<T> + Neg<Output = V>,
-{
-}
+pub trait Signed: Ops + Neg<Output = Self> {}
+impl<V> Signed for V where V: Ops + Neg<Output = V> {}
 
 /// Complex valued vectors.
-pub trait Complex<Real>: Signed<num_complex::Complex<Real>>
-where
-    Real: Copy,
-{
+pub trait Complex: Signed {
+    /// The real scalar type.
+    type RealScalar: Copy;
+
     /// Multiply by i.
     fn mul_i(self) -> Self;
 

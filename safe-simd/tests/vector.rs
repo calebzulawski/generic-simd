@@ -3,21 +3,16 @@ use num_complex::{Complex, ComplexDistribution};
 use num_traits::Num;
 use rand::distributions::Standard;
 use rand::prelude::*;
-use safe_simd::vector::{Handle, Signed, Vector};
+use safe_simd::vector::{Handle, Signed};
 
 #[inline]
-fn unary_op_impl<T, D, V, VFunc, SFunc>(
-    _tag: T,
-    distribution: D,
-    mut vector: V,
-    vfunc: VFunc,
-    sfunc: SFunc,
-) where
-    T: Num + core::ops::Neg<Output = T> + core::fmt::Debug + Copy,
-    D: rand::distributions::Distribution<T> + Copy,
-    V: Vector<Scalar = T> + Signed<T>,
+fn unary_op_impl<D, V, VFunc, SFunc>(distribution: D, mut vector: V, vfunc: VFunc, sfunc: SFunc)
+where
+    V::Scalar: Num + core::ops::Neg<Output = V::Scalar> + core::fmt::Debug + Copy,
+    D: rand::distributions::Distribution<V::Scalar> + Copy,
+    V: Signed,
     VFunc: Fn(V) -> V,
-    SFunc: Fn(T) -> T,
+    SFunc: Fn(V::Scalar) -> V::Scalar,
 {
     let mut rng = rand::thread_rng();
     for x in vector.as_slice_mut() {
@@ -31,18 +26,17 @@ fn unary_op_impl<T, D, V, VFunc, SFunc>(
 }
 
 #[inline]
-fn binary_op_impl<T, D, V, VFunc, SFunc>(
-    _tag: T,
+fn binary_op_impl<D, V, VFunc, SFunc>(
     distribution: D,
     (mut a, mut b): (V, V),
     vfunc: VFunc,
     sfunc: SFunc,
 ) where
-    T: Num + core::ops::Neg<Output = T> + core::fmt::Debug + Copy,
-    D: rand::distributions::Distribution<T> + Copy,
-    V: Vector<Scalar = T> + Signed<T>,
+    V::Scalar: Num + core::ops::Neg<Output = V::Scalar> + core::fmt::Debug + Copy,
+    D: rand::distributions::Distribution<V::Scalar> + Copy,
+    V: Signed,
     VFunc: Fn(V, V) -> V,
-    SFunc: Fn(T, T) -> T,
+    SFunc: Fn(V::Scalar, V::Scalar) -> V::Scalar,
 {
     let mut rng = rand::thread_rng();
     for x in a.as_slice_mut() {
@@ -59,18 +53,13 @@ fn binary_op_impl<T, D, V, VFunc, SFunc>(
 }
 
 #[inline]
-fn binary_scalar_op_impl<T, D, V, VFunc, SFunc>(
-    _tag: T,
-    distribution: D,
-    mut a: V,
-    vfunc: VFunc,
-    sfunc: SFunc,
-) where
-    T: Num + core::ops::Neg<Output = T> + core::fmt::Debug + Copy,
-    D: rand::distributions::Distribution<T> + Copy,
-    V: Vector<Scalar = T> + Signed<T>,
-    VFunc: Fn(V, T) -> V,
-    SFunc: Fn(T, T) -> T,
+fn binary_scalar_op_impl<D, V, VFunc, SFunc>(distribution: D, mut a: V, vfunc: VFunc, sfunc: SFunc)
+where
+    V::Scalar: Num + core::ops::Neg<Output = V::Scalar> + core::fmt::Debug + Copy,
+    D: rand::distributions::Distribution<V::Scalar> + Copy,
+    V: Signed,
+    VFunc: Fn(V, V::Scalar) -> V,
+    SFunc: Fn(V::Scalar, V::Scalar) -> V::Scalar,
 {
     let mut rng = rand::thread_rng();
     let b = rng.sample(distribution);
@@ -85,18 +74,17 @@ fn binary_scalar_op_impl<T, D, V, VFunc, SFunc>(
 }
 
 #[inline]
-fn assign_op_impl<T, D, V, VFunc, SFunc>(
-    _tag: T,
+fn assign_op_impl<D, V, VFunc, SFunc>(
     distribution: D,
     (mut a, mut b): (V, V),
     vfunc: VFunc,
     sfunc: SFunc,
 ) where
-    T: Num + core::ops::Neg<Output = T> + core::fmt::Debug + Copy,
-    D: rand::distributions::Distribution<T> + Copy,
-    V: Vector<Scalar = T> + Signed<T>,
+    V::Scalar: Num + core::ops::Neg<Output = V::Scalar> + core::fmt::Debug + Copy,
+    D: rand::distributions::Distribution<V::Scalar> + Copy,
+    V: Signed,
     VFunc: Fn(&mut V, V),
-    SFunc: Fn(&mut T, T),
+    SFunc: Fn(&mut V::Scalar, V::Scalar),
 {
     let mut rng = rand::thread_rng();
     for x in a.as_slice_mut() {
@@ -115,18 +103,13 @@ fn assign_op_impl<T, D, V, VFunc, SFunc>(
 }
 
 #[inline]
-fn assign_scalar_op_impl<T, D, V, VFunc, SFunc>(
-    _tag: T,
-    distribution: D,
-    mut a: V,
-    vfunc: VFunc,
-    sfunc: SFunc,
-) where
-    T: Num + core::ops::Neg<Output = T> + core::fmt::Debug + Copy,
-    D: rand::distributions::Distribution<T> + Copy,
-    V: Vector<Scalar = T> + Signed<T>,
-    VFunc: Fn(&mut V, T),
-    SFunc: Fn(&mut T, T),
+fn assign_scalar_op_impl<D, V, VFunc, SFunc>(distribution: D, mut a: V, vfunc: VFunc, sfunc: SFunc)
+where
+    V::Scalar: Num + core::ops::Neg<Output = V::Scalar> + core::fmt::Debug + Copy,
+    D: rand::distributions::Distribution<V::Scalar> + Copy,
+    V: Signed,
+    VFunc: Fn(&mut V, V::Scalar),
+    SFunc: Fn(&mut V::Scalar, V::Scalar),
 {
     let mut rng = rand::thread_rng();
     let b = rng.sample(distribution);
@@ -181,10 +164,10 @@ macro_rules! ops_test {
     {
         @types $test:ident, $handle:ident, $init:ident, $func:path
     } => {
-        $test(0f32, Standard, ops_test!(@init $test, f32, $handle, $init), $func, $func);
-        $test(0f64, Standard, ops_test!(@init $test, f64, $handle, $init), $func, $func);
-        $test(Complex::<f32>::default(), ComplexDistribution::new(Standard, Standard), ops_test!(@init $test, Complex<f32>, $handle, $init), $func, $func);
-        $test(Complex::<f64>::default(), ComplexDistribution::new(Standard, Standard), ops_test!(@init $test, Complex<f64>, $handle, $init), $func, $func);
+        $test(Standard, ops_test!(@init $test, f32, $handle, $init), $func, $func);
+        $test(Standard, ops_test!(@init $test, f64, $handle, $init), $func, $func);
+        $test(ComplexDistribution::new(Standard, Standard), ops_test!(@init $test, Complex<f32>, $handle, $init), $func, $func);
+        $test(ComplexDistribution::new(Standard, Standard), ops_test!(@init $test, Complex<f64>, $handle, $init), $func, $func);
     };
     {
         @init unary_op_impl, $type:ty, $handle:ident, $init:ident

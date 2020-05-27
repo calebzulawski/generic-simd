@@ -91,11 +91,13 @@ macro_rules! implement {
             }
         }
 
-        impl<Underlying, Real> Complex<Real> for $type<Underlying, num_complex::Complex<Real>>
+        impl<Underlying, Real> Complex for $type<Underlying, num_complex::Complex<Real>>
         where
-            Underlying: Vector<Scalar = num_complex::Complex<Real>> + Complex<Real>,
+            Underlying: Vector<Scalar = num_complex::Complex<Real>> + Complex<RealScalar = Real>,
             Real: Copy,
         {
+            type RealScalar = Real;
+
             fn mul_i(mut self) -> Self {
                 for x in self.0.iter_mut() {
                     *x = x.mul_i()

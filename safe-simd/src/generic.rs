@@ -124,7 +124,9 @@ macro_rules! implement_complex {
     {
         $vector:ty, $real:ty
     } => {
-        impl crate::vector::Complex<$real> for $vector {
+        impl crate::vector::Complex for $vector {
+            type RealScalar = $real;
+
             #[inline]
             fn mul_i(self) -> Self {
                 Self(Complex::new(-self.0.im, self.0.re))

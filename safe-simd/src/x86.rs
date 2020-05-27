@@ -481,7 +481,9 @@ unsafe impl Vector for cf64x2 {
     }
 }
 
-impl crate::vector::Complex<f32> for cf32x2 {
+impl crate::vector::Complex for cf32x2 {
+    type RealScalar = f32;
+
     #[inline]
     fn mul_i(self) -> Self {
         Self(unsafe { _mm_addsub_ps(_mm_setzero_ps(), _mm_shuffle_ps(self.0, self.0, 0xb1)) })
@@ -496,7 +498,9 @@ impl crate::vector::Complex<f32> for cf32x2 {
     }
 }
 
-impl crate::vector::Complex<f64> for cf64x1 {
+impl crate::vector::Complex for cf64x1 {
+    type RealScalar = f64;
+
     #[inline]
     fn mul_i(self) -> Self {
         Self(unsafe { _mm_addsub_pd(_mm_setzero_pd(), _mm_shuffle_pd(self.0, self.0, 0x1)) })
@@ -511,7 +515,9 @@ impl crate::vector::Complex<f64> for cf64x1 {
     }
 }
 
-impl crate::vector::Complex<f32> for cf32x4 {
+impl crate::vector::Complex for cf32x4 {
+    type RealScalar = f32;
+
     #[inline]
     fn mul_i(self) -> Self {
         Self(unsafe {
@@ -528,7 +534,9 @@ impl crate::vector::Complex<f32> for cf32x4 {
     }
 }
 
-impl crate::vector::Complex<f64> for cf64x2 {
+impl crate::vector::Complex for cf64x2 {
+    type RealScalar = f64;
+
     #[inline]
     fn mul_i(self) -> Self {
         Self(unsafe {
