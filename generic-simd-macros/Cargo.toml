@@ -1,10 +1,12 @@
 [package]
-name = "safe-simd-dispatch-test"
+name = "generic-simd-macros"
 version = "0.1.0"
 authors = ["Caleb Zulawski <caleb.zulawski@gmail.com>"]
 edition = "2018"
-publish = false
+
+[lib]
+proc-macro = true
 
 [dependencies]
-safe-simd = { path = "../safe-simd" }
-multiversion = "0.5"
+syn = { version = "1", features = ["full"] }
+quote = "1"

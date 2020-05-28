@@ -1,7 +1,7 @@
 [workspace]
 
 members = [
-    "safe-simd",
-    "safe-simd-macros",
-    "safe-simd-dispatch-test",
+    "generic-simd",
+    "generic-simd-macros",
+    "generic-simd-dispatch-test",
 ]

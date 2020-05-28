@@ -1,9 +1,9 @@
 use arch_types::Features;
+use generic_simd::vector::{Handle, Signed};
 use num_complex::{Complex, ComplexDistribution};
 use num_traits::Num;
 use rand::distributions::Standard;
 use rand::prelude::*;
-use safe_simd::vector::{Handle, Signed};
 
 #[inline]
 fn unary_op_impl<D, V, VFunc, SFunc>(distribution: D, mut vector: V, vfunc: VFunc, sfunc: SFunc)
@@ -196,6 +196,6 @@ macro_rules! ops_test {
     };
 }
 
-ops_test! { ops_generic, safe_simd::generic::Generic, safe_simd::generic::Generic::new() }
-ops_test! { ops_sse, safe_simd::x86::Sse, safe_simd::x86::Sse::new() }
-ops_test! { ops_avx, safe_simd::x86::Avx, safe_simd::x86::Avx::new() }
+ops_test! { ops_generic, generic_simd::generic::Generic, generic_simd::generic::Generic::new() }
+ops_test! { ops_sse, generic_simd::x86::Sse, generic_simd::x86::Sse::new() }
+ops_test! { ops_avx, generic_simd::x86::Avx, generic_simd::x86::Avx::new() }
