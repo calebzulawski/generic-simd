@@ -35,7 +35,7 @@ macro_rules! handle_impl {
 
         #[doc = "Read a vector with "]
         #[doc = $width]
-        #[doc = " from a pointer."]
+        #[doc = " from a pointer.\n\nSee [`read_ptr`](trait.Vector.html#method.read_ptr)."]
         #[inline]
         unsafe fn $read_ptr(self, from: *const Scalar) -> Self::$vector {
             Self::$vector::read_ptr(self, from)
@@ -43,7 +43,7 @@ macro_rules! handle_impl {
 
         #[doc = "Read a vector with "]
         #[doc = $width]
-        #[doc = " from a slice without checking the length."]
+        #[doc = " from a slice without checking the length.\n\nSee [`read_unchecked`](trait.Vector.html#method.read_ptr)."]
         #[inline]
         unsafe fn $read_unchecked(self, from: &[Scalar]) -> Self::$vector {
             Self::$vector::read_unchecked(self, from)
@@ -51,7 +51,7 @@ macro_rules! handle_impl {
 
         #[doc = "Read a vector with "]
         #[doc = $width]
-        #[doc = " from a slice."]
+        #[doc = " from a slice.\n\nSee [`read`](trait.Vector.html#method.read)."]
         #[inline]
         fn $read(self, from: &[Scalar]) -> Self::$vector {
             Self::$vector::read(self, from)
@@ -59,7 +59,7 @@ macro_rules! handle_impl {
 
         #[doc = "Create a vector with "]
         #[doc = $width]
-        #[doc = " set to zero."]
+        #[doc = " set to zero.\n\nSee [`zeroed`](trait.Vector.html#method.zeroed)."]
         #[inline]
         fn $zeroed(self) -> Self::$vector {
            Self::$vector::zeroed(self)
@@ -67,7 +67,7 @@ macro_rules! handle_impl {
 
         #[doc = "Splat a scalar to "]
         #[doc = $width]
-        #[doc = "."]
+        #[doc = ".\n\nSee [`splat`](trait.Vector.html#tymethod.splat)."]
         #[inline]
         fn $splat(self, scalar: Scalar) -> Self::$vector {
             Self::$vector::splat(self, scalar)
@@ -123,30 +123,40 @@ where
     type VectorNative: Vector<Scalar = Scalar, Feature = Self>;
 
     /// Read the native vector from a pointer.
+    ///
+    /// See [`read_ptr`](trait.Vector.html#method.read_ptr).
     #[inline]
     unsafe fn read_native_ptr(self, from: *const Scalar) -> Self::VectorNative {
         Self::VectorNative::read_ptr(self, from)
     }
 
     /// Read the native vector from a slice without checking the length.
+    ///
+    /// See [`read_unchecked`](trait.Vector.html#method.read_unchecked).
     #[inline]
     unsafe fn read_native_unchecked(self, from: &[Scalar]) -> Self::VectorNative {
         Self::VectorNative::read_unchecked(self, from)
     }
 
     /// Read the native vector from a slice.
+    ///
+    /// See [`read`](trait.Vector.html#method.read).
     #[inline]
     fn read_native(self, from: &[Scalar]) -> Self::VectorNative {
         Self::VectorNative::read(self, from)
     }
 
     /// Create a native vector set to zero.
+    ///
+    /// See [`zeroed`](trait.Vector.html#method.zeroed).
     #[inline]
     fn zeroed_native(self) -> Self::VectorNative {
         Self::VectorNative::zeroed(self)
     }
 
     /// Splat a scalar to a native vector.
+    ///
+    /// See [`splat`](trait.Vector.html#tymethod.splat).
     #[inline]
     fn splat_native(self, scalar: Scalar) -> Self::VectorNative {
         Self::VectorNative::splat(self, scalar)

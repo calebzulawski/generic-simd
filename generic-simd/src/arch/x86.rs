@@ -1,5 +1,6 @@
 //! x86/x86-64 vector types.
 
+use crate::arch::generic;
 use crate::shim::{Shim2, Shim4, Shim8};
 use crate::vector::{Handle, Vector};
 use arch_types::{marker::Superset, Features};
@@ -64,23 +65,23 @@ pub struct cf64x2(__m256d);
 
 impl Handle<f32> for Sse {
     type VectorNative = f32x4;
-    type Feature1 = crate::generic::Generic;
-    type Feature2 = crate::generic::Generic;
+    type Feature1 = generic::Generic;
+    type Feature2 = generic::Generic;
     type Feature4 = Sse;
     type Feature8 = Sse;
-    type Vector1 = crate::generic::f32x1;
-    type Vector2 = Shim2<crate::generic::f32x1, f32>;
+    type Vector1 = generic::f32x1;
+    type Vector2 = Shim2<generic::f32x1, f32>;
     type Vector4 = f32x4;
     type Vector8 = Shim2<f32x4, f32>;
 }
 
 impl Handle<f64> for Sse {
     type VectorNative = f64x2;
-    type Feature1 = crate::generic::Generic;
+    type Feature1 = generic::Generic;
     type Feature2 = Sse;
     type Feature4 = Sse;
     type Feature8 = Sse;
-    type Vector1 = crate::generic::f64x1;
+    type Vector1 = generic::f64x1;
     type Vector2 = f64x2;
     type Vector4 = Shim2<f64x2, f64>;
     type Vector8 = Shim4<f64x2, f64>;
@@ -88,11 +89,11 @@ impl Handle<f64> for Sse {
 
 impl Handle<Complex<f32>> for Sse {
     type VectorNative = cf32x2;
-    type Feature1 = crate::generic::Generic;
+    type Feature1 = generic::Generic;
     type Feature2 = Sse;
     type Feature4 = Sse;
     type Feature8 = Sse;
-    type Vector1 = crate::generic::cf32x1;
+    type Vector1 = generic::cf32x1;
     type Vector2 = cf32x2;
     type Vector4 = Shim2<cf32x2, Complex<f32>>;
     type Vector8 = Shim4<cf32x2, Complex<f32>>;
@@ -112,23 +113,23 @@ impl Handle<Complex<f64>> for Sse {
 
 impl Handle<f32> for Avx {
     type VectorNative = f32x8;
-    type Feature1 = crate::generic::Generic;
-    type Feature2 = crate::generic::Generic;
+    type Feature1 = generic::Generic;
+    type Feature2 = generic::Generic;
     type Feature4 = Sse;
     type Feature8 = Avx;
-    type Vector1 = crate::generic::f32x1;
-    type Vector2 = Shim2<crate::generic::f32x1, f32>;
+    type Vector1 = generic::f32x1;
+    type Vector2 = Shim2<generic::f32x1, f32>;
     type Vector4 = f32x4;
     type Vector8 = f32x8;
 }
 
 impl Handle<f64> for Avx {
     type VectorNative = f64x4;
-    type Feature1 = crate::generic::Generic;
+    type Feature1 = generic::Generic;
     type Feature2 = Sse;
     type Feature4 = Avx;
     type Feature8 = Avx;
-    type Vector1 = crate::generic::f64x1;
+    type Vector1 = generic::f64x1;
     type Vector2 = f64x2;
     type Vector4 = f64x4;
     type Vector8 = Shim2<f64x4, f64>;
@@ -136,11 +137,11 @@ impl Handle<f64> for Avx {
 
 impl Handle<Complex<f32>> for Avx {
     type VectorNative = cf32x4;
-    type Feature1 = crate::generic::Generic;
+    type Feature1 = generic::Generic;
     type Feature2 = Sse;
     type Feature4 = Avx;
     type Feature8 = Avx;
-    type Vector1 = crate::generic::cf32x1;
+    type Vector1 = generic::cf32x1;
     type Vector2 = cf32x2;
     type Vector4 = cf32x4;
     type Vector8 = Shim2<cf32x4, Complex<f32>>;
@@ -159,7 +160,7 @@ impl Handle<Complex<f64>> for Avx {
 }
 
 arithmetic_ops! {
-    feature: crate::x86::Sse::new_unchecked(),
+    feature: Sse::new_unchecked(),
     for f32x4:
         add -> _mm_add_ps,
         sub -> _mm_sub_ps,
@@ -168,7 +169,7 @@ arithmetic_ops! {
 }
 
 arithmetic_ops! {
-    feature: crate::x86::Sse::new_unchecked(),
+    feature: Sse::new_unchecked(),
     for f64x2:
         add -> _mm_add_pd,
         sub -> _mm_sub_pd,
@@ -177,7 +178,7 @@ arithmetic_ops! {
 }
 
 arithmetic_ops! {
-    feature: crate::x86::Sse::new_unchecked(),
+    feature: Sse::new_unchecked(),
     for cf32x2:
         add -> _mm_add_ps,
         sub -> _mm_sub_ps,
@@ -186,7 +187,7 @@ arithmetic_ops! {
 }
 
 arithmetic_ops! {
-    feature: crate::x86::Sse::new_unchecked(),
+    feature: Sse::new_unchecked(),
     for cf64x1:
         add -> _mm_add_pd,
         sub -> _mm_sub_pd,
@@ -195,7 +196,7 @@ arithmetic_ops! {
 }
 
 arithmetic_ops! {
-    feature: crate::x86::Avx::new_unchecked(),
+    feature: Avx::new_unchecked(),
     for f32x8:
         add -> _mm256_add_ps,
         sub -> _mm256_sub_ps,
@@ -204,7 +205,7 @@ arithmetic_ops! {
 }
 
 arithmetic_ops! {
-    feature: crate::x86::Avx::new_unchecked(),
+    feature: Avx::new_unchecked(),
     for f64x4:
         add -> _mm256_add_pd,
         sub -> _mm256_sub_pd,
@@ -213,7 +214,7 @@ arithmetic_ops! {
 }
 
 arithmetic_ops! {
-    feature: crate::x86::Avx::new_unchecked(),
+    feature: Avx::new_unchecked(),
     for cf32x4:
         add -> _mm256_add_ps,
         sub -> _mm256_sub_ps,
@@ -222,7 +223,7 @@ arithmetic_ops! {
 }
 
 arithmetic_ops! {
-    feature: crate::x86::Avx::new_unchecked(),
+    feature: Avx::new_unchecked(),
     for cf64x2:
         add -> _mm256_add_pd,
         sub -> _mm256_sub_pd,

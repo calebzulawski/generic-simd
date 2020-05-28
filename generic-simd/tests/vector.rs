@@ -196,6 +196,10 @@ macro_rules! ops_test {
     };
 }
 
-ops_test! { ops_generic, generic_simd::generic::Generic, generic_simd::generic::Generic::new() }
-ops_test! { ops_sse, generic_simd::x86::Sse, generic_simd::x86::Sse::new() }
-ops_test! { ops_avx, generic_simd::x86::Avx, generic_simd::x86::Avx::new() }
+ops_test! { ops_generic, generic_simd::arch::generic::Generic, generic_simd::arch::generic::Generic::new() }
+
+#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+ops_test! { ops_sse, generic_simd::arch::x86::Sse, generic_simd::arch::x86::Sse::new() }
+
+#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+ops_test! { ops_avx, generic_simd::arch::x86::Avx, generic_simd::arch::x86::Avx::new() }

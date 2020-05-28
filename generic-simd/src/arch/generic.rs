@@ -84,7 +84,7 @@ macro_rules! implement {
         $vector:ty, $scalar:ty
     } => {
         arithmetic_ops! {
-            feature: crate::generic::Generic::new_unchecked(),
+            feature: Generic::new_unchecked(),
             for $vector:
                 add -> core::ops::Add::add,
                 sub -> core::ops::Sub::sub,
