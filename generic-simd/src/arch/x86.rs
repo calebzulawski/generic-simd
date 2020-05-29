@@ -1,7 +1,7 @@
 //! x86/x86-64 vector types.
 
 use crate::arch::generic;
-use crate::shim::{Shim2, Shim4, Shim8};
+use crate::shim::{Shim2, Shim4};
 use crate::vector::{Handle, Vector};
 use arch_types::{marker::Superset, Features};
 
@@ -10,7 +10,11 @@ use core::arch::x86::*;
 #[cfg(target_arch = "x86_64")]
 use core::arch::x86_64::*;
 
+#[cfg(feature = "complex")]
 use num_complex::Complex;
+
+#[cfg(feature = "complex")]
+use crate::shim::Shim8;
 
 arch_types::new_features_type! { #[doc = "SSE instruction set handle."] pub Sse => "sse", "sse3" }
 arch_types::new_features_type! { #[doc = "AVX instruction set handle."] pub Avx => "sse", "sse3", "avx" }
@@ -28,12 +32,18 @@ pub struct f32x4(__m128);
 pub struct f64x2(__m128d);
 
 /// An SSE vector of `Complex<f32>`s.
+///
+/// Requires feature `"complex"`.
+#[cfg(feature = "complex")]
 #[derive(Clone, Copy, Debug)]
 #[repr(transparent)]
 #[allow(non_camel_case_types)]
 pub struct cf32x2(__m128);
 
 /// An SSE vector of `Complex<f64>`s.
+///
+/// Requires feature `"complex"`.
+#[cfg(feature = "complex")]
 #[derive(Clone, Copy, Debug)]
 #[repr(transparent)]
 #[allow(non_camel_case_types)]
@@ -52,12 +62,18 @@ pub struct f32x8(__m256);
 pub struct f64x4(__m256d);
 
 /// An AVX vector of `Complex<f32>`s.
+///
+/// Requires feature `"complex"`.
+#[cfg(feature = "complex")]
 #[derive(Clone, Copy, Debug)]
 #[repr(transparent)]
 #[allow(non_camel_case_types)]
 pub struct cf32x4(__m256);
 
 /// An AVX vector of `Complex<f64>`s.
+///
+/// Requires feature `"complex"`.
+#[cfg(feature = "complex")]
 #[derive(Clone, Copy, Debug)]
 #[repr(transparent)]
 #[allow(non_camel_case_types)]
@@ -87,6 +103,7 @@ impl Handle<f64> for Sse {
     type Vector8 = Shim4<f64x2, f64>;
 }
 
+#[cfg(feature = "complex")]
 impl Handle<Complex<f32>> for Sse {
     type VectorNative = cf32x2;
     type Feature1 = generic::Generic;
@@ -99,6 +116,7 @@ impl Handle<Complex<f32>> for Sse {
     type Vector8 = Shim4<cf32x2, Complex<f32>>;
 }
 
+#[cfg(feature = "complex")]
 impl Handle<Complex<f64>> for Sse {
     type VectorNative = cf64x1;
     type Feature1 = Sse;
@@ -135,6 +153,7 @@ impl Handle<f64> for Avx {
     type Vector8 = Shim2<f64x4, f64>;
 }
 
+#[cfg(feature = "complex")]
 impl Handle<Complex<f32>> for Avx {
     type VectorNative = cf32x4;
     type Feature1 = generic::Generic;
@@ -147,6 +166,7 @@ impl Handle<Complex<f32>> for Avx {
     type Vector8 = Shim2<cf32x4, Complex<f32>>;
 }
 
+#[cfg(feature = "complex")]
 impl Handle<Complex<f64>> for Avx {
     type VectorNative = cf64x2;
     type Feature1 = Sse;
@@ -177,6 +197,7 @@ arithmetic_ops! {
         div -> _mm_div_pd
 }
 
+#[cfg(feature = "complex")]
 arithmetic_ops! {
     feature: Sse::new_unchecked(),
     for cf32x2:
@@ -186,6 +207,7 @@ arithmetic_ops! {
         div -> div_cf32x2
 }
 
+#[cfg(feature = "complex")]
 arithmetic_ops! {
     feature: Sse::new_unchecked(),
     for cf64x1:
@@ -213,6 +235,7 @@ arithmetic_ops! {
         div -> _mm256_div_pd
 }
 
+#[cfg(feature = "complex")]
 arithmetic_ops! {
     feature: Avx::new_unchecked(),
     for cf32x4:
@@ -222,6 +245,7 @@ arithmetic_ops! {
         div -> div_cf32x4
 }
 
+#[cfg(feature = "complex")]
 arithmetic_ops! {
     feature: Avx::new_unchecked(),
     for cf64x2:
@@ -231,6 +255,7 @@ arithmetic_ops! {
         div -> div_cf64x2
 }
 
+#[cfg(feature = "complex")]
 #[target_feature(enable = "sse3")]
 unsafe fn mul_cf32x2(a: __m128, b: __m128) -> __m128 {
     let re = _mm_moveldup_ps(a);
@@ -239,6 +264,7 @@ unsafe fn mul_cf32x2(a: __m128, b: __m128) -> __m128 {
     _mm_addsub_ps(_mm_mul_ps(re, b), _mm_mul_ps(im, sh))
 }
 
+#[cfg(feature = "complex")]
 #[target_feature(enable = "sse3")]
 unsafe fn mul_cf64x1(a: __m128d, b: __m128d) -> __m128d {
     let re = _mm_shuffle_pd(a, a, 0x00);
@@ -248,6 +274,7 @@ unsafe fn mul_cf64x1(a: __m128d, b: __m128d) -> __m128d {
 }
 
 // [(a.re * b.re + a.im * b.im) / (b.re * b.re + b.im * b.im)] + i [(a.im * b.re - a.re * b.im) / (b.re * b.re + b.im * b.im)]
+#[cfg(feature = "complex")]
 #[target_feature(enable = "sse3")]
 unsafe fn div_cf32x2(a: __m128, b: __m128) -> __m128 {
     let b_re = _mm_moveldup_ps(b);
@@ -263,6 +290,7 @@ unsafe fn div_cf32x2(a: __m128, b: __m128) -> __m128 {
     )
 }
 
+#[cfg(feature = "complex")]
 #[target_feature(enable = "sse3")]
 unsafe fn div_cf64x1(a: __m128d, b: __m128d) -> __m128d {
     let b_re = _mm_shuffle_pd(b, b, 0x00);
@@ -278,6 +306,7 @@ unsafe fn div_cf64x1(a: __m128d, b: __m128d) -> __m128d {
     )
 }
 
+#[cfg(feature = "complex")]
 #[target_feature(enable = "avx")]
 unsafe fn mul_cf32x4(a: __m256, b: __m256) -> __m256 {
     let re = _mm256_moveldup_ps(a);
@@ -286,6 +315,7 @@ unsafe fn mul_cf32x4(a: __m256, b: __m256) -> __m256 {
     _mm256_addsub_ps(_mm256_mul_ps(re, b), _mm256_mul_ps(im, sh))
 }
 
+#[cfg(feature = "complex")]
 #[target_feature(enable = "avx")]
 unsafe fn mul_cf64x2(a: __m256d, b: __m256d) -> __m256d {
     let re = _mm256_unpacklo_pd(a, a);
@@ -295,6 +325,7 @@ unsafe fn mul_cf64x2(a: __m256d, b: __m256d) -> __m256d {
 }
 
 // [(a.re * b.re + a.im * b.im) / (b.re * b.re + b.im * b.im)] + i [(a.im * b.re - a.re * b.im) / (b.re * b.re + b.im * b.im)]
+#[cfg(feature = "complex")]
 #[target_feature(enable = "avx")]
 unsafe fn div_cf32x4(a: __m256, b: __m256) -> __m256 {
     let b_re = _mm256_moveldup_ps(b);
@@ -310,6 +341,7 @@ unsafe fn div_cf32x4(a: __m256, b: __m256) -> __m256 {
     )
 }
 
+#[cfg(feature = "complex")]
 #[target_feature(enable = "avx")]
 unsafe fn div_cf64x2(a: __m256d, b: __m256d) -> __m256d {
     let b_re = _mm256_unpacklo_pd(b, b);
@@ -339,6 +371,7 @@ impl core::ops::Neg for f64x2 {
     }
 }
 
+#[cfg(feature = "complex")]
 impl core::ops::Neg for cf32x2 {
     type Output = Self;
     fn neg(self) -> Self {
@@ -346,6 +379,7 @@ impl core::ops::Neg for cf32x2 {
     }
 }
 
+#[cfg(feature = "complex")]
 impl core::ops::Neg for cf64x1 {
     type Output = Self;
     fn neg(self) -> Self {
@@ -367,6 +401,7 @@ impl core::ops::Neg for f64x4 {
     }
 }
 
+#[cfg(feature = "complex")]
 impl core::ops::Neg for cf32x4 {
     type Output = Self;
     fn neg(self) -> Self {
@@ -374,6 +409,7 @@ impl core::ops::Neg for cf32x4 {
     }
 }
 
+#[cfg(feature = "complex")]
 impl core::ops::Neg for cf64x2 {
     type Output = Self;
     fn neg(self) -> Self {
@@ -385,9 +421,14 @@ as_slice! { f32x4 }
 as_slice! { f32x8 }
 as_slice! { f64x2 }
 as_slice! { f64x4 }
+
+#[cfg(feature = "complex")]
 as_slice! { cf32x2 }
+#[cfg(feature = "complex")]
 as_slice! { cf32x4 }
+#[cfg(feature = "complex")]
 as_slice! { cf64x1 }
+#[cfg(feature = "complex")]
 as_slice! { cf64x2 }
 
 unsafe impl Vector for f32x4 {
@@ -412,6 +453,7 @@ unsafe impl Vector for f64x2 {
     }
 }
 
+#[cfg(feature = "complex")]
 unsafe impl Vector for cf32x2 {
     type Scalar = Complex<f32>;
 
@@ -423,6 +465,7 @@ unsafe impl Vector for cf32x2 {
     }
 }
 
+#[cfg(feature = "complex")]
 unsafe impl Vector for cf64x1 {
     type Scalar = Complex<f64>;
 
@@ -456,6 +499,7 @@ unsafe impl Vector for f64x4 {
     }
 }
 
+#[cfg(feature = "complex")]
 unsafe impl Vector for cf32x4 {
     type Scalar = Complex<f32>;
 
@@ -471,6 +515,7 @@ unsafe impl Vector for cf32x4 {
     }
 }
 
+#[cfg(feature = "complex")]
 unsafe impl Vector for cf64x2 {
     type Scalar = Complex<f64>;
 
@@ -482,6 +527,7 @@ unsafe impl Vector for cf64x2 {
     }
 }
 
+#[cfg(feature = "complex")]
 impl crate::vector::Complex for cf32x2 {
     type RealScalar = f32;
 
@@ -499,6 +545,7 @@ impl crate::vector::Complex for cf32x2 {
     }
 }
 
+#[cfg(feature = "complex")]
 impl crate::vector::Complex for cf64x1 {
     type RealScalar = f64;
 
@@ -516,6 +563,7 @@ impl crate::vector::Complex for cf64x1 {
     }
 }
 
+#[cfg(feature = "complex")]
 impl crate::vector::Complex for cf32x4 {
     type RealScalar = f32;
 
@@ -535,6 +583,7 @@ impl crate::vector::Complex for cf32x4 {
     }
 }
 
+#[cfg(feature = "complex")]
 impl crate::vector::Complex for cf64x2 {
     type RealScalar = f64;
 

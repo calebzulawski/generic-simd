@@ -3,6 +3,8 @@
 use crate::shim::{Shim2, Shim4, Shim8};
 use crate::vector::{Handle, Vector};
 use arch_types::{marker::Superset, Features};
+
+#[cfg(feature = "complex")]
 use num_complex::Complex;
 
 arch_types::new_features_type! { #[doc = "A generic instruction set handle supported by all CPUs."] pub Generic => }
@@ -20,12 +22,18 @@ pub struct f32x1(f32);
 pub struct f64x1(f64);
 
 /// A generic vector of one `Complex<f32>`.
+///
+/// Requires feature `"complex"`.
+#[cfg(feature = "complex")]
 #[derive(Clone, Copy, Debug)]
 #[repr(transparent)]
 #[allow(non_camel_case_types)]
 pub struct cf32x1(Complex<f32>);
 
 /// A generic vector of one `Complex<f64>`.
+///
+/// Requires feature `"complex"`.
+#[cfg(feature = "complex")]
 #[derive(Clone, Copy, Debug)]
 #[repr(transparent)]
 #[allow(non_camel_case_types)]
@@ -55,6 +63,7 @@ impl Handle<f64> for Generic {
     type Vector8 = Shim8<f64x1, f64>;
 }
 
+#[cfg(feature = "complex")]
 impl Handle<Complex<f32>> for Generic {
     type VectorNative = cf32x1;
     type Feature1 = Generic;
@@ -67,6 +76,7 @@ impl Handle<Complex<f32>> for Generic {
     type Vector8 = Shim8<cf32x1, Complex<f32>>;
 }
 
+#[cfg(feature = "complex")]
 impl Handle<Complex<f64>> for Generic {
     type VectorNative = cf64x1;
     type Feature1 = Generic;
@@ -117,9 +127,13 @@ macro_rules! implement {
 
 implement! { f32x1, f32 }
 implement! { f64x1, f64 }
+
+#[cfg(feature = "complex")]
 implement! { cf32x1, Complex<f32> }
+#[cfg(feature = "complex")]
 implement! { cf64x1, Complex<f64> }
 
+#[cfg(feature = "complex")]
 macro_rules! implement_complex {
     {
         $vector:ty, $real:ty
@@ -140,5 +154,7 @@ macro_rules! implement_complex {
     }
 }
 
+#[cfg(feature = "complex")]
 implement_complex! { cf32x1, f32 }
+#[cfg(feature = "complex")]
 implement_complex! { cf64x1, f64 }

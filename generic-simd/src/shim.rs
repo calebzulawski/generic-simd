@@ -1,8 +1,11 @@
 //! Shims for unsupported vector widths.
 
-use crate::vector::{Complex, Vector};
+use crate::vector::Vector;
 use arch_types::marker::Superset;
 use core::marker::PhantomData;
+
+#[cfg(feature = "complex")]
+use crate::vector::Complex;
 
 /// Shim that doubles the width of a vector.
 #[derive(Copy, Clone, Debug)]
@@ -148,6 +151,7 @@ where
     }
 }
 
+#[cfg(feature = "complex")]
 impl<Underlying, Real> Complex for Shim2<Underlying, num_complex::Complex<Real>>
 where
     Underlying: Vector<Scalar = num_complex::Complex<Real>> + Complex<RealScalar = Real>,

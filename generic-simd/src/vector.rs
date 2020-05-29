@@ -313,7 +313,7 @@ pub unsafe trait Vector: Copy {
     fn splat(feature: impl Superset<Self::Feature>, from: Self::Scalar) -> Self;
 }
 
-/// A supertrait for vectors supporting typical operations.
+/// A supertrait for vectors supporting typical arithmetic operations.
 pub trait Ops:
     Vector
     + AsRef<[<Self as Vector>::Scalar]>
@@ -363,7 +363,7 @@ impl<V> Ops for V where
 {
 }
 
-/// A supertrait for vectors that allow arithmetic operations.
+/// A supertrait for vectors that allow arithmetic operations over signed types.
 pub trait Signed: Ops + Neg<Output = Self> {}
 impl<V> Signed for V where V: Ops + Neg<Output = V> {}
 

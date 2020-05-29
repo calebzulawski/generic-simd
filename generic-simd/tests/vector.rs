@@ -1,9 +1,11 @@
 use arch_types::Features;
 use generic_simd::vector::{Handle, Signed};
-use num_complex::{Complex, ComplexDistribution};
 use num_traits::Num;
 use rand::distributions::Standard;
 use rand::prelude::*;
+
+#[cfg(feature = "complex")]
+use num_complex::{Complex, ComplexDistribution};
 
 #[inline]
 fn unary_op_impl<D, V, VFunc, SFunc>(distribution: D, mut vector: V, vfunc: VFunc, sfunc: SFunc)
@@ -166,7 +168,11 @@ macro_rules! ops_test {
     } => {
         $test(Standard, ops_test!(@init $test, f32, $handle, $init), $func, $func);
         $test(Standard, ops_test!(@init $test, f64, $handle, $init), $func, $func);
+
+        #[cfg(feature = "complex")]
         $test(ComplexDistribution::new(Standard, Standard), ops_test!(@init $test, Complex<f32>, $handle, $init), $func, $func);
+
+        #[cfg(feature = "complex")]
         $test(ComplexDistribution::new(Standard, Standard), ops_test!(@init $test, Complex<f64>, $handle, $init), $func, $func);
     };
     {
