@@ -7,4 +7,3 @@ publish = false
 
 [dependencies]
 generic-simd = { path = "../generic-simd" }
-multiversion = "0.5"
