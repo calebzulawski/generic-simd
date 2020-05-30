@@ -1,7 +1,7 @@
 //! Generic vector types for any platform.
 
 use crate::shim::{Shim2, Shim4, Shim8};
-use crate::vector::{Handle, Vector};
+use crate::vector::{width, Native, SizedHandle, Vector};
 use arch_types::{marker::Superset, Features};
 
 #[cfg(feature = "complex")]
@@ -39,55 +39,43 @@ pub struct cf32x1(Complex<f32>);
 #[allow(non_camel_case_types)]
 pub struct cf64x1(Complex<f64>);
 
-impl Handle<f32> for Generic {
-    type VectorNative = f32x1;
-    type Feature1 = Generic;
-    type Feature2 = Generic;
-    type Feature4 = Generic;
-    type Feature8 = Generic;
-    type Vector1 = f32x1;
-    type Vector2 = Shim2<f32x1, f32>;
-    type Vector4 = Shim4<f32x1, f32>;
-    type Vector8 = Shim8<f32x1, f32>;
+macro_rules! implement {
+    {
+        $vector:ty, $scalar:ty
+    } => {
+        impl Native<$scalar> for Generic {
+            type Width = width::W1;
+        }
+
+        impl SizedHandle<$scalar, width::W1> for Generic {
+            type Feature = Generic;
+            type Vector = $vector;
+        }
+
+        impl SizedHandle<$scalar, width::W2> for Generic {
+            type Feature = Generic;
+            type Vector = Shim2<$vector, $scalar>;
+        }
+
+        impl SizedHandle<$scalar, width::W4> for Generic {
+            type Feature = Generic;
+            type Vector = Shim4<$vector, $scalar>;
+        }
+
+        impl SizedHandle<$scalar, width::W8> for Generic {
+            type Feature = Generic;
+            type Vector = Shim8<$vector, $scalar>;
+        }
+    }
 }
 
-impl Handle<f64> for Generic {
-    type VectorNative = f64x1;
-    type Feature1 = Generic;
-    type Feature2 = Generic;
-    type Feature4 = Generic;
-    type Feature8 = Generic;
-    type Vector1 = f64x1;
-    type Vector2 = Shim2<f64x1, f64>;
-    type Vector4 = Shim4<f64x1, f64>;
-    type Vector8 = Shim8<f64x1, f64>;
-}
-
-#[cfg(feature = "complex")]
-impl Handle<Complex<f32>> for Generic {
-    type VectorNative = cf32x1;
-    type Feature1 = Generic;
-    type Feature2 = Generic;
-    type Feature4 = Generic;
-    type Feature8 = Generic;
-    type Vector1 = cf32x1;
-    type Vector2 = Shim2<cf32x1, Complex<f32>>;
-    type Vector4 = Shim4<cf32x1, Complex<f32>>;
-    type Vector8 = Shim8<cf32x1, Complex<f32>>;
-}
+implement! { f32x1, f32 }
+implement! { f64x1, f64 }
 
 #[cfg(feature = "complex")]
-impl Handle<Complex<f64>> for Generic {
-    type VectorNative = cf64x1;
-    type Feature1 = Generic;
-    type Feature2 = Generic;
-    type Feature4 = Generic;
-    type Feature8 = Generic;
-    type Vector1 = cf64x1;
-    type Vector2 = Shim2<cf64x1, Complex<f64>>;
-    type Vector4 = Shim4<cf64x1, Complex<f64>>;
-    type Vector8 = Shim8<cf64x1, Complex<f64>>;
-}
+implement! { cf32x1, Complex<f32> }
+#[cfg(feature = "complex")]
+implement! { cf64x1, Complex<f64> }
 
 macro_rules! implement {
     {
@@ -115,6 +103,8 @@ macro_rules! implement {
             type Scalar = $scalar;
 
             type Feature = Generic;
+
+            type Width = crate::vector::width::W1;
 
             #[inline]
             fn splat(_: impl Superset<Self::Feature>, from: Self::Scalar) -> Self

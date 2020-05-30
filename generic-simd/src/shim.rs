@@ -1,11 +1,28 @@
 //! Shims for unsupported vector widths.
 
-use crate::vector::Vector;
+use crate::vector::{width, Vector};
 use arch_types::marker::Superset;
 use core::marker::PhantomData;
 
 #[cfg(feature = "complex")]
 use crate::vector::Complex;
+
+/// Determines the doubled width of this vector.
+pub trait Double {
+    type Doubled: width::Width;
+}
+
+impl Double for width::W1 {
+    type Doubled = width::W2;
+}
+
+impl Double for width::W2 {
+    type Doubled = width::W4;
+}
+
+impl Double for width::W4 {
+    type Doubled = width::W8;
+}
 
 /// Shim that doubles the width of a vector.
 #[derive(Copy, Clone, Debug)]
@@ -20,10 +37,12 @@ pub type Shim8<Underlying, Scalar> = Shim4<Shim2<Underlying, Scalar>, Scalar>;
 unsafe impl<Underlying, Scalar> Vector for Shim2<Underlying, Scalar>
 where
     Underlying: Vector<Scalar = Scalar>,
+    Underlying::Width: Double,
     Scalar: Copy,
 {
     type Scalar = Scalar;
     type Feature = <Underlying as Vector>::Feature;
+    type Width = <Underlying::Width as Double>::Doubled;
 
     #[inline]
     fn splat(feature: impl Superset<Self::Feature>, from: Self::Scalar) -> Self {
@@ -34,6 +53,7 @@ where
 impl<Underlying, Scalar> AsRef<[Scalar]> for Shim2<Underlying, Scalar>
 where
     Underlying: Vector<Scalar = Scalar>,
+    Underlying::Width: Double,
     Scalar: Copy,
 {
     #[inline]
@@ -45,6 +65,7 @@ where
 impl<Underlying, Scalar> AsMut<[Scalar]> for Shim2<Underlying, Scalar>
 where
     Underlying: Vector<Scalar = Scalar>,
+    Underlying::Width: Double,
     Scalar: Copy,
 {
     #[inline]
@@ -56,6 +77,7 @@ where
 impl<Underlying, Scalar> core::ops::Deref for Shim2<Underlying, Scalar>
 where
     Underlying: Vector<Scalar = Scalar>,
+    Underlying::Width: Double,
     Scalar: Copy,
 {
     type Target = [Scalar];
@@ -69,6 +91,7 @@ where
 impl<Underlying, Scalar> core::ops::DerefMut for Shim2<Underlying, Scalar>
 where
     Underlying: Vector<Scalar = Scalar>,
+    Underlying::Width: Double,
     Scalar: Copy,
 {
     #[inline]
@@ -155,6 +178,7 @@ where
 impl<Underlying, Real> Complex for Shim2<Underlying, num_complex::Complex<Real>>
 where
     Underlying: Vector<Scalar = num_complex::Complex<Real>> + Complex<RealScalar = Real>,
+    Underlying::Width: Double,
     Real: Copy,
 {
     type RealScalar = Real;

@@ -16,22 +16,25 @@
 //!
 //! The following example performs a vector-accelerated sum of an input slice:
 //! ```
-//! use generic_simd::{dispatch, vector::{Handle, Signed, Vector}};
+//! use generic_simd::{
+//!     dispatch,
+//!     vector::{Native, NativeVector, NativeWidth, Signed, SizedHandle, Vector},
+//! };
 //!
 //! // This function provides a generic implementation for any vector type.
 //! #[inline]
 //! fn sum_impl<H>(handle: H, input: &[f32]) -> f32
 //! where
-//!     H: Handle<f32>,
-//!     <H as Handle<f32>>::VectorNative: Signed,
+//!     H: Native<f32> + SizedHandle<f32, NativeWidth<f32, H>>,
+//!     NativeVector<f32, H>: Signed,
 //! {
 //!     // Use aligned loads in this example, which may be better on some architectures.
 //!     // Here we use the "native" vector type, i.e. the widest vector directly supported by the
 //!     // architecture.
-//!     let (start, vectors, end) = handle.align_native(input);
+//!     let (start, vectors, end) = handle.align(input);
 //!
 //!     // Sum each vector lane
-//!     let mut sums = handle.zeroed_native();
+//!     let mut sums = handle.zeroed();
 //!     for v in vectors {
 //!         sums += *v;
 //!     }
@@ -60,7 +63,7 @@
 //! For example, the following function performs an [Array of Structures of Arrays](https://en.wikipedia.org/wiki/AoS_and_SoA)
 //! operation using arrays of 4 `f64`s regardless of instruction set:
 //! ```
-//! use generic_simd::{dispatch, vector::{Handle, Signed, Vector}};
+//! use generic_simd::{dispatch, vector::{Signed, SizedHandle, Vector, width}};
 //!
 //! // Equivalent to an array of 4 2-dimensional coordinates,
 //! // but with a vectorizable memory layout.
@@ -72,16 +75,16 @@
 //! // A generic mean implementation for any instruction set.
 //! fn mean_impl<H>(handle: H, input: &[Coordinates]) -> (f64, f64)
 //! where
-//!     H: Handle<f64>,
-//!     <H as Handle<f64>>::Vector4: Signed,
+//!     H: SizedHandle<f64, width::W4>,
+//!     <H as SizedHandle<f64, width::W4>>::Vector: Signed,
 //! {
-//!     let mut xsum = handle.zeroed4();
-//!     let mut ysum = handle.zeroed4();
+//!     let mut xsum = handle.zeroed();
+//!     let mut ysum = handle.zeroed();
 //!
 //!     for Coordinates { x, y } in input {
 //!         // read the arrays into vectors
-//!         xsum += handle.read4(x);
-//!         ysum += handle.read4(y);
+//!         xsum += handle.read(x);
+//!         ysum += handle.read(y);
 //!     }
 //!
 //!     // sum across the vector lanes

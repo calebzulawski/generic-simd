@@ -127,7 +127,7 @@ where
         slice: &'a [V::Scalar],
     ) -> Self {
         assert!(
-            slice.len() >= V::WIDTH,
+            slice.len() >= V::width(),
             "slice must be at least as wide as the vector"
         );
         Self {
@@ -138,10 +138,10 @@ where
 
     /// Returns the number of overlapping vectors.
     ///
-    /// Equal to `slice.len() - V::WIDTH + 1`.
+    /// Equal to `slice.len() - V::width() + 1`.
     #[inline]
     pub fn len(&self) -> usize {
-        self.slice.len() - V::WIDTH + 1
+        self.slice.len() - V::width() + 1
     }
 
     /// Returns the vector offset `index` into the slice of scalars.
@@ -158,7 +158,7 @@ where
     ///
     /// # Safety
     /// Index must be less than `len()`, i.e. the underlying slice must be at least `index
-    /// + V::WIDTH` long.
+    /// + V::width()` long.
     #[inline]
     pub unsafe fn get_unchecked(&self, index: usize) -> V
     where
@@ -189,7 +189,7 @@ where
         slice: &'a mut [V::Scalar],
     ) -> Self {
         assert!(
-            slice.len() >= V::WIDTH,
+            slice.len() >= V::width(),
             "slice must be at least as wide as the vector"
         );
         Self {
@@ -200,10 +200,10 @@ where
 
     /// Returns the number of overlapping vectors.
     ///
-    /// Equal to `slice.len() - V::WIDTH + 1`.
+    /// Equal to `slice.len() - V::width() + 1`.
     #[inline]
     pub fn len(&self) -> usize {
-        self.slice.len() - V::WIDTH + 1
+        self.slice.len() - V::width() + 1
     }
 
     /// Returns the vector offset `index` into the slice of scalars.
@@ -220,7 +220,7 @@ where
     ///
     /// # Safety
     /// Index must be less than `len()`, i.e. the underlying slice must be at least `index
-    /// + V::WIDTH` long.
+    /// + V::width()` long.
     #[inline]
     pub unsafe fn get_unchecked(&self, index: usize) -> V {
         V::read_ptr(V::Feature::new_unchecked(), self.slice.as_ptr().add(index))
@@ -240,7 +240,7 @@ where
     ///
     /// # Safety
     /// Index must be less than `len()`, i.e. the underlying slice must be at least `index
-    /// + V::WIDTH` long.
+    /// + V::width()` long.
     #[inline]
     pub unsafe fn get_unchecked_mut(&'a mut self, index: usize) -> RefMut<'a, V> {
         RefMut::new(

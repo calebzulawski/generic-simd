@@ -22,7 +22,7 @@ where
     }
 
     let output = vfunc(vector);
-    for i in 0..V::WIDTH {
+    for i in 0..V::width() {
         assert_eq!(output[i], sfunc(vector[i]))
     }
 }
@@ -49,7 +49,7 @@ fn binary_op_impl<D, V, VFunc, SFunc>(
     }
 
     let output = vfunc(a, b);
-    for i in 0..V::WIDTH {
+    for i in 0..V::width() {
         assert_eq!(output[i], sfunc(a[i], b[i]))
     }
 }
@@ -70,7 +70,7 @@ where
     }
 
     let output = vfunc(a, b);
-    for i in 0..V::WIDTH {
+    for i in 0..V::width() {
         assert_eq!(output[i], sfunc(a[i], b))
     }
 }
@@ -98,7 +98,7 @@ fn assign_op_impl<D, V, VFunc, SFunc>(
 
     let mut output = a.clone();
     vfunc(&mut output, b);
-    for i in 0..V::WIDTH {
+    for i in 0..V::width() {
         sfunc(&mut a[i], b[i]);
         assert_eq!(output[i], a[i])
     }
@@ -121,7 +121,7 @@ where
 
     let mut output = a.clone();
     vfunc(&mut output, b);
-    for i in 0..V::WIDTH {
+    for i in 0..V::width() {
         sfunc(&mut a[i], b);
         assert_eq!(output[i], a[i])
     }

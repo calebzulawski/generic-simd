@@ -2,7 +2,7 @@
 
 use crate::arch::generic;
 use crate::shim::{Shim2, Shim4};
-use crate::vector::{Handle, Vector};
+use crate::vector::{width, Native, SizedHandle, Vector};
 use arch_types::{marker::Superset, Features};
 
 #[cfg(target_arch = "x86")]
@@ -18,6 +18,42 @@ use crate::shim::Shim8;
 
 arch_types::new_features_type! { #[doc = "SSE instruction set handle."] pub Sse => "sse", "sse3" }
 arch_types::new_features_type! { #[doc = "AVX instruction set handle."] pub Avx => "sse", "sse3", "avx" }
+
+impl Native<f32> for Sse {
+    type Width = width::W4;
+}
+
+impl Native<f64> for Sse {
+    type Width = width::W2;
+}
+
+#[cfg(feature = "complex")]
+impl Native<Complex<f32>> for Sse {
+    type Width = width::W2;
+}
+
+#[cfg(feature = "complex")]
+impl Native<Complex<f64>> for Sse {
+    type Width = width::W1;
+}
+
+impl Native<f32> for Avx {
+    type Width = width::W8;
+}
+
+impl Native<f64> for Avx {
+    type Width = width::W4;
+}
+
+#[cfg(feature = "complex")]
+impl Native<Complex<f32>> for Avx {
+    type Width = width::W4;
+}
+
+#[cfg(feature = "complex")]
+impl Native<Complex<f64>> for Avx {
+    type Width = width::W2;
+}
 
 /// An SSE vector of `f32`s.
 #[derive(Clone, Copy, Debug)]
@@ -79,104 +115,180 @@ pub struct cf32x4(__m256);
 #[allow(non_camel_case_types)]
 pub struct cf64x2(__m256d);
 
-impl Handle<f32> for Sse {
-    type VectorNative = f32x4;
-    type Feature1 = generic::Generic;
-    type Feature2 = generic::Generic;
-    type Feature4 = Sse;
-    type Feature8 = Sse;
-    type Vector1 = generic::f32x1;
-    type Vector2 = Shim2<generic::f32x1, f32>;
-    type Vector4 = f32x4;
-    type Vector8 = Shim2<f32x4, f32>;
+impl SizedHandle<f32, width::W1> for Sse {
+    type Feature = generic::Generic;
+    type Vector = generic::f32x1;
 }
 
-impl Handle<f64> for Sse {
-    type VectorNative = f64x2;
-    type Feature1 = generic::Generic;
-    type Feature2 = Sse;
-    type Feature4 = Sse;
-    type Feature8 = Sse;
-    type Vector1 = generic::f64x1;
-    type Vector2 = f64x2;
-    type Vector4 = Shim2<f64x2, f64>;
-    type Vector8 = Shim4<f64x2, f64>;
+impl SizedHandle<f32, width::W2> for Sse {
+    type Feature = generic::Generic;
+    type Vector = Shim2<generic::f32x1, f32>;
 }
 
-#[cfg(feature = "complex")]
-impl Handle<Complex<f32>> for Sse {
-    type VectorNative = cf32x2;
-    type Feature1 = generic::Generic;
-    type Feature2 = Sse;
-    type Feature4 = Sse;
-    type Feature8 = Sse;
-    type Vector1 = generic::cf32x1;
-    type Vector2 = cf32x2;
-    type Vector4 = Shim2<cf32x2, Complex<f32>>;
-    type Vector8 = Shim4<cf32x2, Complex<f32>>;
+impl SizedHandle<f32, width::W4> for Sse {
+    type Feature = Sse;
+    type Vector = f32x4;
 }
 
-#[cfg(feature = "complex")]
-impl Handle<Complex<f64>> for Sse {
-    type VectorNative = cf64x1;
-    type Feature1 = Sse;
-    type Feature2 = Sse;
-    type Feature4 = Sse;
-    type Feature8 = Sse;
-    type Vector1 = cf64x1;
-    type Vector2 = Shim2<cf64x1, Complex<f64>>;
-    type Vector4 = Shim4<cf64x1, Complex<f64>>;
-    type Vector8 = Shim8<cf64x1, Complex<f64>>;
+impl SizedHandle<f32, width::W8> for Sse {
+    type Feature = Sse;
+    type Vector = Shim2<f32x4, f32>;
 }
 
-impl Handle<f32> for Avx {
-    type VectorNative = f32x8;
-    type Feature1 = generic::Generic;
-    type Feature2 = generic::Generic;
-    type Feature4 = Sse;
-    type Feature8 = Avx;
-    type Vector1 = generic::f32x1;
-    type Vector2 = Shim2<generic::f32x1, f32>;
-    type Vector4 = f32x4;
-    type Vector8 = f32x8;
+impl SizedHandle<f64, width::W1> for Sse {
+    type Feature = generic::Generic;
+    type Vector = generic::f64x1;
 }
 
-impl Handle<f64> for Avx {
-    type VectorNative = f64x4;
-    type Feature1 = generic::Generic;
-    type Feature2 = Sse;
-    type Feature4 = Avx;
-    type Feature8 = Avx;
-    type Vector1 = generic::f64x1;
-    type Vector2 = f64x2;
-    type Vector4 = f64x4;
-    type Vector8 = Shim2<f64x4, f64>;
+impl SizedHandle<f64, width::W2> for Sse {
+    type Feature = Sse;
+    type Vector = f64x2;
+}
+
+impl SizedHandle<f64, width::W4> for Sse {
+    type Feature = Sse;
+    type Vector = Shim2<f64x2, f64>;
+}
+
+impl SizedHandle<f64, width::W8> for Sse {
+    type Feature = Sse;
+    type Vector = Shim4<f64x2, f64>;
 }
 
 #[cfg(feature = "complex")]
-impl Handle<Complex<f32>> for Avx {
-    type VectorNative = cf32x4;
-    type Feature1 = generic::Generic;
-    type Feature2 = Sse;
-    type Feature4 = Avx;
-    type Feature8 = Avx;
-    type Vector1 = generic::cf32x1;
-    type Vector2 = cf32x2;
-    type Vector4 = cf32x4;
-    type Vector8 = Shim2<cf32x4, Complex<f32>>;
+impl SizedHandle<Complex<f32>, width::W1> for Sse {
+    type Feature = generic::Generic;
+    type Vector = generic::cf32x1;
 }
 
 #[cfg(feature = "complex")]
-impl Handle<Complex<f64>> for Avx {
-    type VectorNative = cf64x2;
-    type Feature1 = Sse;
-    type Feature2 = Avx;
-    type Feature4 = Avx;
-    type Feature8 = Avx;
-    type Vector1 = cf64x1;
-    type Vector2 = cf64x2;
-    type Vector4 = Shim2<cf64x2, Complex<f64>>;
-    type Vector8 = Shim4<cf64x2, Complex<f64>>;
+impl SizedHandle<Complex<f32>, width::W2> for Sse {
+    type Feature = Sse;
+    type Vector = cf32x2;
+}
+
+#[cfg(feature = "complex")]
+impl SizedHandle<Complex<f32>, width::W4> for Sse {
+    type Feature = Sse;
+    type Vector = Shim2<cf32x2, Complex<f32>>;
+}
+
+#[cfg(feature = "complex")]
+impl SizedHandle<Complex<f32>, width::W8> for Sse {
+    type Feature = Sse;
+    type Vector = Shim4<cf32x2, Complex<f32>>;
+}
+
+#[cfg(feature = "complex")]
+impl SizedHandle<Complex<f64>, width::W1> for Sse {
+    type Feature = Sse;
+    type Vector = cf64x1;
+}
+
+#[cfg(feature = "complex")]
+impl SizedHandle<Complex<f64>, width::W2> for Sse {
+    type Feature = Sse;
+    type Vector = Shim2<cf64x1, Complex<f64>>;
+}
+
+#[cfg(feature = "complex")]
+impl SizedHandle<Complex<f64>, width::W4> for Sse {
+    type Feature = Sse;
+    type Vector = Shim4<cf64x1, Complex<f64>>;
+}
+
+#[cfg(feature = "complex")]
+impl SizedHandle<Complex<f64>, width::W8> for Sse {
+    type Feature = Sse;
+    type Vector = Shim8<cf64x1, Complex<f64>>;
+}
+
+impl SizedHandle<f32, width::W1> for Avx {
+    type Feature = generic::Generic;
+    type Vector = generic::f32x1;
+}
+
+impl SizedHandle<f32, width::W2> for Avx {
+    type Feature = generic::Generic;
+    type Vector = Shim2<generic::f32x1, f32>;
+}
+
+impl SizedHandle<f32, width::W4> for Avx {
+    type Feature = Sse;
+    type Vector = f32x4;
+}
+
+impl SizedHandle<f32, width::W8> for Avx {
+    type Feature = Avx;
+    type Vector = f32x8;
+}
+
+impl SizedHandle<f64, width::W1> for Avx {
+    type Feature = generic::Generic;
+    type Vector = generic::f64x1;
+}
+
+impl SizedHandle<f64, width::W2> for Avx {
+    type Feature = Sse;
+    type Vector = f64x2;
+}
+
+impl SizedHandle<f64, width::W4> for Avx {
+    type Feature = Avx;
+    type Vector = f64x4;
+}
+
+impl SizedHandle<f64, width::W8> for Avx {
+    type Feature = Avx;
+    type Vector = Shim2<f64x4, f64>;
+}
+
+#[cfg(feature = "complex")]
+impl SizedHandle<Complex<f32>, width::W1> for Avx {
+    type Feature = generic::Generic;
+    type Vector = generic::cf32x1;
+}
+
+#[cfg(feature = "complex")]
+impl SizedHandle<Complex<f32>, width::W2> for Avx {
+    type Feature = Sse;
+    type Vector = cf32x2;
+}
+
+#[cfg(feature = "complex")]
+impl SizedHandle<Complex<f32>, width::W4> for Avx {
+    type Feature = Avx;
+    type Vector = cf32x4;
+}
+
+#[cfg(feature = "complex")]
+impl SizedHandle<Complex<f32>, width::W8> for Avx {
+    type Feature = Avx;
+    type Vector = Shim2<cf32x4, Complex<f32>>;
+}
+
+#[cfg(feature = "complex")]
+impl SizedHandle<Complex<f64>, width::W1> for Avx {
+    type Feature = Sse;
+    type Vector = cf64x1;
+}
+
+#[cfg(feature = "complex")]
+impl SizedHandle<Complex<f64>, width::W2> for Avx {
+    type Feature = Avx;
+    type Vector = cf64x2;
+}
+
+#[cfg(feature = "complex")]
+impl SizedHandle<Complex<f64>, width::W4> for Avx {
+    type Feature = Avx;
+    type Vector = Shim2<cf64x2, Complex<f64>>;
+}
+
+#[cfg(feature = "complex")]
+impl SizedHandle<Complex<f64>, width::W8> for Avx {
+    type Feature = Avx;
+    type Vector = Shim4<cf64x2, Complex<f64>>;
 }
 
 arithmetic_ops! {
@@ -436,6 +548,8 @@ unsafe impl Vector for f32x4 {
 
     type Feature = Sse;
 
+    type Width = crate::vector::width::W4;
+
     #[inline]
     fn splat(_: impl Superset<Self::Feature>, from: Self::Scalar) -> Self {
         Self(unsafe { _mm_set1_ps(from) })
@@ -446,6 +560,8 @@ unsafe impl Vector for f64x2 {
     type Scalar = f64;
 
     type Feature = Sse;
+
+    type Width = crate::vector::width::W2;
 
     #[inline]
     fn splat(_: impl Superset<Self::Feature>, from: Self::Scalar) -> Self {
@@ -459,6 +575,8 @@ unsafe impl Vector for cf32x2 {
 
     type Feature = Sse;
 
+    type Width = crate::vector::width::W2;
+
     #[inline]
     fn splat(_: impl Superset<Self::Feature>, from: Self::Scalar) -> Self {
         Self(unsafe { _mm_set_ps(from.im, from.re, from.im, from.re) })
@@ -471,6 +589,8 @@ unsafe impl Vector for cf64x1 {
 
     type Feature = Sse;
 
+    type Width = crate::vector::width::W1;
+
     #[inline]
     fn splat(_: impl Superset<Self::Feature>, from: Self::Scalar) -> Self {
         Self(unsafe { _mm_set_pd(from.im, from.re) })
@@ -481,6 +601,8 @@ unsafe impl Vector for f32x8 {
     type Scalar = f32;
 
     type Feature = Avx;
+
+    type Width = crate::vector::width::W8;
 
     #[inline]
     fn splat(_: impl Superset<Self::Feature>, from: Self::Scalar) -> Self {
@@ -493,6 +615,8 @@ unsafe impl Vector for f64x4 {
 
     type Feature = Avx;
 
+    type Width = crate::vector::width::W4;
+
     #[inline]
     fn splat(_: impl Superset<Self::Feature>, from: Self::Scalar) -> Self {
         Self(unsafe { _mm256_set1_pd(from) })
@@ -504,6 +628,8 @@ unsafe impl Vector for cf32x4 {
     type Scalar = Complex<f32>;
 
     type Feature = Avx;
+
+    type Width = crate::vector::width::W4;
 
     #[inline]
     fn splat(_: impl Superset<Self::Feature>, from: Self::Scalar) -> Self {
@@ -520,6 +646,8 @@ unsafe impl Vector for cf64x2 {
     type Scalar = Complex<f64>;
 
     type Feature = Avx;
+
+    type Width = crate::vector::width::W2;
 
     #[inline]
     fn splat(_: impl Superset<Self::Feature>, from: Self::Scalar) -> Self {
