@@ -8,8 +8,9 @@ use core::marker::PhantomData;
 ///
 /// [`align_to`]: https://doc.rust-lang.org/std/primitive.slice.html#method.align_to
 #[inline]
+#[allow(unused_variables)]
 pub fn align<V>(
-    #[allow(unused_variables)] feature: impl Into<V::Token>,
+    token: impl Into<V::Token>,
     slice: &[V::Scalar],
 ) -> (&[V::Scalar], &[V], &[V::Scalar])
 where
@@ -23,7 +24,7 @@ where
 /// [`align_to_mut`]: https://doc.rust-lang.org/std/primitive.slice.html#method.align_to_mut
 #[inline]
 pub fn align_mut<V>(
-    #[allow(unused_variables)] feature: impl Into<V::Token>,
+    #[allow(unused_variables)] token: impl Into<V::Token>,
     slice: &mut [V::Scalar],
 ) -> (&mut [V::Scalar], &mut [V], &mut [V::Scalar])
 where
@@ -34,23 +35,23 @@ where
 
 /// Create a slice of overlapping vectors from a slice of scalars.
 #[inline]
-pub fn overlapping<V>(feature: impl Into<V::Token>, slice: &[V::Scalar]) -> Overlapping<'_, V>
+pub fn overlapping<V>(token: impl Into<V::Token>, slice: &[V::Scalar]) -> Overlapping<'_, V>
 where
     V: Vector,
 {
-    Overlapping::new(feature, slice)
+    Overlapping::new(token, slice)
 }
 
 /// Create a mutable slice of overlapping vectors from a slice of scalars.
 #[inline]
 pub fn overlapping_mut<V>(
-    feature: impl Into<V::Token>,
+    token: impl Into<V::Token>,
     slice: &mut [V::Scalar],
 ) -> OverlappingMut<'_, V>
 where
     V: Vector,
 {
-    OverlappingMut::new(feature, slice)
+    OverlappingMut::new(token, slice)
 }
 
 /// Wrapper for producing a mutable reference from an unaligned pointer.
@@ -67,10 +68,10 @@ impl<'a, V> RefMut<'a, V>
 where
     V: Vector,
 {
-    fn new(feature: impl Into<V::Token>, source: *mut V::Scalar) -> Self {
+    fn new(token: impl Into<V::Token>, source: *mut V::Scalar) -> Self {
         Self {
             source,
-            temp: V::zeroed(feature),
+            temp: V::zeroed(token),
             lifetime: PhantomData,
         }
     }
@@ -123,7 +124,7 @@ where
     /// Create a new overlapping vector slice.
     #[inline]
     pub fn new(
-        #[allow(unused_variables)] feature: impl Into<V::Token>,
+        #[allow(unused_variables)] token: impl Into<V::Token>,
         slice: &'a [V::Scalar],
     ) -> Self {
         assert!(
@@ -184,10 +185,8 @@ where
 {
     /// Create a new overlapping vector slice.
     #[inline]
-    pub fn new(
-        #[allow(unused_variables)] feature: impl Into<V::Token>,
-        slice: &'a mut [V::Scalar],
-    ) -> Self {
+    #[allow(unused_variables)]
+    pub fn new(token: impl Into<V::Token>, slice: &'a mut [V::Scalar]) -> Self {
         assert!(
             slice.len() >= V::width(),
             "slice must be at least as wide as the vector"

@@ -269,10 +269,8 @@ pub unsafe trait Vector: Copy {
     /// # Safety
     /// * `from` must point to an array of length at least `width()`.
     #[inline]
-    unsafe fn read_ptr(
-        #[allow(unused_variables)] feature: impl Into<Self::Token>,
-        from: *const Self::Scalar,
-    ) -> Self {
+    #[allow(unused_variables)]
+    unsafe fn read_ptr(token: impl Into<Self::Token>, from: *const Self::Scalar) -> Self {
         (from as *const Self).read_unaligned()
     }
 
@@ -281,8 +279,8 @@ pub unsafe trait Vector: Copy {
     /// # Safety
     /// * `from` be length at least `width()`.
     #[inline]
-    unsafe fn read_unchecked(feature: impl Into<Self::Token>, from: &[Self::Scalar]) -> Self {
-        Self::read_ptr(feature, from.as_ptr())
+    unsafe fn read_unchecked(token: impl Into<Self::Token>, from: &[Self::Scalar]) -> Self {
+        Self::read_ptr(token, from.as_ptr())
     }
 
     /// Read from a slice.
@@ -290,12 +288,12 @@ pub unsafe trait Vector: Copy {
     /// # Panic
     /// Panics if the length of `from` is less than `width()`.
     #[inline]
-    fn read(feature: impl Into<Self::Token>, from: &[Self::Scalar]) -> Self {
+    fn read(token: impl Into<Self::Token>, from: &[Self::Scalar]) -> Self {
         assert!(
             from.len() >= Self::width(),
             "source not larget enough to load vector"
         );
-        unsafe { Self::read_unchecked(feature, from) }
+        unsafe { Self::read_unchecked(token, from) }
     }
 
     /// Write to a pointer.
@@ -331,12 +329,13 @@ pub unsafe trait Vector: Copy {
 
     /// Create a new vector with each lane containing zeroes.
     #[inline]
-    fn zeroed(#[allow(unused_variables)] feature: impl Into<Self::Token>) -> Self {
+    #[allow(unused_variables)]
+    fn zeroed(token: impl Into<Self::Token>) -> Self {
         unsafe { core::mem::zeroed() }
     }
 
     /// Create a new vector with each lane containing the provided value.
-    fn splat(feature: impl Into<Self::Token>, from: Self::Scalar) -> Self;
+    fn splat(token: impl Into<Self::Token>, from: Self::Scalar) -> Self;
 }
 
 /// A supertrait for vectors supporting typical arithmetic operations.
