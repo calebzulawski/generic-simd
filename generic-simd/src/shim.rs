@@ -40,11 +40,11 @@ where
     Scalar: Copy,
 {
     type Scalar = Scalar;
-    type Feature = <Underlying as Vector>::Feature;
+    type Token = <Underlying as Vector>::Token;
     type Width = <Underlying::Width as Double>::Doubled;
 
     #[inline]
-    fn splat(feature: impl Into<Self::Feature>, from: Self::Scalar) -> Self {
+    fn splat(feature: impl Into<Self::Token>, from: Self::Scalar) -> Self {
         Self([Underlying::splat(feature, from); 2], PhantomData)
     }
 }

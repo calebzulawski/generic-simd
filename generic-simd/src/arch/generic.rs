@@ -1,6 +1,6 @@
 //! Generic vector types for any platform.
 
-use crate::arch::Cpu;
+use crate::arch::Token;
 use crate::shim::{Shim2, Shim4, Shim8};
 use crate::vector::{width, Native, SizedHandle, Vector};
 
@@ -11,7 +11,7 @@ use num_complex::Complex;
 #[derive(Copy, Clone, Debug)]
 pub struct Generic;
 
-unsafe impl Cpu for Generic {
+unsafe impl Token for Generic {
     fn new() -> Option<Self> {
         Some(Self)
     }
@@ -60,22 +60,22 @@ macro_rules! implement {
         }
 
         impl SizedHandle<$scalar, width::W1> for Generic {
-            type Feature = Generic;
+            type Token = Generic;
             type Vector = $vector;
         }
 
         impl SizedHandle<$scalar, width::W2> for Generic {
-            type Feature = Generic;
+            type Token = Generic;
             type Vector = Shim2<$vector, $scalar>;
         }
 
         impl SizedHandle<$scalar, width::W4> for Generic {
-            type Feature = Generic;
+            type Token = Generic;
             type Vector = Shim4<$vector, $scalar>;
         }
 
         impl SizedHandle<$scalar, width::W8> for Generic {
-            type Feature = Generic;
+            type Token = Generic;
             type Vector = Shim8<$vector, $scalar>;
         }
     }
@@ -114,12 +114,12 @@ macro_rules! implement {
         unsafe impl Vector for $vector {
             type Scalar = $scalar;
 
-            type Feature = Generic;
+            type Token = Generic;
 
             type Width = crate::vector::width::W1;
 
             #[inline]
-            fn splat(_: impl Into<Self::Feature>, from: Self::Scalar) -> Self
+            fn splat(_: impl Into<Self::Token>, from: Self::Scalar) -> Self
             {
                 Self(from)
             }

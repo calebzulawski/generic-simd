@@ -1,6 +1,6 @@
 //! x86/x86-64 vector types.
 
-use crate::arch::{generic, Cpu};
+use crate::arch::{generic, Token};
 use crate::shim::{Shim2, Shim4};
 use crate::vector::{width, Native, SizedHandle, Vector};
 
@@ -129,178 +129,178 @@ pub struct cf32x4(__m256);
 pub struct cf64x2(__m256d);
 
 impl SizedHandle<f32, width::W1> for Sse {
-    type Feature = generic::Generic;
+    type Token = generic::Generic;
     type Vector = generic::f32x1;
 }
 
 impl SizedHandle<f32, width::W2> for Sse {
-    type Feature = generic::Generic;
+    type Token = generic::Generic;
     type Vector = Shim2<generic::f32x1, f32>;
 }
 
 impl SizedHandle<f32, width::W4> for Sse {
-    type Feature = Sse;
+    type Token = Sse;
     type Vector = f32x4;
 }
 
 impl SizedHandle<f32, width::W8> for Sse {
-    type Feature = Sse;
+    type Token = Sse;
     type Vector = Shim2<f32x4, f32>;
 }
 
 impl SizedHandle<f64, width::W1> for Sse {
-    type Feature = generic::Generic;
+    type Token = generic::Generic;
     type Vector = generic::f64x1;
 }
 
 impl SizedHandle<f64, width::W2> for Sse {
-    type Feature = Sse;
+    type Token = Sse;
     type Vector = f64x2;
 }
 
 impl SizedHandle<f64, width::W4> for Sse {
-    type Feature = Sse;
+    type Token = Sse;
     type Vector = Shim2<f64x2, f64>;
 }
 
 impl SizedHandle<f64, width::W8> for Sse {
-    type Feature = Sse;
+    type Token = Sse;
     type Vector = Shim4<f64x2, f64>;
 }
 
 #[cfg(feature = "complex")]
 impl SizedHandle<Complex<f32>, width::W1> for Sse {
-    type Feature = generic::Generic;
+    type Token = generic::Generic;
     type Vector = generic::cf32x1;
 }
 
 #[cfg(feature = "complex")]
 impl SizedHandle<Complex<f32>, width::W2> for Sse {
-    type Feature = Sse;
+    type Token = Sse;
     type Vector = cf32x2;
 }
 
 #[cfg(feature = "complex")]
 impl SizedHandle<Complex<f32>, width::W4> for Sse {
-    type Feature = Sse;
+    type Token = Sse;
     type Vector = Shim2<cf32x2, Complex<f32>>;
 }
 
 #[cfg(feature = "complex")]
 impl SizedHandle<Complex<f32>, width::W8> for Sse {
-    type Feature = Sse;
+    type Token = Sse;
     type Vector = Shim4<cf32x2, Complex<f32>>;
 }
 
 #[cfg(feature = "complex")]
 impl SizedHandle<Complex<f64>, width::W1> for Sse {
-    type Feature = Sse;
+    type Token = Sse;
     type Vector = cf64x1;
 }
 
 #[cfg(feature = "complex")]
 impl SizedHandle<Complex<f64>, width::W2> for Sse {
-    type Feature = Sse;
+    type Token = Sse;
     type Vector = Shim2<cf64x1, Complex<f64>>;
 }
 
 #[cfg(feature = "complex")]
 impl SizedHandle<Complex<f64>, width::W4> for Sse {
-    type Feature = Sse;
+    type Token = Sse;
     type Vector = Shim4<cf64x1, Complex<f64>>;
 }
 
 #[cfg(feature = "complex")]
 impl SizedHandle<Complex<f64>, width::W8> for Sse {
-    type Feature = Sse;
+    type Token = Sse;
     type Vector = Shim8<cf64x1, Complex<f64>>;
 }
 
 impl SizedHandle<f32, width::W1> for Avx {
-    type Feature = generic::Generic;
+    type Token = generic::Generic;
     type Vector = generic::f32x1;
 }
 
 impl SizedHandle<f32, width::W2> for Avx {
-    type Feature = generic::Generic;
+    type Token = generic::Generic;
     type Vector = Shim2<generic::f32x1, f32>;
 }
 
 impl SizedHandle<f32, width::W4> for Avx {
-    type Feature = Sse;
+    type Token = Sse;
     type Vector = f32x4;
 }
 
 impl SizedHandle<f32, width::W8> for Avx {
-    type Feature = Avx;
+    type Token = Avx;
     type Vector = f32x8;
 }
 
 impl SizedHandle<f64, width::W1> for Avx {
-    type Feature = generic::Generic;
+    type Token = generic::Generic;
     type Vector = generic::f64x1;
 }
 
 impl SizedHandle<f64, width::W2> for Avx {
-    type Feature = Sse;
+    type Token = Sse;
     type Vector = f64x2;
 }
 
 impl SizedHandle<f64, width::W4> for Avx {
-    type Feature = Avx;
+    type Token = Avx;
     type Vector = f64x4;
 }
 
 impl SizedHandle<f64, width::W8> for Avx {
-    type Feature = Avx;
+    type Token = Avx;
     type Vector = Shim2<f64x4, f64>;
 }
 
 #[cfg(feature = "complex")]
 impl SizedHandle<Complex<f32>, width::W1> for Avx {
-    type Feature = generic::Generic;
+    type Token = generic::Generic;
     type Vector = generic::cf32x1;
 }
 
 #[cfg(feature = "complex")]
 impl SizedHandle<Complex<f32>, width::W2> for Avx {
-    type Feature = Sse;
+    type Token = Sse;
     type Vector = cf32x2;
 }
 
 #[cfg(feature = "complex")]
 impl SizedHandle<Complex<f32>, width::W4> for Avx {
-    type Feature = Avx;
+    type Token = Avx;
     type Vector = cf32x4;
 }
 
 #[cfg(feature = "complex")]
 impl SizedHandle<Complex<f32>, width::W8> for Avx {
-    type Feature = Avx;
+    type Token = Avx;
     type Vector = Shim2<cf32x4, Complex<f32>>;
 }
 
 #[cfg(feature = "complex")]
 impl SizedHandle<Complex<f64>, width::W1> for Avx {
-    type Feature = Sse;
+    type Token = Sse;
     type Vector = cf64x1;
 }
 
 #[cfg(feature = "complex")]
 impl SizedHandle<Complex<f64>, width::W2> for Avx {
-    type Feature = Avx;
+    type Token = Avx;
     type Vector = cf64x2;
 }
 
 #[cfg(feature = "complex")]
 impl SizedHandle<Complex<f64>, width::W4> for Avx {
-    type Feature = Avx;
+    type Token = Avx;
     type Vector = Shim2<cf64x2, Complex<f64>>;
 }
 
 #[cfg(feature = "complex")]
 impl SizedHandle<Complex<f64>, width::W8> for Avx {
-    type Feature = Avx;
+    type Token = Avx;
     type Vector = Shim4<cf64x2, Complex<f64>>;
 }
 
@@ -559,12 +559,12 @@ as_slice! { cf64x2 }
 unsafe impl Vector for f32x4 {
     type Scalar = f32;
 
-    type Feature = Sse;
+    type Token = Sse;
 
     type Width = crate::vector::width::W4;
 
     #[inline]
-    fn splat(_: impl Into<Self::Feature>, from: Self::Scalar) -> Self {
+    fn splat(_: impl Into<Self::Token>, from: Self::Scalar) -> Self {
         Self(unsafe { _mm_set1_ps(from) })
     }
 }
@@ -572,12 +572,12 @@ unsafe impl Vector for f32x4 {
 unsafe impl Vector for f64x2 {
     type Scalar = f64;
 
-    type Feature = Sse;
+    type Token = Sse;
 
     type Width = crate::vector::width::W2;
 
     #[inline]
-    fn splat(_: impl Into<Self::Feature>, from: Self::Scalar) -> Self {
+    fn splat(_: impl Into<Self::Token>, from: Self::Scalar) -> Self {
         Self(unsafe { _mm_set1_pd(from) })
     }
 }
@@ -586,12 +586,12 @@ unsafe impl Vector for f64x2 {
 unsafe impl Vector for cf32x2 {
     type Scalar = Complex<f32>;
 
-    type Feature = Sse;
+    type Token = Sse;
 
     type Width = crate::vector::width::W2;
 
     #[inline]
-    fn splat(_: impl Into<Self::Feature>, from: Self::Scalar) -> Self {
+    fn splat(_: impl Into<Self::Token>, from: Self::Scalar) -> Self {
         Self(unsafe { _mm_set_ps(from.im, from.re, from.im, from.re) })
     }
 }
@@ -600,12 +600,12 @@ unsafe impl Vector for cf32x2 {
 unsafe impl Vector for cf64x1 {
     type Scalar = Complex<f64>;
 
-    type Feature = Sse;
+    type Token = Sse;
 
     type Width = crate::vector::width::W1;
 
     #[inline]
-    fn splat(_: impl Into<Self::Feature>, from: Self::Scalar) -> Self {
+    fn splat(_: impl Into<Self::Token>, from: Self::Scalar) -> Self {
         Self(unsafe { _mm_set_pd(from.im, from.re) })
     }
 }
@@ -613,12 +613,12 @@ unsafe impl Vector for cf64x1 {
 unsafe impl Vector for f32x8 {
     type Scalar = f32;
 
-    type Feature = Avx;
+    type Token = Avx;
 
     type Width = crate::vector::width::W8;
 
     #[inline]
-    fn splat(_: impl Into<Self::Feature>, from: Self::Scalar) -> Self {
+    fn splat(_: impl Into<Self::Token>, from: Self::Scalar) -> Self {
         Self(unsafe { _mm256_set1_ps(from) })
     }
 }
@@ -626,12 +626,12 @@ unsafe impl Vector for f32x8 {
 unsafe impl Vector for f64x4 {
     type Scalar = f64;
 
-    type Feature = Avx;
+    type Token = Avx;
 
     type Width = crate::vector::width::W4;
 
     #[inline]
-    fn splat(_: impl Into<Self::Feature>, from: Self::Scalar) -> Self {
+    fn splat(_: impl Into<Self::Token>, from: Self::Scalar) -> Self {
         Self(unsafe { _mm256_set1_pd(from) })
     }
 }
@@ -640,12 +640,12 @@ unsafe impl Vector for f64x4 {
 unsafe impl Vector for cf32x4 {
     type Scalar = Complex<f32>;
 
-    type Feature = Avx;
+    type Token = Avx;
 
     type Width = crate::vector::width::W4;
 
     #[inline]
-    fn splat(_: impl Into<Self::Feature>, from: Self::Scalar) -> Self {
+    fn splat(_: impl Into<Self::Token>, from: Self::Scalar) -> Self {
         unsafe {
             Self(_mm256_setr_ps(
                 from.re, from.im, from.re, from.im, from.re, from.im, from.re, from.im,
@@ -658,12 +658,12 @@ unsafe impl Vector for cf32x4 {
 unsafe impl Vector for cf64x2 {
     type Scalar = Complex<f64>;
 
-    type Feature = Avx;
+    type Token = Avx;
 
     type Width = crate::vector::width::W2;
 
     #[inline]
-    fn splat(_: impl Into<Self::Feature>, from: Self::Scalar) -> Self {
+    fn splat(_: impl Into<Self::Token>, from: Self::Scalar) -> Self {
         Self(unsafe { _mm256_setr_pd(from.re, from.im, from.re, from.im) })
     }
 }

@@ -2,19 +2,19 @@
 
 pub mod width;
 
-use crate::arch::Cpu;
+use crate::arch::Token;
 use core::ops::{
     Add, AddAssign, Deref, DerefMut, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign,
 };
 
 /// A handle for working with a particular vector associated with an instruction set.
-pub trait SizedHandle<Scalar, Width>: Cpu
+pub trait SizedHandle<Scalar, Width>: Token
 where
     Scalar: Copy,
     Width: width::Width,
 {
-    type Feature: Cpu + From<Self>;
-    type Vector: Vector<Scalar = Scalar, Feature = Self::Feature, Width = Width>;
+    type Token: Token + From<Self>;
+    type Vector: Vector<Scalar = Scalar, Token = Self::Token, Width = Width>;
 
     /// Read a vector from a pointer.
     ///
@@ -61,7 +61,7 @@ where
     /// See [`align`](../slice/fn.align.html).
     #[inline]
     fn align(self, slice: &[Scalar]) -> (&[Scalar], &[Self::Vector], &[Scalar]) {
-        crate::slice::align(Self::Feature::from(self), slice)
+        crate::slice::align(Self::Token::from(self), slice)
     }
 
     /// Align a slice of scalars to vectors.
@@ -72,7 +72,7 @@ where
         self,
         slice: &mut [Scalar],
     ) -> (&mut [Scalar], &mut [Self::Vector], &mut [Scalar]) {
-        crate::slice::align_mut(Self::Feature::from(self), slice)
+        crate::slice::align_mut(Self::Token::from(self), slice)
     }
 
     /// Create a slice of overlapping vectors from a slice of scalars.
@@ -80,7 +80,7 @@ where
     /// See [`overlapping`](../slice/fn.overlapping.html).
     #[inline]
     fn overlapping(self, slice: &[Scalar]) -> crate::slice::Overlapping<'_, Self::Vector> {
-        crate::slice::Overlapping::new(Self::Feature::from(self), slice)
+        crate::slice::Overlapping::new(Self::Token::from(self), slice)
     }
 
     /// Create a mutable slice of overlapping vectors from a slice of scalars.
@@ -91,7 +91,7 @@ where
         self,
         slice: &mut [Scalar],
     ) -> crate::slice::OverlappingMut<'_, Self::Vector> {
-        crate::slice::OverlappingMut::new(Self::Feature::from(self), slice)
+        crate::slice::OverlappingMut::new(Self::Token::from(self), slice)
     }
 }
 
@@ -187,7 +187,7 @@ macro_rules! handle_impl {
 }
 
 /// Indicates the widest native vector.
-pub trait Native<Scalar>: Cpu {
+pub trait Native<Scalar>: Token {
     type Width: width::Width;
 }
 
@@ -200,7 +200,7 @@ pub type NativeVector<Scalar, Handle> =
 
 /// Handle for working with all vector sizes.
 pub trait Handle<Scalar>:
-    Cpu
+    Token
     + Native<Scalar>
     + SizedHandle<Scalar, width::W1>
     + SizedHandle<Scalar, width::W2>
@@ -220,7 +220,7 @@ where
 impl<Scalar, F> Handle<Scalar> for F
 where
     Scalar: Copy,
-    F: Cpu
+    F: Token
         + Native<Scalar>
         + SizedHandle<Scalar, width::W1>
         + SizedHandle<Scalar, width::W2>
@@ -239,8 +239,8 @@ pub unsafe trait Vector: Copy {
     /// The type of elements in the vector.
     type Scalar: Copy;
 
-    /// The feature required to use this vector type.
-    type Feature: Cpu + From<Self::Feature> + Into<Self::Feature>;
+    /// The token that proves support for this vector on the CPU.
+    type Token: Token + From<Self::Token> + Into<Self::Token>;
 
     /// The number of elements in the vector.
     type Width: width::Width;
@@ -268,7 +268,7 @@ pub unsafe trait Vector: Copy {
     /// * `from` must point to an array of length at least `width()`.
     #[inline]
     unsafe fn read_ptr(
-        #[allow(unused_variables)] feature: impl Into<Self::Feature>,
+        #[allow(unused_variables)] feature: impl Into<Self::Token>,
         from: *const Self::Scalar,
     ) -> Self {
         (from as *const Self).read_unaligned()
@@ -279,7 +279,7 @@ pub unsafe trait Vector: Copy {
     /// # Safety
     /// * `from` be length at least `width()`.
     #[inline]
-    unsafe fn read_unchecked(feature: impl Into<Self::Feature>, from: &[Self::Scalar]) -> Self {
+    unsafe fn read_unchecked(feature: impl Into<Self::Token>, from: &[Self::Scalar]) -> Self {
         Self::read_ptr(feature, from.as_ptr())
     }
 
@@ -288,7 +288,7 @@ pub unsafe trait Vector: Copy {
     /// # Panic
     /// Panics if the length of `from` is less than `width()`.
     #[inline]
-    fn read(feature: impl Into<Self::Feature>, from: &[Self::Scalar]) -> Self {
+    fn read(feature: impl Into<Self::Token>, from: &[Self::Scalar]) -> Self {
         assert!(
             from.len() >= Self::width(),
             "source not larget enough to load vector"
@@ -329,12 +329,12 @@ pub unsafe trait Vector: Copy {
 
     /// Create a new vector with each lane containing zeroes.
     #[inline]
-    fn zeroed(#[allow(unused_variables)] feature: impl Into<Self::Feature>) -> Self {
+    fn zeroed(#[allow(unused_variables)] feature: impl Into<Self::Token>) -> Self {
         unsafe { core::mem::zeroed() }
     }
 
     /// Create a new vector with each lane containing the provided value.
-    fn splat(feature: impl Into<Self::Feature>, from: Self::Scalar) -> Self;
+    fn splat(feature: impl Into<Self::Token>, from: Self::Scalar) -> Self;
 }
 
 /// A supertrait for vectors supporting typical arithmetic operations.

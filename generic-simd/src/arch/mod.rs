@@ -1,13 +1,21 @@
 //! Architecture-specific types.
 
-pub unsafe trait Cpu: Copy + From<Self> + Into<Self> {
+/// Indicates support for a particular CPU feature.
+///
+/// # Safety
+/// Implementing `Token` for a type indicates that the type is only constructible when the
+/// associated CPU features are supported.
+pub unsafe trait Token: Copy + From<Self> + Into<Self> {
+    /// Detects whether the required CPU features are supported.
     fn new() -> Option<Self>;
+
+    /// Creates the token without detecting if the CPU features are supported.
     unsafe fn new_unchecked() -> Self;
 }
 
 macro_rules! impl_cpu {
     { $name:ident => $($features:tt),+ } => {
-        unsafe impl $crate::arch::Cpu for $name {
+        unsafe impl $crate::arch::Token for $name {
             fn new() -> Option<Self> {
                 if multiversion::are_cpu_features_detected!($($features),*) {
                     Some(Self(()))

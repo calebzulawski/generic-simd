@@ -1,6 +1,6 @@
 //! Slices of vectors.
 
-use crate::arch::Cpu;
+use crate::arch::Token;
 use crate::vector::Vector;
 use core::marker::PhantomData;
 
@@ -9,7 +9,7 @@ use core::marker::PhantomData;
 /// [`align_to`]: https://doc.rust-lang.org/std/primitive.slice.html#method.align_to
 #[inline]
 pub fn align<V>(
-    #[allow(unused_variables)] feature: impl Into<V::Feature>,
+    #[allow(unused_variables)] feature: impl Into<V::Token>,
     slice: &[V::Scalar],
 ) -> (&[V::Scalar], &[V], &[V::Scalar])
 where
@@ -23,7 +23,7 @@ where
 /// [`align_to_mut`]: https://doc.rust-lang.org/std/primitive.slice.html#method.align_to_mut
 #[inline]
 pub fn align_mut<V>(
-    #[allow(unused_variables)] feature: impl Into<V::Feature>,
+    #[allow(unused_variables)] feature: impl Into<V::Token>,
     slice: &mut [V::Scalar],
 ) -> (&mut [V::Scalar], &mut [V], &mut [V::Scalar])
 where
@@ -34,7 +34,7 @@ where
 
 /// Create a slice of overlapping vectors from a slice of scalars.
 #[inline]
-pub fn overlapping<V>(feature: impl Into<V::Feature>, slice: &[V::Scalar]) -> Overlapping<'_, V>
+pub fn overlapping<V>(feature: impl Into<V::Token>, slice: &[V::Scalar]) -> Overlapping<'_, V>
 where
     V: Vector,
 {
@@ -44,7 +44,7 @@ where
 /// Create a mutable slice of overlapping vectors from a slice of scalars.
 #[inline]
 pub fn overlapping_mut<V>(
-    feature: impl Into<V::Feature>,
+    feature: impl Into<V::Token>,
     slice: &mut [V::Scalar],
 ) -> OverlappingMut<'_, V>
 where
@@ -67,7 +67,7 @@ impl<'a, V> RefMut<'a, V>
 where
     V: Vector,
 {
-    fn new(feature: impl Into<V::Feature>, source: *mut V::Scalar) -> Self {
+    fn new(feature: impl Into<V::Token>, source: *mut V::Scalar) -> Self {
         Self {
             source,
             temp: V::zeroed(feature),
@@ -123,7 +123,7 @@ where
     /// Create a new overlapping vector slice.
     #[inline]
     pub fn new(
-        #[allow(unused_variables)] feature: impl Into<V::Feature>,
+        #[allow(unused_variables)] feature: impl Into<V::Token>,
         slice: &'a [V::Scalar],
     ) -> Self {
         assert!(
@@ -164,7 +164,7 @@ where
     where
         V: Vector,
     {
-        V::read_ptr(V::Feature::new_unchecked(), self.slice.as_ptr().add(index))
+        V::read_ptr(V::Token::new_unchecked(), self.slice.as_ptr().add(index))
     }
 }
 
@@ -185,7 +185,7 @@ where
     /// Create a new overlapping vector slice.
     #[inline]
     pub fn new(
-        #[allow(unused_variables)] feature: impl Into<V::Feature>,
+        #[allow(unused_variables)] feature: impl Into<V::Token>,
         slice: &'a mut [V::Scalar],
     ) -> Self {
         assert!(
@@ -223,7 +223,7 @@ where
     /// + V::width()` long.
     #[inline]
     pub unsafe fn get_unchecked(&self, index: usize) -> V {
-        V::read_ptr(V::Feature::new_unchecked(), self.slice.as_ptr().add(index))
+        V::read_ptr(V::Token::new_unchecked(), self.slice.as_ptr().add(index))
     }
 
     /// Returns the mutable vector offset `index` into the slice of scalars.
@@ -244,7 +244,7 @@ where
     #[inline]
     pub unsafe fn get_unchecked_mut(&'a mut self, index: usize) -> RefMut<'a, V> {
         RefMut::new(
-            V::Feature::new_unchecked(),
+            V::Token::new_unchecked(),
             self.slice.as_mut_ptr().add(index),
         )
     }

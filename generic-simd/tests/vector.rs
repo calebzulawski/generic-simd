@@ -1,5 +1,5 @@
 use generic_simd::{
-    arch::Cpu,
+    arch::Token,
     vector::{Handle, Signed},
 };
 use num_traits::Num;
