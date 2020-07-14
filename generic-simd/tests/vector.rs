@@ -98,7 +98,7 @@ fn assign_op_impl<D, V, VFunc, SFunc>(
         *x = rng.sample(distribution);
     }
 
-    let mut output = a.clone();
+    let mut output: V = a;
     vfunc(&mut output, b);
     for i in 0..V::width() {
         sfunc(&mut a[i], b[i]);
@@ -121,7 +121,7 @@ where
         *x = rng.sample(distribution);
     }
 
-    let mut output = a.clone();
+    let mut output: V = a;
     vfunc(&mut output, b);
     for i in 0..V::width() {
         sfunc(&mut a[i], b);
