@@ -11,8 +11,7 @@ complex = ["num-complex"]
 
 [dependencies]
 num-complex = { version = "0.2", default-features = false, optional = true }
-generic-simd-macros = { path = "../generic-simd-macros" }
-arch-types = { git = "https://github.com/calebzulawski/arch-types" }
+generic-simd-macros = { version = "0.1", path = "../generic-simd-macros" }
 multiversion = { version = "0.6", default-features = false }
 
 [dev-dependencies]

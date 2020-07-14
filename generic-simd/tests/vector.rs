@@ -1,5 +1,7 @@
-use arch_types::Features;
-use generic_simd::vector::{Handle, Signed};
+use generic_simd::{
+    arch::Cpu,
+    vector::{Handle, Signed},
+};
 use num_traits::Num;
 use rand::distributions::Standard;
 use rand::prelude::*;

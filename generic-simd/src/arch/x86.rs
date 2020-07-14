@@ -1,9 +1,8 @@
 //! x86/x86-64 vector types.
 
-use crate::arch::generic;
+use crate::arch::{generic, Cpu};
 use crate::shim::{Shim2, Shim4};
 use crate::vector::{width, Native, SizedHandle, Vector};
-use arch_types::{marker::Superset, Features};
 
 #[cfg(target_arch = "x86")]
 use core::arch::x86::*;
@@ -16,8 +15,22 @@ use num_complex::Complex;
 #[cfg(feature = "complex")]
 use crate::shim::Shim8;
 
-arch_types::new_features_type! { #[doc = "SSE instruction set handle."] pub Sse => "sse", "sse3" }
-arch_types::new_features_type! { #[doc = "AVX instruction set handle."] pub Avx => "sse", "sse3", "avx" }
+/// SSE instruction set handle.
+#[derive(Copy, Clone, Debug)]
+pub struct Sse(());
+
+/// AVX instruction set handle.
+#[derive(Copy, Clone, Debug)]
+pub struct Avx(());
+
+impl_cpu! { Sse => "sse", "sse3" }
+impl_cpu! { Avx => "sse", "sse3", "avx" }
+
+impl core::convert::From<Avx> for Sse {
+    fn from(_: Avx) -> Sse {
+        unsafe { Sse::new_unchecked() }
+    }
+}
 
 impl Native<f32> for Sse {
     type Width = width::W4;
@@ -551,7 +564,7 @@ unsafe impl Vector for f32x4 {
     type Width = crate::vector::width::W4;
 
     #[inline]
-    fn splat(_: impl Superset<Self::Feature>, from: Self::Scalar) -> Self {
+    fn splat(_: impl Into<Self::Feature>, from: Self::Scalar) -> Self {
         Self(unsafe { _mm_set1_ps(from) })
     }
 }
@@ -564,7 +577,7 @@ unsafe impl Vector for f64x2 {
     type Width = crate::vector::width::W2;
 
     #[inline]
-    fn splat(_: impl Superset<Self::Feature>, from: Self::Scalar) -> Self {
+    fn splat(_: impl Into<Self::Feature>, from: Self::Scalar) -> Self {
         Self(unsafe { _mm_set1_pd(from) })
     }
 }
@@ -578,7 +591,7 @@ unsafe impl Vector for cf32x2 {
     type Width = crate::vector::width::W2;
 
     #[inline]
-    fn splat(_: impl Superset<Self::Feature>, from: Self::Scalar) -> Self {
+    fn splat(_: impl Into<Self::Feature>, from: Self::Scalar) -> Self {
         Self(unsafe { _mm_set_ps(from.im, from.re, from.im, from.re) })
     }
 }
@@ -592,7 +605,7 @@ unsafe impl Vector for cf64x1 {
     type Width = crate::vector::width::W1;
 
     #[inline]
-    fn splat(_: impl Superset<Self::Feature>, from: Self::Scalar) -> Self {
+    fn splat(_: impl Into<Self::Feature>, from: Self::Scalar) -> Self {
         Self(unsafe { _mm_set_pd(from.im, from.re) })
     }
 }
@@ -605,7 +618,7 @@ unsafe impl Vector for f32x8 {
     type Width = crate::vector::width::W8;
 
     #[inline]
-    fn splat(_: impl Superset<Self::Feature>, from: Self::Scalar) -> Self {
+    fn splat(_: impl Into<Self::Feature>, from: Self::Scalar) -> Self {
         Self(unsafe { _mm256_set1_ps(from) })
     }
 }
@@ -618,7 +631,7 @@ unsafe impl Vector for f64x4 {
     type Width = crate::vector::width::W4;
 
     #[inline]
-    fn splat(_: impl Superset<Self::Feature>, from: Self::Scalar) -> Self {
+    fn splat(_: impl Into<Self::Feature>, from: Self::Scalar) -> Self {
         Self(unsafe { _mm256_set1_pd(from) })
     }
 }
@@ -632,7 +645,7 @@ unsafe impl Vector for cf32x4 {
     type Width = crate::vector::width::W4;
 
     #[inline]
-    fn splat(_: impl Superset<Self::Feature>, from: Self::Scalar) -> Self {
+    fn splat(_: impl Into<Self::Feature>, from: Self::Scalar) -> Self {
         unsafe {
             Self(_mm256_setr_ps(
                 from.re, from.im, from.re, from.im, from.re, from.im, from.re, from.im,
@@ -650,7 +663,7 @@ unsafe impl Vector for cf64x2 {
     type Width = crate::vector::width::W2;
 
     #[inline]
-    fn splat(_: impl Superset<Self::Feature>, from: Self::Scalar) -> Self {
+    fn splat(_: impl Into<Self::Feature>, from: Self::Scalar) -> Self {
         Self(unsafe { _mm256_setr_pd(from.re, from.im, from.re, from.im) })
     }
 }

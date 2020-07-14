@@ -97,9 +97,6 @@
 
 // Re-export for use from macros.
 #[doc(hidden)]
-pub use arch_types;
-
-#[doc(hidden)]
 pub use multiversion;
 
 pub use generic_simd_macros::dispatch;

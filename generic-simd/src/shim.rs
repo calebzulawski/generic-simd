@@ -1,7 +1,6 @@
 //! Shims for unsupported vector widths.
 
 use crate::vector::{width, Vector};
-use arch_types::marker::Superset;
 use core::marker::PhantomData;
 
 #[cfg(feature = "complex")]
@@ -45,7 +44,7 @@ where
     type Width = <Underlying::Width as Double>::Doubled;
 
     #[inline]
-    fn splat(feature: impl Superset<Self::Feature>, from: Self::Scalar) -> Self {
+    fn splat(feature: impl Into<Self::Feature>, from: Self::Scalar) -> Self {
         Self([Underlying::splat(feature, from); 2], PhantomData)
     }
 }

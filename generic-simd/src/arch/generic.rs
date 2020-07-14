@@ -1,13 +1,25 @@
 //! Generic vector types for any platform.
 
+use crate::arch::Cpu;
 use crate::shim::{Shim2, Shim4, Shim8};
 use crate::vector::{width, Native, SizedHandle, Vector};
-use arch_types::{marker::Superset, Features};
 
 #[cfg(feature = "complex")]
 use num_complex::Complex;
 
-arch_types::new_features_type! { #[doc = "A generic instruction set handle supported by all CPUs."] pub Generic => }
+/// Generic instruction set handle.
+#[derive(Copy, Clone, Debug)]
+pub struct Generic;
+
+impl Cpu for Generic {
+    fn new() -> Option<Self> {
+        Some(Self)
+    }
+
+    unsafe fn new_unchecked() -> Self {
+        Self
+    }
+}
 
 /// A generic vector of one `f32`.
 #[derive(Clone, Copy, Debug)]
@@ -107,7 +119,7 @@ macro_rules! implement {
             type Width = crate::vector::width::W1;
 
             #[inline]
-            fn splat(_: impl Superset<Self::Feature>, from: Self::Scalar) -> Self
+            fn splat(_: impl Into<Self::Feature>, from: Self::Scalar) -> Self
             {
                 Self(from)
             }
