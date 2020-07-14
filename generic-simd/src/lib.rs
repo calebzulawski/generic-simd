@@ -44,9 +44,7 @@
 //!     sum_impl(handle, input)
 //! }
 //!
-//! fn main() {
-//!     assert_eq!(sum(&[1f32; 10]), 10.);
-//! }
+//! assert_eq!(sum(&[1f32; 10]), 10.);
 //! ```
 //!
 //! # Vector shims

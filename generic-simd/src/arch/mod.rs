@@ -10,6 +10,10 @@ pub unsafe trait Token: Copy + From<Self> + Into<Self> {
     fn new() -> Option<Self>;
 
     /// Creates the token without detecting if the CPU features are supported.
+    ///
+    /// # Safety
+    /// Calling this function causes undefined behavior if the required CPU features are not
+    /// supported.
     unsafe fn new_unchecked() -> Self;
 }
 

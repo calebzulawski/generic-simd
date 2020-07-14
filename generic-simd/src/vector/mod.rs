@@ -18,6 +18,7 @@ where
 
     /// Read a vector from a pointer.
     ///
+    /// # Safety
     /// See [`read_ptr`](trait.Vector.html#method.read_ptr).
     #[inline]
     unsafe fn read_ptr(self, from: *const Scalar) -> Self::Vector {
@@ -26,6 +27,7 @@ where
 
     /// Read a vector from a slice without checking the length.
     ///
+    /// # Safety
     /// See [`read_unchecked`](trait.Vector.html#method.read_ptr).
     #[inline]
     unsafe fn read_unchecked(self, from: &[Scalar]) -> Self::Vector {

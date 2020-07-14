@@ -1,0 +1,55 @@
+name: Build
+
+on: [push]
+
+jobs:
+  test:
+    strategy:
+      matrix:
+        version:
+          - 1.34.0
+          - stable
+          - beta
+          - nightly
+        os:
+          - macos-latest
+          - ubuntu-latest
+          #- windows-latest
+          # disabled due to rustup errors
+        features:
+          - --all-features
+          - --no-default-features
+
+    runs-on: ${{ matrix.os }}
+    
+    steps:
+    - uses: actions/checkout@v1
+    - name: Install toolchain
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: ${{ matrix.version }}
+        override: true
+        profile: minimal
+    - name: Run tests
+      run: cargo test --verbose ${{ matrix.features }} --manifest-path generic-simd/Cargo.toml
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Install toolchain
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+        override: true
+        profile: minimal
+        components: clippy, rustfmt
+    - name: Clippy lint
+      run: cargo clippy --all-targets ${{ matrix.features }} --manifest-path generic-simd/Cargo.toml -- -D warnings
+    - name: Check formatting
+      run: cargo fmt -- --check
+    - name: Deadlinks
+      run: |
+        cargo install cargo-deadlinks
+        cargo doc
+        cargo deadlinks -v --check-http
