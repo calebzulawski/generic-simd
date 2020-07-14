@@ -269,8 +269,10 @@ pub unsafe trait Vector: Copy {
     /// # Safety
     /// * `from` must point to an array of length at least `width()`.
     #[inline]
-    #[allow(unused_variables)]
-    unsafe fn read_ptr(token: impl Into<Self::Token>, from: *const Self::Scalar) -> Self {
+    unsafe fn read_ptr(
+        #[allow(unused_variables)] token: impl Into<Self::Token>,
+        from: *const Self::Scalar,
+    ) -> Self {
         (from as *const Self).read_unaligned()
     }
 
@@ -329,8 +331,7 @@ pub unsafe trait Vector: Copy {
 
     /// Create a new vector with each lane containing zeroes.
     #[inline]
-    #[allow(unused_variables)]
-    fn zeroed(token: impl Into<Self::Token>) -> Self {
+    fn zeroed(#[allow(unused_variables)] token: impl Into<Self::Token>) -> Self {
         unsafe { core::mem::zeroed() }
     }
 

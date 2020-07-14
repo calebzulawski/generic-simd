@@ -8,9 +8,8 @@ use core::marker::PhantomData;
 ///
 /// [`align_to`]: https://doc.rust-lang.org/std/primitive.slice.html#method.align_to
 #[inline]
-#[allow(unused_variables)]
 pub fn align<V>(
-    token: impl Into<V::Token>,
+    #[allow(unused_variables)] token: impl Into<V::Token>,
     slice: &[V::Scalar],
 ) -> (&[V::Scalar], &[V], &[V::Scalar])
 where
@@ -185,8 +184,10 @@ where
 {
     /// Create a new overlapping vector slice.
     #[inline]
-    #[allow(unused_variables)]
-    pub fn new(token: impl Into<V::Token>, slice: &'a mut [V::Scalar]) -> Self {
+    pub fn new(
+        #[allow(unused_variables)] token: impl Into<V::Token>,
+        slice: &'a mut [V::Scalar],
+    ) -> Self {
         assert!(
             slice.len() >= V::width(),
             "slice must be at least as wide as the vector"
