@@ -11,7 +11,7 @@ use num_complex::Complex;
 #[derive(Copy, Clone, Debug)]
 pub struct Generic;
 
-impl Cpu for Generic {
+unsafe impl Cpu for Generic {
     fn new() -> Option<Self> {
         Some(Self)
     }

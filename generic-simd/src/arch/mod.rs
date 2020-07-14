@@ -1,13 +1,13 @@
 //! Architecture-specific types.
 
-pub trait Cpu: Copy + From<Self> + Into<Self> {
+pub unsafe trait Cpu: Copy + From<Self> + Into<Self> {
     fn new() -> Option<Self>;
     unsafe fn new_unchecked() -> Self;
 }
 
 macro_rules! impl_cpu {
     { $name:ident => $($features:tt),+ } => {
-        impl $crate::arch::Cpu for $name {
+        unsafe impl $crate::arch::Cpu for $name {
             fn new() -> Option<Self> {
                 if multiversion::are_cpu_features_detected!($($features),*) {
                     Some(Self(()))
