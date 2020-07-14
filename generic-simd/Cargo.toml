@@ -6,14 +6,14 @@ edition = "2018"
 
 [features]
 default = ["std", "complex"]
-std = []
+std = ["multiversion/std"]
 complex = ["num-complex"]
 
 [dependencies]
 num-complex = { version = "0.2", default-features = false, optional = true }
 generic-simd-macros = { path = "../generic-simd-macros" }
 arch-types = { git = "https://github.com/calebzulawski/arch-types" }
-multiversion = { version = "0.5.1" }
+multiversion = { version = "0.6", default-features = false }
 
 [dev-dependencies]
 num-complex = { version = "0.2", features = ["rand"] }

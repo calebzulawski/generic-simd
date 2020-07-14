@@ -11,3 +11,8 @@ pub fn add_one_aligned(x: &mut [f32]) {
         *v += 1.;
     }
 }
+
+#[generic_simd::dispatch(_feature)]
+pub fn add_one_aligned_dispatch(x: &mut [f32]) {
+    dispatch!(add_one_aligned(x))
+}

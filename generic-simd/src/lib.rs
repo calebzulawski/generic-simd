@@ -21,26 +21,20 @@
 //!     vector::{Native, NativeVector, NativeWidth, Signed, SizedHandle, Vector},
 //! };
 //!
-//! // This function provides a generic implementation for any vector type.
+//! // This function provides a generic implementation for any instruction set.
+//! // Here we use the "native" vector type, i.e. the widest vector directly supported by the
+//! // architecture.
 //! #[inline]
 //! fn sum_impl<H>(handle: H, input: &[f32]) -> f32
 //! where
 //!     H: Native<f32> + SizedHandle<f32, NativeWidth<f32, H>>,
-//!     NativeVector<f32, H>: Signed,
+//!     f32: core::iter::Sum<NativeVector<f32, H>>,
 //! {
 //!     // Use aligned loads in this example, which may be better on some architectures.
-//!     // Here we use the "native" vector type, i.e. the widest vector directly supported by the
-//!     // architecture.
 //!     let (start, vectors, end) = handle.align(input);
 //!
-//!     // Sum each vector lane
-//!     let mut sums = handle.zeroed();
-//!     for v in vectors {
-//!         sums += *v;
-//!     }
-//!
 //!     // Sum across the vector lanes, plus the unaligned portions
-//!     sums.iter().chain(start).chain(end).sum::<f32>()
+//!     vectors.iter().copied().sum::<f32>() + start.iter().chain(end).sum::<f32>()
 //! }
 //!
 //! // This function selects the best instruction set at runtime.

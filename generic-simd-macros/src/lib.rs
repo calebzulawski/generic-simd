@@ -17,6 +17,7 @@ pub fn dispatch(args: TokenStream, input: TokenStream) -> TokenStream {
         #[generic_simd::multiversion::multiversion]
         #[clone(target = "[x86|x86_64]+avx")]
         #[clone(target = "[x86|x86_64]+sse3")]
+        #[crate_path(path = "generic_simd::multiversion")]
         #(#attrs)*
         #vis
         #sig

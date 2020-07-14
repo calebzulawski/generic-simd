@@ -45,6 +45,64 @@ macro_rules! arithmetic_ops {
             mul -> $mul_expr:expr,
             div -> $div_expr:expr
     } => {
+        impl core::iter::Sum<$type> for Option<$type> {
+            fn sum<I>(mut iter: I) -> Self
+            where
+                I: Iterator<Item = $type>,
+            {
+                if let Some(mut sum) = iter.next() {
+                    while let Some(v) = iter.next() {
+                        sum += v;
+                    }
+                    Some(sum)
+                } else {
+                    None
+                }
+            }
+        }
+
+        impl core::iter::Sum<$type> for <$type as $crate::vector::Vector>::Scalar {
+            fn sum<I>(iter: I) -> Self
+            where
+                I: Iterator<Item = $type>,
+            {
+                if let Some(sums) = iter.sum::<Option<$type>>() {
+                    sums.iter().sum()
+                } else {
+                    Default::default()
+                }
+            }
+        }
+
+        impl core::iter::Product<$type> for Option<$type> {
+            fn product<I>(mut iter: I) -> Self
+            where
+                I: Iterator<Item = $type>,
+            {
+                if let Some(mut sum) = iter.next() {
+                    while let Some(v) = iter.next() {
+                        sum *= v;
+                    }
+                    Some(sum)
+                } else {
+                    None
+                }
+            }
+        }
+
+        impl core::iter::Product<$type> for <$type as $crate::vector::Vector>::Scalar {
+            fn product<I>(iter: I) -> Self
+            where
+                I: Iterator<Item = $type>,
+            {
+                if let Some(sums) = iter.sum::<Option<$type>>() {
+                    sums.iter().product()
+                } else {
+                    Default::default()
+                }
+            }
+        }
+
         arithmetic_ops!{@new $type, $feature, Add, add, $add_expr}
         arithmetic_ops!{@new $type, $feature, Sub, sub, $sub_expr}
         arithmetic_ops!{@new $type, $feature, Mul, mul, $mul_expr}
