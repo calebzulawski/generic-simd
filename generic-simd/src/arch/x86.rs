@@ -673,6 +673,11 @@ impl crate::vector::Complex for cf32x2 {
     type RealScalar = f32;
 
     #[inline]
+    fn conj(self) -> Self {
+        Self(unsafe { _mm_xor_ps(self.0, _mm_set_ps(-0., 0., -0., 0.)) })
+    }
+
+    #[inline]
     fn mul_i(self) -> Self {
         Self(unsafe { _mm_addsub_ps(_mm_setzero_ps(), _mm_shuffle_ps(self.0, self.0, 0xb1)) })
     }
@@ -689,6 +694,11 @@ impl crate::vector::Complex for cf32x2 {
 #[cfg(feature = "complex")]
 impl crate::vector::Complex for cf64x1 {
     type RealScalar = f64;
+
+    #[inline]
+    fn conj(self) -> Self {
+        Self(unsafe { _mm_xor_pd(self.0, _mm_set_pd(-0., 0.)) })
+    }
 
     #[inline]
     fn mul_i(self) -> Self {
@@ -709,6 +719,11 @@ impl crate::vector::Complex for cf32x4 {
     type RealScalar = f32;
 
     #[inline]
+    fn conj(self) -> Self {
+        Self(unsafe { _mm256_xor_ps(self.0, _mm256_set_ps(-0., 0., -0., 0., -0., 0., -0., 0.)) })
+    }
+
+    #[inline]
     fn mul_i(self) -> Self {
         Self(unsafe {
             _mm256_addsub_ps(_mm256_setzero_ps(), _mm256_shuffle_ps(self.0, self.0, 0xb1))
@@ -727,6 +742,11 @@ impl crate::vector::Complex for cf32x4 {
 #[cfg(feature = "complex")]
 impl crate::vector::Complex for cf64x2 {
     type RealScalar = f64;
+
+    #[inline]
+    fn conj(self) -> Self {
+        Self(unsafe { _mm256_xor_pd(self.0, _mm256_set_pd(-0., 0., -0., 0.)) })
+    }
 
     #[inline]
     fn mul_i(self) -> Self {

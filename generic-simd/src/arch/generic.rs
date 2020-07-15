@@ -144,6 +144,11 @@ macro_rules! implement_complex {
             type RealScalar = $real;
 
             #[inline]
+            fn conj(self) -> Self {
+                Self(Complex::new(self.0.re, -self.0.im))
+            }
+
+            #[inline]
             fn mul_i(self) -> Self {
                 Self(Complex::new(-self.0.im, self.0.re))
             }

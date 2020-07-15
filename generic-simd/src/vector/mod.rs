@@ -398,6 +398,9 @@ pub trait Complex: Signed {
     /// The real scalar type.
     type RealScalar: Copy;
 
+    /// Conjugate.
+    fn conj(self) -> Self;
+
     /// Multiply by i.
     fn mul_i(self) -> Self;
 

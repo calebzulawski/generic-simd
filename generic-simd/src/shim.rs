@@ -183,6 +183,11 @@ where
     type RealScalar = Real;
 
     #[inline]
+    fn conj(self) -> Self {
+        Self([self.0[0].conj(), self.0[1].conj()], PhantomData)
+    }
+
+    #[inline]
     fn mul_i(self) -> Self {
         Self([self.0[0].mul_i(), self.0[1].mul_i()], PhantomData)
     }
