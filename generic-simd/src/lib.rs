@@ -17,21 +17,22 @@
 //! The following example performs a vector-accelerated sum of an input slice:
 //! ```
 //! use generic_simd::{
+//!     arch::Token,
 //!     dispatch,
-//!     vector::{Native, NativeVector, NativeWidth, Signed, SizedHandle, Vector},
+//!     vector::{Scalar, NativeVector},
 //! };
 //!
 //! // This function provides a generic implementation for any instruction set.
 //! // Here we use the "native" vector type, i.e. the widest vector directly supported by the
 //! // architecture.
 //! #[inline]
-//! fn sum_impl<H>(handle: H, input: &[f32]) -> f32
+//! fn sum_impl<T>(token: T, input: &[f32]) -> f32
 //! where
-//!     H: Native<f32> + SizedHandle<f32, NativeWidth<f32, H>>,
-//!     f32: core::iter::Sum<NativeVector<f32, H>>,
+//!     T: Token,
+//!     f32: Scalar<T> + core::iter::Sum<NativeVector<f32, T>>,
 //! {
 //!     // Use aligned loads in this example, which may be better on some architectures.
-//!     let (start, vectors, end) = handle.align(input);
+//!     let (start, vectors, end) = f32::align_native(token, input);
 //!
 //!     // Sum across the vector lanes, plus the unaligned portions
 //!     vectors.iter().copied().sum::<f32>() + start.iter().chain(end).sum::<f32>()
@@ -39,9 +40,9 @@
 //!
 //! // This function selects the best instruction set at runtime.
 //! // The "dispatch" macro compiles this function for each supported architecture.
-//! #[dispatch(handle)]
+//! #[dispatch(token)]
 //! fn sum(input: &[f32]) -> f32 {
-//!     sum_impl(handle, input)
+//!     sum_impl(token, input)
 //! }
 //!
 //! assert_eq!(sum(&[1f32; 10]), 10.);
@@ -55,7 +56,11 @@
 //! For example, the following function performs an [Array of Structures of Arrays](https://en.wikipedia.org/wiki/AoS_and_SoA)
 //! operation using arrays of 4 `f64`s regardless of instruction set:
 //! ```
-//! use generic_simd::{dispatch, vector::{Signed, SizedHandle, Vector, width}};
+//! use generic_simd::{
+//!     arch::Token,
+//!     dispatch,
+//!     vector::{Signed, ScalarSized, Vector, width},
+//! };
 //!
 //! // Equivalent to an array of 4 2-dimensional coordinates,
 //! // but with a vectorizable memory layout.
@@ -65,18 +70,19 @@
 //! }
 //!
 //! // A generic mean implementation for any instruction set.
-//! fn mean_impl<H>(handle: H, input: &[Coordinates]) -> (f64, f64)
+//! fn mean_impl<T>(token: T, input: &[Coordinates]) -> (f64, f64)
 //! where
-//!     H: SizedHandle<f64, width::W4>,
-//!     <H as SizedHandle<f64, width::W4>>::Vector: Signed,
+//!     T: Token,
+//!     f64: ScalarSized<T, width::W4>,
+//!     <f64 as ScalarSized<T, width::W4>>::Vector: Signed,
 //! {
-//!     let mut xsum = handle.zeroed();
-//!     let mut ysum = handle.zeroed();
+//!     let mut xsum = f64::zeroed(token);
+//!     let mut ysum = f64::zeroed(token);
 //!
 //!     for Coordinates { x, y } in input {
 //!         // read the arrays into vectors
-//!         xsum += handle.read(x);
-//!         ysum += handle.read(y);
+//!         xsum += f64::read(token, x);
+//!         ysum += f64::read(token, y);
 //!     }
 //!
 //!     // sum across the vector lanes

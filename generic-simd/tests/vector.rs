@@ -1,6 +1,6 @@
 use generic_simd::{
     arch::Token,
-    vector::{Handle, Signed},
+    vector::{Scalar, Signed},
 };
 use num_traits::Num;
 use rand::distributions::Standard;
@@ -131,76 +131,76 @@ where
 
 macro_rules! ops_test {
     {
-        $name:ident, $handle:path, $handleinit:expr
+        $name:ident, $token:path, $tokeninit:expr
     } => {
         #[test]
         fn $name() {
-            if let Some(handle) = $handleinit {
-                ops_test!{ @impl binary_op_impl, handle, core::ops::Add::add }
-                ops_test!{ @impl binary_op_impl, handle, core::ops::Sub::sub }
-                ops_test!{ @impl binary_op_impl, handle, core::ops::Mul::mul }
-                ops_test!{ @impl binary_op_impl, handle, core::ops::Div::div }
-                ops_test!{ @impl binary_scalar_op_impl, handle, core::ops::Add::add }
-                ops_test!{ @impl binary_scalar_op_impl, handle, core::ops::Sub::sub }
-                ops_test!{ @impl binary_scalar_op_impl, handle, core::ops::Mul::mul }
-                ops_test!{ @impl binary_scalar_op_impl, handle, core::ops::Div::div }
-                ops_test!{ @impl assign_op_impl, handle, core::ops::AddAssign::add_assign }
-                ops_test!{ @impl assign_op_impl, handle, core::ops::SubAssign::sub_assign }
-                ops_test!{ @impl assign_op_impl, handle, core::ops::MulAssign::mul_assign }
-                ops_test!{ @impl assign_op_impl, handle, core::ops::DivAssign::div_assign }
-                ops_test!{ @impl assign_scalar_op_impl, handle, core::ops::AddAssign::add_assign }
-                ops_test!{ @impl assign_scalar_op_impl, handle, core::ops::SubAssign::sub_assign }
-                ops_test!{ @impl assign_scalar_op_impl, handle, core::ops::MulAssign::mul_assign }
-                ops_test!{ @impl assign_scalar_op_impl, handle, core::ops::DivAssign::div_assign }
-                ops_test!{ @impl unary_op_impl, handle, core::ops::Neg::neg }
+            if let Some(token) = $tokeninit {
+                ops_test!{ @impl binary_op_impl, token, core::ops::Add::add }
+                ops_test!{ @impl binary_op_impl, token, core::ops::Sub::sub }
+                ops_test!{ @impl binary_op_impl, token, core::ops::Mul::mul }
+                ops_test!{ @impl binary_op_impl, token, core::ops::Div::div }
+                ops_test!{ @impl binary_scalar_op_impl, token, core::ops::Add::add }
+                ops_test!{ @impl binary_scalar_op_impl, token, core::ops::Sub::sub }
+                ops_test!{ @impl binary_scalar_op_impl, token, core::ops::Mul::mul }
+                ops_test!{ @impl binary_scalar_op_impl, token, core::ops::Div::div }
+                ops_test!{ @impl assign_op_impl, token, core::ops::AddAssign::add_assign }
+                ops_test!{ @impl assign_op_impl, token, core::ops::SubAssign::sub_assign }
+                ops_test!{ @impl assign_op_impl, token, core::ops::MulAssign::mul_assign }
+                ops_test!{ @impl assign_op_impl, token, core::ops::DivAssign::div_assign }
+                ops_test!{ @impl assign_scalar_op_impl, token, core::ops::AddAssign::add_assign }
+                ops_test!{ @impl assign_scalar_op_impl, token, core::ops::SubAssign::sub_assign }
+                ops_test!{ @impl assign_scalar_op_impl, token, core::ops::MulAssign::mul_assign }
+                ops_test!{ @impl assign_scalar_op_impl, token, core::ops::DivAssign::div_assign }
+                ops_test!{ @impl unary_op_impl, token, core::ops::Neg::neg }
             }
         }
     };
     {
-        @impl $test:ident, $handle:ident, $func:path
+        @impl $test:ident, $token:ident, $func:path
     } => {
-        ops_test!{@types $test, $handle, zeroed_native, $func}
-        ops_test!{@types $test, $handle, zeroed1, $func}
-        ops_test!{@types $test, $handle, zeroed2, $func}
-        ops_test!{@types $test, $handle, zeroed4, $func}
-        ops_test!{@types $test, $handle, zeroed8, $func}
+        ops_test!{@types $test, $token, zeroed_native, $func}
+        ops_test!{@types $test, $token, zeroed1, $func}
+        ops_test!{@types $test, $token, zeroed2, $func}
+        ops_test!{@types $test, $token, zeroed4, $func}
+        ops_test!{@types $test, $token, zeroed8, $func}
     };
     {
-        @types $test:ident, $handle:ident, $init:ident, $func:path
+        @types $test:ident, $token:ident, $init:ident, $func:path
     } => {
-        $test(Standard, ops_test!(@init $test, f32, $handle, $init), $func, $func);
-        $test(Standard, ops_test!(@init $test, f64, $handle, $init), $func, $func);
+        $test(Standard, ops_test!(@init $test, f32, $token, $init), $func, $func);
+        $test(Standard, ops_test!(@init $test, f64, $token, $init), $func, $func);
 
         #[cfg(feature = "complex")]
-        $test(ComplexDistribution::new(Standard, Standard), ops_test!(@init $test, Complex<f32>, $handle, $init), $func, $func);
+        $test(ComplexDistribution::new(Standard, Standard), ops_test!(@init $test, Complex<f32>, $token, $init), $func, $func);
 
         #[cfg(feature = "complex")]
-        $test(ComplexDistribution::new(Standard, Standard), ops_test!(@init $test, Complex<f64>, $handle, $init), $func, $func);
+        $test(ComplexDistribution::new(Standard, Standard), ops_test!(@init $test, Complex<f64>, $token, $init), $func, $func);
     };
     {
-        @init unary_op_impl, $type:ty, $handle:ident, $init:ident
+        @init unary_op_impl, $type:ty, $token:ident, $init:ident
     } => {
-        Handle::<$type>::$init($handle)
+        <$type>::$init($token)
     };
     {
-        @init binary_op_impl, $type:ty, $handle:ident, $init:ident
+        @init binary_op_impl, $type:ty, $token:ident, $init:ident
     } => {
-        (Handle::<$type>::$init($handle), Handle::<$type>::$init($handle))
+        (<$type>::$init($token), <$type>::$init($token))
     };
     {
-        @init binary_scalar_op_impl, $type:ty, $handle:ident, $init:ident
+        @init binary_scalar_op_impl, $type:ty, $token:ident, $init:ident
     } => {
-        Handle::<$type>::$init($handle)
+        <$type>::$init($token)
     };
     {
-        @init assign_op_impl, $type:ty, $handle:ident, $init:ident
+        @init assign_op_impl, $type:ty, $token:ident, $init:ident
     } => {
-        (Handle::<$type>::$init($handle), Handle::<$type>::$init($handle))
+        (<$type>::$init($token), <$type>::$init($token))
     };
     {
-        @init assign_scalar_op_impl, $type:ty, $handle:ident, $init:ident
+        @init assign_scalar_op_impl, $type:ty, $token:ident, $init:ident
     } => {
-        Handle::<$type>::$init($handle)
+        <$type>::$init($token)
     };
 }
 

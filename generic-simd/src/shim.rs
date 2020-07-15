@@ -173,12 +173,104 @@ where
     }
 }
 
+impl<Underlying, Scalar> core::iter::Sum<Shim2<Underlying, Scalar>>
+    for Option<Shim2<Underlying, Scalar>>
+where
+    Shim2<Underlying, Scalar>: core::ops::AddAssign,
+    Underlying: Copy,
+{
+    fn sum<I>(mut iter: I) -> Self
+    where
+        I: Iterator<Item = Shim2<Underlying, Scalar>>,
+    {
+        if let Some(mut sum) = iter.next() {
+            while let Some(v) = iter.next() {
+                sum += v;
+            }
+            Some(sum)
+        } else {
+            None
+        }
+    }
+}
+
+impl<Underlying, Scalar> core::iter::Sum<Shim2<Underlying, Scalar>>
+    for <Shim2<Underlying, Scalar> as Vector>::Scalar
+where
+    Option<Shim2<Underlying, Scalar>>: core::iter::Sum<Shim2<Underlying, Scalar>>,
+    Underlying: Vector<Scalar = Scalar>,
+    Underlying::Width: Double,
+    Scalar: Copy + num_traits::Num,
+{
+    fn sum<I>(iter: I) -> Self
+    where
+        I: Iterator<Item = Shim2<Underlying, Scalar>>,
+    {
+        let mut value = Self::zero();
+        if let Some(sums) = iter.sum::<Option<Shim2<Underlying, Scalar>>>() {
+            for sum in sums.as_slice() {
+                value = value + *sum;
+            }
+        }
+        value
+    }
+}
+
+impl<Underlying, Scalar> core::iter::Product<Shim2<Underlying, Scalar>>
+    for Option<Shim2<Underlying, Scalar>>
+where
+    Shim2<Underlying, Scalar>: core::ops::MulAssign,
+    Underlying: Copy,
+{
+    fn product<I>(mut iter: I) -> Self
+    where
+        I: Iterator<Item = Shim2<Underlying, Scalar>>,
+    {
+        if let Some(mut sum) = iter.next() {
+            while let Some(v) = iter.next() {
+                sum *= v;
+            }
+            Some(sum)
+        } else {
+            None
+        }
+    }
+}
+
+impl<Underlying, Scalar> core::iter::Product<Shim2<Underlying, Scalar>>
+    for <Shim2<Underlying, Scalar> as Vector>::Scalar
+where
+    Option<Shim2<Underlying, Scalar>>: core::iter::Product<Shim2<Underlying, Scalar>>,
+    Underlying: Vector<Scalar = Scalar>,
+    Underlying::Width: Double,
+    Scalar: Copy + num_traits::Num,
+{
+    fn product<I>(iter: I) -> Self
+    where
+        I: Iterator<Item = Shim2<Underlying, Scalar>>,
+    {
+        let mut value = Self::zero();
+        if let Some(products) = iter.product::<Option<Shim2<Underlying, Scalar>>>() {
+            for product in products.as_slice() {
+                value = value * *product;
+            }
+        }
+        value
+    }
+}
+
 #[cfg(feature = "complex")]
 impl<Underlying, Real> Complex for Shim2<Underlying, num_complex::Complex<Real>>
 where
-    Underlying: Vector<Scalar = num_complex::Complex<Real>> + Complex<RealScalar = Real>,
+    Option<Underlying::Scalar>: core::iter::Sum<Shim2<Underlying, Underlying::Scalar>>,
+    Underlying::Scalar:
+        core::ops::AddAssign + core::iter::Sum<Underlying> + core::iter::Product<Underlying>,
+    Underlying: Vector<Scalar = num_complex::Complex<Real>>
+        + core::iter::Sum<Underlying>
+        + core::iter::Product<Underlying>
+        + Complex<RealScalar = Real>,
     Underlying::Width: Double,
-    Real: Copy,
+    Real: Copy + num_traits::Num,
 {
     type RealScalar = Real;
 
