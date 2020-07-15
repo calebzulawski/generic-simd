@@ -184,7 +184,7 @@ where
         I: Iterator<Item = Shim2<Underlying, Scalar>>,
     {
         if let Some(mut sum) = iter.next() {
-            while let Some(v) = iter.next() {
+            for v in iter {
                 sum += v;
             }
             Some(sum)
@@ -227,7 +227,7 @@ where
         I: Iterator<Item = Shim2<Underlying, Scalar>>,
     {
         if let Some(mut sum) = iter.next() {
-            while let Some(v) = iter.next() {
+            for v in iter {
                 sum *= v;
             }
             Some(sum)

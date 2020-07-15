@@ -21,7 +21,7 @@ where
     /// See [`read_ptr`](trait.Vector.html#method.read_ptr).
     #[inline]
     unsafe fn read_ptr(token: Token, from: *const Self) -> Self::Vector {
-        Self::Vector::read_ptr(token.into(), from)
+        Self::Vector::read_ptr(token, from)
     }
 
     /// Read a vector from a slice without checking the length.
@@ -30,7 +30,7 @@ where
     /// See [`read_unchecked`](trait.Vector.html#method.read_ptr).
     #[inline]
     unsafe fn read_unchecked(token: Token, from: &[Self]) -> Self::Vector {
-        Self::Vector::read_unchecked(token.into(), from)
+        Self::Vector::read_unchecked(token, from)
     }
 
     /// Read a vector from a slice.
@@ -38,7 +38,7 @@ where
     /// See [`read`](trait.Vector.html#method.read).
     #[inline]
     fn read(token: Token, from: &[Self]) -> Self::Vector {
-        Self::Vector::read(token.into(), from)
+        Self::Vector::read(token, from)
     }
 
     /// Create a vector set to zero.
@@ -46,7 +46,7 @@ where
     /// See [`zeroed`](trait.Vector.html#method.zeroed).
     #[inline]
     fn zeroed(token: Token) -> Self::Vector {
-        Self::Vector::zeroed(token.into())
+        Self::Vector::zeroed(token)
     }
 
     /// Splat a scalar to a vector.
@@ -54,7 +54,7 @@ where
     /// See [`splat`](trait.Vector.html#tymethod.splat).
     #[inline]
     fn splat(self, token: Token) -> Self::Vector {
-        Self::Vector::splat(token.into(), self)
+        Self::Vector::splat(token, self)
     }
 
     /// Align a slice of scalars to vectors.
