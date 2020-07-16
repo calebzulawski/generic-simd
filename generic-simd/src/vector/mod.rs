@@ -1,5 +1,6 @@
 //! Vector type interfaces.
 
+pub mod pointer;
 pub mod width;
 
 use crate::arch::Token;
@@ -14,15 +15,6 @@ where
 {
     type Token: crate::arch::Token + From<Token>;
     type Vector: Vector<Scalar = Self, Token = Self::Token, Width = Width>;
-
-    /// Read a vector from a pointer.
-    ///
-    /// # Safety
-    /// See [`read_ptr`](trait.Vector.html#method.read_ptr).
-    #[inline]
-    unsafe fn read_ptr(token: Token, from: *const Self) -> Self::Vector {
-        Self::Vector::read_ptr(token, from)
-    }
 
     /// Read a vector from a slice without checking the length.
     ///
@@ -110,6 +102,7 @@ macro_rules! token_impl {
         $overlapping:ident,
         $overlapping_mut:ident
     } => {
+        /*
         #[doc = "Read a vector with "]
         #[doc = $width]
         #[doc = " from a pointer.\n\nSee [`read_ptr`](trait.Vector.html#method.read_ptr)."]
@@ -117,6 +110,7 @@ macro_rules! token_impl {
         unsafe fn $read_ptr(token: Token, from: *const Self) -> <Self as ScalarSized<Token, $width_type>>::Vector {
             <Self as ScalarSized<Token, $width_type>>::read_ptr(token.into(), from)
         }
+        */
 
         #[doc = "Read a vector with "]
         #[doc = $width]
