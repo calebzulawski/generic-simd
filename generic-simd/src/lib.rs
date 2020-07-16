@@ -19,6 +19,7 @@
 //! use generic_simd::{
 //!     arch::Token,
 //!     dispatch,
+//!     slice::Slice,
 //!     vector::{Scalar, NativeVector},
 //! };
 //!
@@ -32,7 +33,7 @@
 //!     f32: Scalar<T> + core::iter::Sum<NativeVector<f32, T>>,
 //! {
 //!     // Use aligned loads in this example, which may be better on some architectures.
-//!     let (start, vectors, end) = f32::align_native(token, input);
+//!     let (start, vectors, end) = input.align_native(token);
 //!
 //!     // Sum across the vector lanes, plus the unaligned portions
 //!     vectors.iter().copied().sum::<f32>() + start.iter().chain(end).sum::<f32>()

@@ -48,44 +48,6 @@ where
     fn splat(self, token: Token) -> Self::Vector {
         Self::Vector::splat(Self::Token::from(token), self)
     }
-
-    /// Align a slice of scalars to vectors.
-    ///
-    /// See [`align`](../slice/fn.align.html).
-    #[inline]
-    fn align(token: Token, slice: &[Self]) -> (&[Self], &[Self::Vector], &[Self]) {
-        crate::slice::align(Self::Token::from(token), slice)
-    }
-
-    /// Align a slice of scalars to vectors.
-    ///
-    /// See [`align`](../slice/fn.align.html).
-    #[inline]
-    fn align_mut(
-        token: Token,
-        slice: &mut [Self],
-    ) -> (&mut [Self], &mut [Self::Vector], &mut [Self]) {
-        crate::slice::align_mut(Self::Token::from(token), slice)
-    }
-
-    /// Create a slice of overlapping vectors from a slice of scalars.
-    ///
-    /// See [`overlapping`](../slice/fn.overlapping.html).
-    #[inline]
-    fn overlapping(token: Token, slice: &[Self]) -> crate::slice::Overlapping<'_, Self::Vector> {
-        crate::slice::Overlapping::new(Self::Token::from(token), slice)
-    }
-
-    /// Create a mutable slice of overlapping vectors from a slice of scalars.
-    ///
-    /// See [`overlapping_mut`](../slice/fn.overlapping_mut.html).
-    #[inline]
-    fn overlapping_mut(
-        token: Token,
-        slice: &mut [Self],
-    ) -> crate::slice::OverlappingMut<'_, Self::Vector> {
-        crate::slice::OverlappingMut::new(Self::Token::from(token), slice)
-    }
 }
 
 macro_rules! token_impl {
@@ -96,22 +58,8 @@ macro_rules! token_impl {
         $read_unchecked:ident,
         $read:ident,
         $zeroed:ident,
-        $splat:ident,
-        $align:ident,
-        $align_mut:ident,
-        $overlapping:ident,
-        $overlapping_mut:ident
+        $splat:ident
     } => {
-        /*
-        #[doc = "Read a vector with "]
-        #[doc = $width]
-        #[doc = " from a pointer.\n\nSee [`read_ptr`](trait.Vector.html#method.read_ptr)."]
-        #[inline]
-        unsafe fn $read_ptr(token: Token, from: *const Self) -> <Self as ScalarSized<Token, $width_type>>::Vector {
-            <Self as ScalarSized<Token, $width_type>>::read_ptr(token.into(), from)
-        }
-        */
-
         #[doc = "Read a vector with "]
         #[doc = $width]
         #[doc = " from a slice without checking the length.\n\nSee [`read_unchecked`](trait.Vector.html#method.read_ptr)."]
@@ -143,41 +91,6 @@ macro_rules! token_impl {
         fn $splat(self, token: Token) -> <Self as ScalarSized<Token, $width_type>>::Vector {
             <Self as ScalarSized<Token, $width_type>>::splat(self, token.into())
         }
-
-        #[doc = "Align a slice of scalars to vectors with "]
-        #[doc = $width]
-        #[doc = ".\n\nSee [`align`](../slice/fn.align.html)."]
-        #[inline]
-        fn $align(token: Token, slice: &[Self]) -> (&[Self], &[<Self as ScalarSized<Token, $width_type>>::Vector], &[Self]) {
-            <Self as ScalarSized<Token, $width_type>>::align(token.into(), slice)
-        }
-
-        #[doc = "Align a slice of scalars to vectors with "]
-        #[doc = $width]
-        #[doc = ".\n\nSee [`align_mut`](../slice/fn.align_mut.html)."]
-        #[inline]
-        fn $align_mut(token: Token, slice: &mut [Self]) -> (&mut [Self], &mut [<Self as ScalarSized<Token, $width_type>>::Vector], &mut [Self]) {
-            <Self as ScalarSized<Token, $width_type>>::align_mut(token.into(), slice)
-        }
-
-        #[doc = "Create a slice of overlapping vectors of "]
-        #[doc = $width]
-        #[doc = "from a slice of scalars.\n\nSee [`overlapping`](../slice/fn.overlapping.html)."]
-        #[inline]
-        fn $overlapping(token: Token, slice: &[Self]) -> crate::slice::Overlapping<'_, <Self as ScalarSized<Token, $width_type>>::Vector> {
-            <Self as ScalarSized<Token, $width_type>>::overlapping(token.into(), slice)
-        }
-
-        #[doc = "Create a mutable slice of overlapping vectors of "]
-        #[doc = $width]
-        #[doc = "from a slice of scalars.\n\nSee [`overlapping_mut`](../slice/fn.overlapping_mut.html)."]
-        #[inline]
-        fn $overlapping_mut(
-            token: Token,
-            slice: &mut [Self],
-        ) -> crate::slice::OverlappingMut<'_, <Self as ScalarSized<Token, $width_type>>::Vector> {
-            <Self as ScalarSized<Token, $width_type>>::overlapping_mut(token.into(), slice)
-        }
     }
 }
 
@@ -206,11 +119,11 @@ pub trait Scalar<Token>:
 where
     Token: crate::arch::Token + From<Token> + Into<Token>,
 {
-    token_impl! { "the native number of lanes", <Self as Native<Token>>::Width, read_native_ptr, read_native_unchecked, read_native, zeroed_native, splat_native, align_native, align_native_mut, overlapping_native, overlapping_native_mut }
-    token_impl! { "1 lane",  width::W1, read1_ptr, read1_unchecked, read1, zeroed1, splat1, align1, align1_mut, overlapping1, overlapping1_mut }
-    token_impl! { "2 lanes", width::W2, read2_ptr, read2_unchecked, read2, zeroed2, splat2, align2, align2_mut, overlapping2, overlapping2_mut }
-    token_impl! { "4 lanes", width::W4, read4_ptr, read4_unchecked, read4, zeroed4, splat4, align4, align4_mut, overlapping4, overlapping4_mut }
-    token_impl! { "8 lanes", width::W8, read8_ptr, read8_unchecked, read8, zeroed8, splat8, align8, align8_mut, overlapping8, overlapping8_mut }
+    token_impl! { "the native number of lanes", <Self as Native<Token>>::Width, read_native_ptr, read_native_unchecked, read_native, zeroed_native, splat_native }
+    token_impl! { "1 lane",  width::W1, read1_ptr, read1_unchecked, read1, zeroed1, splat1 }
+    token_impl! { "2 lanes", width::W2, read2_ptr, read2_unchecked, read2, zeroed2, splat2 }
+    token_impl! { "4 lanes", width::W4, read4_ptr, read4_unchecked, read4, zeroed4, splat4 }
+    token_impl! { "8 lanes", width::W8, read8_ptr, read8_unchecked, read8, zeroed8, splat8 }
 }
 
 impl<Token, Scalar> self::Scalar<Token> for Scalar

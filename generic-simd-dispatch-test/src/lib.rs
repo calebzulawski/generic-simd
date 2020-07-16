@@ -1,8 +1,8 @@
-use generic_simd::vector::Scalar;
+use generic_simd::slice::Slice;
 
 #[generic_simd::dispatch(feature)]
 pub fn add_one_aligned(x: &mut [f32]) {
-    let (start, vecs, end) = f32::align_native_mut(feature, x);
+    let (start, vecs, end) = x.align_native_mut(feature);
     for s in start.iter_mut().chain(end.iter_mut()) {
         *s += 1.;
     }
