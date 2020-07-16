@@ -564,7 +564,7 @@ unsafe impl Vector for f32x4 {
     type Width = crate::vector::width::W4;
 
     #[inline]
-    fn splat(_: impl Into<Self::Token>, from: Self::Scalar) -> Self {
+    fn splat(_: Self::Token, from: Self::Scalar) -> Self {
         Self(unsafe { _mm_set1_ps(from) })
     }
 }
@@ -577,7 +577,7 @@ unsafe impl Vector for f64x2 {
     type Width = crate::vector::width::W2;
 
     #[inline]
-    fn splat(_: impl Into<Self::Token>, from: Self::Scalar) -> Self {
+    fn splat(_: Self::Token, from: Self::Scalar) -> Self {
         Self(unsafe { _mm_set1_pd(from) })
     }
 }
@@ -591,7 +591,7 @@ unsafe impl Vector for cf32x2 {
     type Width = crate::vector::width::W2;
 
     #[inline]
-    fn splat(_: impl Into<Self::Token>, from: Self::Scalar) -> Self {
+    fn splat(_: Self::Token, from: Self::Scalar) -> Self {
         Self(unsafe { _mm_set_ps(from.im, from.re, from.im, from.re) })
     }
 }
@@ -605,7 +605,7 @@ unsafe impl Vector for cf64x1 {
     type Width = crate::vector::width::W1;
 
     #[inline]
-    fn splat(_: impl Into<Self::Token>, from: Self::Scalar) -> Self {
+    fn splat(_: Self::Token, from: Self::Scalar) -> Self {
         Self(unsafe { _mm_set_pd(from.im, from.re) })
     }
 }
@@ -618,7 +618,7 @@ unsafe impl Vector for f32x8 {
     type Width = crate::vector::width::W8;
 
     #[inline]
-    fn splat(_: impl Into<Self::Token>, from: Self::Scalar) -> Self {
+    fn splat(_: Self::Token, from: Self::Scalar) -> Self {
         Self(unsafe { _mm256_set1_ps(from) })
     }
 }
@@ -631,7 +631,7 @@ unsafe impl Vector for f64x4 {
     type Width = crate::vector::width::W4;
 
     #[inline]
-    fn splat(_: impl Into<Self::Token>, from: Self::Scalar) -> Self {
+    fn splat(_: Self::Token, from: Self::Scalar) -> Self {
         Self(unsafe { _mm256_set1_pd(from) })
     }
 }
@@ -645,7 +645,7 @@ unsafe impl Vector for cf32x4 {
     type Width = crate::vector::width::W4;
 
     #[inline]
-    fn splat(_: impl Into<Self::Token>, from: Self::Scalar) -> Self {
+    fn splat(_: Self::Token, from: Self::Scalar) -> Self {
         unsafe {
             Self(_mm256_setr_ps(
                 from.re, from.im, from.re, from.im, from.re, from.im, from.re, from.im,
@@ -663,7 +663,7 @@ unsafe impl Vector for cf64x2 {
     type Width = crate::vector::width::W2;
 
     #[inline]
-    fn splat(_: impl Into<Self::Token>, from: Self::Scalar) -> Self {
+    fn splat(_: Self::Token, from: Self::Scalar) -> Self {
         Self(unsafe { _mm256_setr_pd(from.re, from.im, from.re, from.im) })
     }
 }

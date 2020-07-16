@@ -67,7 +67,7 @@ impl<'a, V> RefMut<'a, V>
 where
     V: Vector,
 {
-    fn new(token: impl Into<V::Token>, source: *mut V::Scalar) -> Self {
+    fn new(token: V::Token, source: *mut V::Scalar) -> Self {
         Self {
             source,
             temp: V::zeroed(token),

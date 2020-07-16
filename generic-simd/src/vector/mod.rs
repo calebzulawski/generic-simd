@@ -22,7 +22,7 @@ where
     /// See [`read_unchecked`](trait.Vector.html#method.read_ptr).
     #[inline]
     unsafe fn read_unchecked(token: Token, from: &[Self]) -> Self::Vector {
-        Self::Vector::read_unchecked(token, from)
+        Self::Vector::read_unchecked(Self::Token::from(token), from)
     }
 
     /// Read a vector from a slice.
@@ -30,7 +30,7 @@ where
     /// See [`read`](trait.Vector.html#method.read).
     #[inline]
     fn read(token: Token, from: &[Self]) -> Self::Vector {
-        Self::Vector::read(token, from)
+        Self::Vector::read(Self::Token::from(token), from)
     }
 
     /// Create a vector set to zero.
@@ -38,7 +38,7 @@ where
     /// See [`zeroed`](trait.Vector.html#method.zeroed).
     #[inline]
     fn zeroed(token: Token) -> Self::Vector {
-        Self::Vector::zeroed(token)
+        Self::Vector::zeroed(Self::Token::from(token))
     }
 
     /// Splat a scalar to a vector.
@@ -46,7 +46,7 @@ where
     /// See [`splat`](trait.Vector.html#tymethod.splat).
     #[inline]
     fn splat(self, token: Token) -> Self::Vector {
-        Self::Vector::splat(token, self)
+        Self::Vector::splat(Self::Token::from(token), self)
     }
 
     /// Align a slice of scalars to vectors.
@@ -263,7 +263,7 @@ pub unsafe trait Vector: Copy {
     /// * `from` must point to an array of length at least `width()`.
     #[inline]
     unsafe fn read_ptr(
-        #[allow(unused_variables)] token: impl Into<Self::Token>,
+        #[allow(unused_variables)] token: Self::Token,
         from: *const Self::Scalar,
     ) -> Self {
         (from as *const Self).read_unaligned()
@@ -274,7 +274,7 @@ pub unsafe trait Vector: Copy {
     /// # Safety
     /// * `from` be length at least `width()`.
     #[inline]
-    unsafe fn read_unchecked(token: impl Into<Self::Token>, from: &[Self::Scalar]) -> Self {
+    unsafe fn read_unchecked(token: Self::Token, from: &[Self::Scalar]) -> Self {
         Self::read_ptr(token, from.as_ptr())
     }
 
@@ -283,7 +283,7 @@ pub unsafe trait Vector: Copy {
     /// # Panic
     /// Panics if the length of `from` is less than `width()`.
     #[inline]
-    fn read(token: impl Into<Self::Token>, from: &[Self::Scalar]) -> Self {
+    fn read(token: Self::Token, from: &[Self::Scalar]) -> Self {
         assert!(
             from.len() >= Self::width(),
             "source not larget enough to load vector"
@@ -324,12 +324,12 @@ pub unsafe trait Vector: Copy {
 
     /// Create a new vector with each lane containing zeroes.
     #[inline]
-    fn zeroed(#[allow(unused_variables)] token: impl Into<Self::Token>) -> Self {
+    fn zeroed(#[allow(unused_variables)] token: Self::Token) -> Self {
         unsafe { core::mem::zeroed() }
     }
 
     /// Create a new vector with each lane containing the provided value.
-    fn splat(token: impl Into<Self::Token>, from: Self::Scalar) -> Self;
+    fn splat(token: Self::Token, from: Self::Scalar) -> Self;
 }
 
 /// A supertrait for vectors supporting typical arithmetic operations.

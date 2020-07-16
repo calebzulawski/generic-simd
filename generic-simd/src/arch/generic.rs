@@ -119,7 +119,7 @@ macro_rules! implement {
             type Width = crate::vector::width::W1;
 
             #[inline]
-            fn splat(_: impl Into<Self::Token>, from: Self::Scalar) -> Self
+            fn splat(_: Self::Token, from: Self::Scalar) -> Self
             {
                 Self(from)
             }

@@ -44,7 +44,7 @@ where
     type Width = <Underlying::Width as Double>::Doubled;
 
     #[inline]
-    fn splat(feature: impl Into<Self::Token>, from: Self::Scalar) -> Self {
+    fn splat(feature: Self::Token, from: Self::Scalar) -> Self {
         Self([Underlying::splat(feature, from); 2], PhantomData)
     }
 }

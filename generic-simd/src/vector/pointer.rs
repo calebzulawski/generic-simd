@@ -29,7 +29,7 @@ where
 
     #[inline]
     unsafe fn vector_read(self, token: Token) -> Self::Vector {
-        Self::Vector::read_ptr(token, self)
+        Self::Vector::read_ptr(Self::Token::from(token), self)
     }
 }
 
@@ -44,7 +44,7 @@ where
 
     #[inline]
     unsafe fn vector_read(self, token: Token) -> Self::Vector {
-        Self::Vector::read_ptr(token, self)
+        Self::Vector::read_ptr(Self::Token::from(token), self)
     }
 }
 
