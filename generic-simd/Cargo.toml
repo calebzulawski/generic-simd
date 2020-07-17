@@ -13,8 +13,8 @@ complex = ["num-complex"]
 num-complex = { version = "0.2", default-features = false, optional = true }
 generic-simd-macros = { version = "0.1", path = "../generic-simd-macros" }
 multiversion = { version = "0.6", default-features = false }
-num-traits = "0.2"
 
 [dev-dependencies]
 num-complex = { version = "0.2", features = ["rand"] }
+num-traits = "0.2"
 rand = "0.5"
