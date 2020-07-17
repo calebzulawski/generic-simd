@@ -1,0 +1,14 @@
+[package]
+name = "generic-simd-test"
+version = "0.1.0"
+authors = ["Caleb Zulawski <caleb.zulawski@gmail.com>"]
+edition = "2018"
+publish = false
+
+[dependencies]
+generic-simd = { path = "../generic-simd" }
+
+[dev-dependencies]
+num-complex = { version = "0.3", default-features = false, features = ["rand"] }
+num-traits = "0.2"
+rand = "0.7"

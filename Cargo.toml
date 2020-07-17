@@ -3,5 +3,6 @@
 members = [
     "generic-simd",
     "generic-simd-macros",
+    "generic-simd-test",
     "generic-simd-dispatch-test",
 ]

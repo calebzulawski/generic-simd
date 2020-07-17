@@ -31,7 +31,9 @@ jobs:
         override: true
         profile: minimal
     - name: Run tests
-      run: cargo test --verbose ${{ matrix.features }} --manifest-path generic-simd/Cargo.toml
+      run: |
+          cargo test --verbose ${{ matrix.features }} --manifest-path generic-simd/Cargo.toml
+          cargo test --verbose ${{ matrix.features }} --manifest-path generic-simd-test/Cargo.toml
 
   lint:
     runs-on: ubuntu-latest
