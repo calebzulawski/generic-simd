@@ -1,9 +1,9 @@
-//! Traits for working with pointers to vectors.
+//! Extensions for pointers to vectors.
 
-use crate::vector::{width, Native, NativeWidth, ScalarSized, Vector};
+use crate::vector::{scalar::ScalarWidth, width, Native, NativeWidth, Vector};
 
-/// A pointer to a vector.
-pub trait PointerSized<Token, Width>: Copy
+/// A pointer to a vector, parameterized by vector width.
+pub trait PointerWidth<Token, Width>: Copy
 where
     Token: crate::arch::Token,
     Width: width::Width,
@@ -18,9 +18,9 @@ where
     unsafe fn vector_read(self, token: Token) -> Self::Vector;
 }
 
-impl<T, Token, Width> PointerSized<Token, Width> for *const T
+impl<T, Token, Width> PointerWidth<Token, Width> for *const T
 where
-    T: ScalarSized<Token, Width>,
+    T: ScalarWidth<Token, Width>,
     Token: crate::arch::Token,
     Width: width::Width,
 {
@@ -33,9 +33,9 @@ where
     }
 }
 
-impl<T, Token, Width> PointerSized<Token, Width> for *mut T
+impl<T, Token, Width> PointerWidth<Token, Width> for *mut T
 where
-    T: ScalarSized<Token, Width>,
+    T: ScalarWidth<Token, Width>,
     Token: crate::arch::Token,
     Width: width::Width,
 {
@@ -58,8 +58,8 @@ macro_rules! pointer_impl {
         #[doc = $width]
         #[doc = " from a pointer.\n\n# Safety\nSee [`read_ptr`](../trait.Vector.html#method.read_ptr)."]
         #[inline]
-        unsafe fn $read_unaligned(self, token: Token) -> <Self as PointerSized<Token, $width_type>>::Vector {
-            <Self as PointerSized<Token, $width_type>>::vector_read(self, token)
+        unsafe fn $read_unaligned(self, token: Token) -> <Self as PointerWidth<Token, $width_type>>::Vector {
+            <Self as PointerWidth<Token, $width_type>>::vector_read(self, token)
         }
     }
 }
@@ -67,11 +67,11 @@ macro_rules! pointer_impl {
 /// A pointer to a vector.
 pub trait Pointer<Token>:
     Native<Token>
-    + PointerSized<Token, width::W1>
-    + PointerSized<Token, width::W2>
-    + PointerSized<Token, width::W4>
-    + PointerSized<Token, width::W8>
-    + PointerSized<Token, NativeWidth<Self, Token>>
+    + PointerWidth<Token, width::W1>
+    + PointerWidth<Token, width::W2>
+    + PointerWidth<Token, width::W4>
+    + PointerWidth<Token, width::W8>
+    + PointerWidth<Token, NativeWidth<Self, Token>>
 where
     Token: crate::arch::Token,
 {
@@ -85,11 +85,11 @@ where
 impl<T, Token> Pointer<Token> for T
 where
     T: Native<Token>
-        + PointerSized<Token, width::W1>
-        + PointerSized<Token, width::W2>
-        + PointerSized<Token, width::W4>
-        + PointerSized<Token, width::W8>
-        + PointerSized<Token, NativeWidth<Self, Token>>,
+        + PointerWidth<Token, width::W1>
+        + PointerWidth<Token, width::W2>
+        + PointerWidth<Token, width::W4>
+        + PointerWidth<Token, width::W8>
+        + PointerWidth<Token, NativeWidth<Self, Token>>,
     Token: crate::arch::Token,
 {
 }

@@ -1,6 +1,6 @@
 use generic_simd::{
     arch::Token,
-    vector::{Scalar, Signed},
+    vector::{scalar::Scalar, Signed},
 };
 use num_traits::Num;
 use rand::distributions::Standard;

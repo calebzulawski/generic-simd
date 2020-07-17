@@ -19,8 +19,7 @@
 //! use generic_simd::{
 //!     arch::Token,
 //!     dispatch,
-//!     slice::Slice,
-//!     vector::{Scalar, NativeVector},
+//!     vector::{slice::Slice, scalar::Scalar, NativeVector},
 //! };
 //!
 //! // This function provides a generic implementation for any instruction set.
@@ -60,7 +59,7 @@
 //! use generic_simd::{
 //!     arch::Token,
 //!     dispatch,
-//!     vector::{Signed, ScalarSized, Vector, width},
+//!     vector::{Signed, scalar::ScalarWidth, Vector, width},
 //! };
 //!
 //! // Equivalent to an array of 4 2-dimensional coordinates,
@@ -74,8 +73,8 @@
 //! fn mean_impl<T>(token: T, input: &[Coordinates]) -> (f64, f64)
 //! where
 //!     T: Token,
-//!     f64: ScalarSized<T, width::W4>,
-//!     <f64 as ScalarSized<T, width::W4>>::Vector: Signed,
+//!     f64: ScalarWidth<T, width::W4>,
+//!     <f64 as ScalarWidth<T, width::W4>>::Vector: Signed,
 //! {
 //!     let mut xsum = f64::zeroed(token);
 //!     let mut ysum = f64::zeroed(token);
@@ -112,5 +111,3 @@ mod implementation;
 pub mod arch;
 pub mod shim;
 pub mod vector;
-
-pub mod slice;

@@ -1,4 +1,4 @@
-//! Shims for unsupported vector widths.
+//! Shims for non-native vector widths.
 
 use crate::vector::{width, Vector};
 use core::marker::PhantomData;

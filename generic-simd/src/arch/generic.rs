@@ -2,7 +2,7 @@
 
 use crate::arch::Token;
 use crate::shim::{Shim2, Shim4, Shim8};
-use crate::vector::{width, Native, ScalarSized, Vector};
+use crate::vector::{scalar::ScalarWidth, width, Native, Vector};
 
 #[cfg(feature = "complex")]
 use num_complex::Complex;
@@ -55,22 +55,22 @@ macro_rules! implement {
     {
         $vector:ty, $scalar:ty
     } => {
-        impl ScalarSized<Generic, width::W1> for $scalar {
+        impl ScalarWidth<Generic, width::W1> for $scalar {
             type Token = Generic;
             type Vector = $vector;
         }
 
-        impl ScalarSized<Generic, width::W2> for $scalar {
+        impl ScalarWidth<Generic, width::W2> for $scalar {
             type Token = Generic;
             type Vector = Shim2<$vector, $scalar>;
         }
 
-        impl ScalarSized<Generic, width::W4> for $scalar {
+        impl ScalarWidth<Generic, width::W4> for $scalar {
             type Token = Generic;
             type Vector = Shim4<$vector, $scalar>;
         }
 
-        impl ScalarSized<Generic, width::W8> for $scalar {
+        impl ScalarWidth<Generic, width::W8> for $scalar {
             type Token = Generic;
             type Vector = Shim8<$vector, $scalar>;
         }
