@@ -45,3 +45,46 @@ pub mod generic;
 
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 pub mod x86;
+
+#[cfg(all(not(doc), any(target_arch = "x86", target_arch = "x86_64")))]
+#[macro_export]
+macro_rules! call_macro_with_tokens {
+    { $mac:ident } => {
+        $mac! {
+            $crate::arch::x86::Avx,
+            $crate::arch::x86::Sse,
+            $crate::arch::generic::Generic,
+        }
+    }
+}
+
+/// Invokes a macro with the supported token types.
+///
+/// Invokes the macro with the list of [`Token`] types as arguments in priority order, delimited
+/// by commas (including a trailing comma).
+///
+/// The following example creates a `SupportedScalar` supertrait that implements [`Scalar`] for
+/// each token:
+/// ```
+/// use generic_simd::{call_macro_with_tokens, vector::scalar::Scalar};
+///
+/// macro_rules! supported_scalars {
+///     { $($token:ty,)+ } => {
+///         trait SupportedScalar: Copy $(+ Scalar<$token>)* {}
+///     }
+/// }
+///
+/// call_macro_with_tokens!{ supported_scalars }
+/// ```
+///
+/// [`Token`]: arch/trait.Token.html
+/// [`Scalar`]: vector/scalar/trait.Scalar.html
+#[cfg(any(doc, not(any(target_arch = "x86", target_arch = "x86_64"))))]
+#[macro_export]
+macro_rules! call_macro_with_tokens {
+    { $mac:ident } => {
+        $mac! {
+            $crate::arch::generic::Generic,
+        }
+    }
+}
