@@ -23,10 +23,11 @@ pub struct Sse(());
 #[derive(Copy, Clone, Debug)]
 pub struct Avx(());
 
-impl_token! { Sse => "sse", "sse3" }
-impl_token! { Avx => "sse", "sse3", "avx" }
+impl_token! { Sse => "sse3" }
+impl_token! { Avx => "avx" }
 
 impl core::convert::From<Avx> for Sse {
+    #[inline]
     fn from(_: Avx) -> Sse {
         unsafe { Sse::new_unchecked() }
     }
@@ -382,6 +383,7 @@ arithmetic_ops! {
 
 #[cfg(feature = "complex")]
 #[target_feature(enable = "sse3")]
+#[inline]
 unsafe fn mul_cf32x2(a: __m128, b: __m128) -> __m128 {
     let re = _mm_moveldup_ps(a);
     let im = _mm_movehdup_ps(a);
@@ -391,6 +393,7 @@ unsafe fn mul_cf32x2(a: __m128, b: __m128) -> __m128 {
 
 #[cfg(feature = "complex")]
 #[target_feature(enable = "sse3")]
+#[inline]
 unsafe fn mul_cf64x1(a: __m128d, b: __m128d) -> __m128d {
     let re = _mm_shuffle_pd(a, a, 0x00);
     let im = _mm_shuffle_pd(a, a, 0x03);
@@ -401,6 +404,7 @@ unsafe fn mul_cf64x1(a: __m128d, b: __m128d) -> __m128d {
 // [(a.re * b.re + a.im * b.im) / (b.re * b.re + b.im * b.im)] + i [(a.im * b.re - a.re * b.im) / (b.re * b.re + b.im * b.im)]
 #[cfg(feature = "complex")]
 #[target_feature(enable = "sse3")]
+#[inline]
 unsafe fn div_cf32x2(a: __m128, b: __m128) -> __m128 {
     let b_re = _mm_moveldup_ps(b);
     let b_im = _mm_movehdup_ps(b);
@@ -417,6 +421,7 @@ unsafe fn div_cf32x2(a: __m128, b: __m128) -> __m128 {
 
 #[cfg(feature = "complex")]
 #[target_feature(enable = "sse3")]
+#[inline]
 unsafe fn div_cf64x1(a: __m128d, b: __m128d) -> __m128d {
     let b_re = _mm_shuffle_pd(b, b, 0x00);
     let b_im = _mm_shuffle_pd(b, b, 0x03);
@@ -433,6 +438,7 @@ unsafe fn div_cf64x1(a: __m128d, b: __m128d) -> __m128d {
 
 #[cfg(feature = "complex")]
 #[target_feature(enable = "avx")]
+#[inline]
 unsafe fn mul_cf32x4(a: __m256, b: __m256) -> __m256 {
     let re = _mm256_moveldup_ps(a);
     let im = _mm256_movehdup_ps(a);
@@ -442,6 +448,7 @@ unsafe fn mul_cf32x4(a: __m256, b: __m256) -> __m256 {
 
 #[cfg(feature = "complex")]
 #[target_feature(enable = "avx")]
+#[inline]
 unsafe fn mul_cf64x2(a: __m256d, b: __m256d) -> __m256d {
     let re = _mm256_unpacklo_pd(a, a);
     let im = _mm256_unpackhi_pd(a, a);
@@ -452,6 +459,7 @@ unsafe fn mul_cf64x2(a: __m256d, b: __m256d) -> __m256d {
 // [(a.re * b.re + a.im * b.im) / (b.re * b.re + b.im * b.im)] + i [(a.im * b.re - a.re * b.im) / (b.re * b.re + b.im * b.im)]
 #[cfg(feature = "complex")]
 #[target_feature(enable = "avx")]
+#[inline]
 unsafe fn div_cf32x4(a: __m256, b: __m256) -> __m256 {
     let b_re = _mm256_moveldup_ps(b);
     let b_im = _mm256_movehdup_ps(b);
@@ -468,6 +476,7 @@ unsafe fn div_cf32x4(a: __m256, b: __m256) -> __m256 {
 
 #[cfg(feature = "complex")]
 #[target_feature(enable = "avx")]
+#[inline]
 unsafe fn div_cf64x2(a: __m256d, b: __m256d) -> __m256d {
     let b_re = _mm256_unpacklo_pd(b, b);
     let b_im = _mm256_unpackhi_pd(b, b);
@@ -484,6 +493,8 @@ unsafe fn div_cf64x2(a: __m256d, b: __m256d) -> __m256d {
 
 impl core::ops::Neg for f32x4 {
     type Output = Self;
+
+    #[inline]
     fn neg(self) -> Self {
         Self(unsafe { _mm_xor_ps(self.0, _mm_set1_ps(-0.)) })
     }
@@ -491,6 +502,8 @@ impl core::ops::Neg for f32x4 {
 
 impl core::ops::Neg for f64x2 {
     type Output = Self;
+
+    #[inline]
     fn neg(self) -> Self {
         Self(unsafe { _mm_xor_pd(self.0, _mm_set1_pd(-0.)) })
     }
@@ -499,6 +512,8 @@ impl core::ops::Neg for f64x2 {
 #[cfg(feature = "complex")]
 impl core::ops::Neg for cf32x2 {
     type Output = Self;
+
+    #[inline]
     fn neg(self) -> Self {
         Self(unsafe { _mm_xor_ps(self.0, _mm_set1_ps(-0.)) })
     }
@@ -507,6 +522,8 @@ impl core::ops::Neg for cf32x2 {
 #[cfg(feature = "complex")]
 impl core::ops::Neg for cf64x1 {
     type Output = Self;
+
+    #[inline]
     fn neg(self) -> Self {
         Self(unsafe { _mm_xor_pd(self.0, _mm_set1_pd(-0.)) })
     }
@@ -514,6 +531,8 @@ impl core::ops::Neg for cf64x1 {
 
 impl core::ops::Neg for f32x8 {
     type Output = Self;
+
+    #[inline]
     fn neg(self) -> Self {
         Self(unsafe { _mm256_xor_ps(self.0, _mm256_set1_ps(-0.)) })
     }
@@ -521,6 +540,8 @@ impl core::ops::Neg for f32x8 {
 
 impl core::ops::Neg for f64x4 {
     type Output = Self;
+
+    #[inline]
     fn neg(self) -> Self {
         Self(unsafe { _mm256_xor_pd(self.0, _mm256_set1_pd(-0.)) })
     }
@@ -529,6 +550,8 @@ impl core::ops::Neg for f64x4 {
 #[cfg(feature = "complex")]
 impl core::ops::Neg for cf32x4 {
     type Output = Self;
+
+    #[inline]
     fn neg(self) -> Self {
         Self(unsafe { _mm256_xor_ps(self.0, _mm256_set1_ps(-0.)) })
     }
@@ -537,6 +560,8 @@ impl core::ops::Neg for cf32x4 {
 #[cfg(feature = "complex")]
 impl core::ops::Neg for cf64x2 {
     type Output = Self;
+
+    #[inline]
     fn neg(self) -> Self {
         Self(unsafe { _mm256_xor_pd(self.0, _mm256_set1_pd(-0.)) })
     }

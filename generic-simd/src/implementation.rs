@@ -46,6 +46,7 @@ macro_rules! arithmetic_ops {
             div -> $div_expr:expr
     } => {
         impl core::iter::Sum<$type> for Option<$type> {
+            #[inline]
             fn sum<I>(mut iter: I) -> Self
             where
                 I: Iterator<Item = $type>,
@@ -62,6 +63,7 @@ macro_rules! arithmetic_ops {
         }
 
         impl core::iter::Sum<$type> for <$type as $crate::vector::Vector>::Scalar {
+            #[inline]
             fn sum<I>(iter: I) -> Self
             where
                 I: Iterator<Item = $type>,
@@ -75,6 +77,7 @@ macro_rules! arithmetic_ops {
         }
 
         impl core::iter::Product<$type> for Option<$type> {
+            #[inline]
             fn product<I>(mut iter: I) -> Self
             where
                 I: Iterator<Item = $type>,
@@ -91,6 +94,7 @@ macro_rules! arithmetic_ops {
         }
 
         impl core::iter::Product<$type> for <$type as $crate::vector::Vector>::Scalar {
+            #[inline]
             fn product<I>(iter: I) -> Self
             where
                 I: Iterator<Item = $type>,
@@ -119,6 +123,7 @@ macro_rules! as_slice {
         $type:ty
     } => {
         impl AsRef<[<$type as crate::vector::Vector>::Scalar]> for $type {
+            #[inline]
             fn as_ref(&self) -> &[<$type as crate::vector::Vector>::Scalar] {
                 use crate::vector::Vector;
                 self.as_slice()
@@ -126,6 +131,7 @@ macro_rules! as_slice {
         }
 
         impl AsMut<[<$type as crate::vector::Vector>::Scalar]> for $type {
+            #[inline]
             fn as_mut(&mut self) -> &mut [<$type as crate::vector::Vector>::Scalar] {
                 use crate::vector::Vector;
                 self.as_slice_mut()
@@ -134,12 +140,14 @@ macro_rules! as_slice {
 
         impl core::ops::Deref for $type {
             type Target = [<Self as crate::vector::Vector>::Scalar];
+            #[inline]
             fn deref(&self) -> &Self::Target {
                 self.as_slice()
             }
         }
 
         impl core::ops::DerefMut for $type {
+            #[inline]
             fn deref_mut(&mut self) -> &mut <Self as core::ops::Deref>::Target {
                 self.as_slice_mut()
             }

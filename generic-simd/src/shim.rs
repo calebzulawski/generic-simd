@@ -108,6 +108,8 @@ macro_rules! implement {
             Underlying: Copy + core::ops::$trait<Underlying, Output=Underlying>,
         {
             type Output = Self;
+
+            #[inline]
             fn $func(self, rhs: Self) -> Self {
                 Self([self.0[0].$func(rhs.0[0]), self.0[1].$func(rhs.0[1])], PhantomData)
             }
@@ -119,6 +121,8 @@ macro_rules! implement {
             Scalar: Copy,
         {
             type Output = Self;
+
+            #[inline]
             fn $func(self, rhs: Scalar) -> Self {
                 Self([self.0[0].$func(rhs), self.0[1].$func(rhs)], PhantomData)
             }
@@ -133,6 +137,7 @@ macro_rules! implement {
             Underlying: Copy + core::ops::$trait<Underlying>,
             Scalar: Copy,
         {
+            #[inline]
             fn $func(&mut self, rhs: Self) {
                 self.0[0].$func(rhs.0[0]);
                 self.0[1].$func(rhs.0[1]);
@@ -144,6 +149,7 @@ macro_rules! implement {
             Underlying: Copy + core::ops::$trait<Scalar>,
             Scalar: Copy,
         {
+            #[inline]
             fn $func(&mut self, rhs: Scalar) {
                 self.0[0].$func(rhs);
                 self.0[1].$func(rhs);
@@ -179,6 +185,7 @@ where
     Shim2<Underlying, Scalar>: core::ops::AddAssign,
     Underlying: Copy,
 {
+    #[inline]
     fn sum<I>(mut iter: I) -> Self
     where
         I: Iterator<Item = Shim2<Underlying, Scalar>>,
@@ -202,6 +209,7 @@ where
     Underlying::Width: Double,
     Scalar: Copy + core::ops::Add<Self, Output = Self> + Default,
 {
+    #[inline]
     fn sum<I>(iter: I) -> Self
     where
         I: Iterator<Item = Shim2<Underlying, Scalar>>,
@@ -222,6 +230,7 @@ where
     Shim2<Underlying, Scalar>: core::ops::MulAssign,
     Underlying: Copy,
 {
+    #[inline]
     fn product<I>(mut iter: I) -> Self
     where
         I: Iterator<Item = Shim2<Underlying, Scalar>>,
@@ -245,6 +254,7 @@ where
     Underlying::Width: Double,
     Scalar: Copy + core::ops::Mul<Self, Output = Self> + Default,
 {
+    #[inline]
     fn product<I>(iter: I) -> Self
     where
         I: Iterator<Item = Shim2<Underlying, Scalar>>,

@@ -202,6 +202,7 @@ impl<'a, V> RefMut<'a, V>
 where
     V: Vector,
 {
+    #[inline]
     fn new(token: V::Token, source: *mut V::Scalar) -> Self {
         Self {
             source,
@@ -216,6 +217,8 @@ where
     V: Vector,
 {
     type Target = V;
+
+    #[inline]
     fn deref(&self) -> &V {
         &self.temp
     }
@@ -225,6 +228,7 @@ impl<'a, V> core::ops::DerefMut for RefMut<'a, V>
 where
     V: Vector,
 {
+    #[inline]
     fn deref_mut(&mut self) -> &mut V {
         &mut self.temp
     }
@@ -234,6 +238,7 @@ impl<'a, V> core::ops::Drop for RefMut<'a, V>
 where
     V: Vector,
 {
+    #[inline]
     fn drop(&mut self) {
         unsafe {
             self.temp.write_ptr(self.source);

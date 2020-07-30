@@ -41,6 +41,7 @@ pub unsafe trait Vector: Copy {
     type Width: width::Width;
 
     /// Returns the number of lanes.
+    #[inline]
     fn width() -> usize {
         <Self::Width as width::Width>::VALUE
     }

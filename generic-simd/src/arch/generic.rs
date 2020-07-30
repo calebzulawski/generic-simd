@@ -12,10 +12,12 @@ use num_complex::Complex;
 pub struct Generic;
 
 unsafe impl Token for Generic {
+    #[inline]
     fn new() -> Option<Self> {
         Some(Self)
     }
 
+    #[inline]
     unsafe fn new_unchecked() -> Self {
         Self
     }
@@ -104,6 +106,8 @@ macro_rules! implement {
 
         impl core::ops::Neg for $vector {
             type Output = Self;
+
+            #[inline]
             fn neg(self) -> Self {
                 Self(-self.0)
             }

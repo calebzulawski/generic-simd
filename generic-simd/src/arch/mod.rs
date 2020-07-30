@@ -20,6 +20,7 @@ pub unsafe trait Token: Copy + From<Self> + Into<Self> {
 macro_rules! impl_token {
     { $name:ident => $($features:tt),+ } => {
         unsafe impl $crate::arch::Token for $name {
+            #[inline]
             fn new() -> Option<Self> {
                 if multiversion::are_cpu_features_detected!($($features),*) {
                     Some(Self(()))
@@ -28,12 +29,14 @@ macro_rules! impl_token {
                 }
             }
 
+            #[inline]
             unsafe fn new_unchecked() -> Self {
                 Self(())
             }
         }
 
         impl core::convert::From<$name> for $crate::arch::generic::Generic {
+            #[inline]
             fn from(_: $name) -> Self {
                 Self
             }
