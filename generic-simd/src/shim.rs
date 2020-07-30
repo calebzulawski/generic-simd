@@ -262,15 +262,9 @@ where
 #[cfg(feature = "complex")]
 impl<Underlying, Real> Complex for Shim2<Underlying, num_complex::Complex<Real>>
 where
-    Option<Underlying::Scalar>: core::iter::Sum<Shim2<Underlying, Underlying::Scalar>>,
-    Underlying::Scalar:
-        core::ops::AddAssign + core::iter::Sum<Underlying> + core::iter::Product<Underlying>,
-    Underlying: Vector<Scalar = num_complex::Complex<Real>>
-        + core::iter::Sum<Underlying>
-        + core::iter::Product<Underlying>
-        + Complex<RealScalar = Real>,
+    Underlying: Vector<Scalar = num_complex::Complex<Real>> + Complex<RealScalar = Real>,
     Underlying::Width: Double,
-    Real: Copy + core::ops::Add + core::ops::Mul,
+    Real: Copy,
 {
     type RealScalar = Real;
 
