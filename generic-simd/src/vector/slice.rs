@@ -10,8 +10,7 @@ where
     Token: crate::arch::Token,
     Width: width::Width,
 {
-    type Token: crate::arch::Token + From<Token>;
-    type Vector: Vector<Token = Self::Token, Width = Width>;
+    type Vector: Vector<Token = Token, Width = Width>;
 
     /// Extract a slice of aligned vectors, as if by [`align_to`].
     ///
@@ -19,7 +18,7 @@ where
     #[allow(clippy::type_complexity)]
     fn align(
         &self,
-        #[allow(unused_variables)] token: Self::Token,
+        #[allow(unused_variables)] token: Token,
     ) -> (
         &[<Self::Vector as Vector>::Scalar],
         &[Self::Vector],
@@ -32,7 +31,7 @@ where
     #[allow(clippy::type_complexity)]
     fn align_mut(
         &mut self,
-        #[allow(unused_variables)] token: Self::Token,
+        #[allow(unused_variables)] token: Token,
     ) -> (
         &mut [<Self::Vector as Vector>::Scalar],
         &mut [Self::Vector],
@@ -40,10 +39,10 @@ where
     );
 
     /// Create a slice of overlapping vectors from a slice of scalars.
-    fn overlapping(&self, token: Self::Token) -> Overlapping<'_, Self::Vector>;
+    fn overlapping(&self, token: Token) -> Overlapping<'_, Self::Vector>;
 
     /// Create a mutable slice of overlapping vectors from a slice of scalars.
-    fn overlapping_mut(&mut self, token: Self::Token) -> OverlappingMut<'_, Self::Vector>;
+    fn overlapping_mut(&mut self, token: Token) -> OverlappingMut<'_, Self::Vector>;
 }
 
 impl<T, Token, Width> SliceWidth<Token, Width> for [T]
@@ -52,14 +51,13 @@ where
     Token: crate::arch::Token,
     Width: width::Width,
 {
-    type Token = T::Token;
     type Vector = T::Vector;
 
     #[allow(clippy::type_complexity)]
     #[inline]
     fn align(
         &self,
-        #[allow(unused_variables)] token: Self::Token,
+        #[allow(unused_variables)] token: Token,
     ) -> (
         &[<Self::Vector as Vector>::Scalar],
         &[Self::Vector],
@@ -72,7 +70,7 @@ where
     #[inline]
     fn align_mut(
         &mut self,
-        #[allow(unused_variables)] token: Self::Token,
+        #[allow(unused_variables)] token: Token,
     ) -> (
         &mut [<Self::Vector as Vector>::Scalar],
         &mut [Self::Vector],
@@ -82,12 +80,12 @@ where
     }
 
     #[inline]
-    fn overlapping(&self, token: Self::Token) -> Overlapping<'_, Self::Vector> {
+    fn overlapping(&self, token: Token) -> Overlapping<'_, Self::Vector> {
         Overlapping::new(token, self)
     }
 
     #[inline]
-    fn overlapping_mut(&mut self, token: Self::Token) -> OverlappingMut<'_, Self::Vector> {
+    fn overlapping_mut(&mut self, token: Token) -> OverlappingMut<'_, Self::Vector> {
         OverlappingMut::new(token, self)
     }
 }
@@ -112,7 +110,7 @@ macro_rules! slice_impl {
             &[<Self as SliceWidth<Token, $width_type>>::Vector],
             &[<<Self as SliceWidth<Token, $width_type>>::Vector as Vector>::Scalar],
         ) {
-            <Self as SliceWidth<Token, $width_type>>::align(self, <Self as SliceWidth<Token, $width_type>>::Token::from(token))
+            <Self as SliceWidth<Token, $width_type>>::align(self, token)
         }
 
         #[doc = "Align a slice of scalars to vectors with "]
@@ -126,7 +124,7 @@ macro_rules! slice_impl {
             &mut [<Self as SliceWidth<Token, $width_type>>::Vector],
             &mut [<<Self as SliceWidth<Token, $width_type>>::Vector as Vector>::Scalar],
         ){
-            <Self as SliceWidth<Token, $width_type>>::align_mut(self, <Self as SliceWidth<Token, $width_type>>::Token::from(token))
+            <Self as SliceWidth<Token, $width_type>>::align_mut(self, token)
         }
 
         #[doc = "Create a slice of overlapping vectors of "]
@@ -134,7 +132,7 @@ macro_rules! slice_impl {
         #[doc = "from a slice of scalars.\n\nSee [`overlapping`](trait.SliceWidth.html#tymethod.overlapping)."]
         #[inline]
         fn $overlapping(&self, token: Token) -> Overlapping<'_, <Self as SliceWidth<Token, $width_type>>::Vector> {
-            <Self as SliceWidth<Token, $width_type>>::overlapping(self, <Self as SliceWidth<Token, $width_type>>::Token::from(token))
+            <Self as SliceWidth<Token, $width_type>>::overlapping(self, token)
         }
 
         #[doc = "Create a mutable slice of overlapping vectors of "]
@@ -145,7 +143,7 @@ macro_rules! slice_impl {
             &mut self,
             token: Token,
         ) -> OverlappingMut<'_, <Self as SliceWidth<Token, $width_type>>::Vector> {
-            <Self as SliceWidth<Token, $width_type>>::overlapping_mut(self, <Self as SliceWidth<Token, $width_type>>::Token::from(token))
+            <Self as SliceWidth<Token, $width_type>>::overlapping_mut(self, token)
         }
     }
 }

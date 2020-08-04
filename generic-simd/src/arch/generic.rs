@@ -58,22 +58,18 @@ macro_rules! implement {
         $vector:ty, $scalar:ty
     } => {
         impl ScalarWidth<Generic, width::W1> for $scalar {
-            type Token = Generic;
             type Vector = $vector;
         }
 
         impl ScalarWidth<Generic, width::W2> for $scalar {
-            type Token = Generic;
             type Vector = Shim2<$vector, $scalar>;
         }
 
         impl ScalarWidth<Generic, width::W4> for $scalar {
-            type Token = Generic;
             type Vector = Shim4<$vector, $scalar>;
         }
 
         impl ScalarWidth<Generic, width::W8> for $scalar {
-            type Token = Generic;
             type Vector = Shim8<$vector, $scalar>;
         }
 

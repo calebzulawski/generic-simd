@@ -8,8 +8,7 @@ where
     Token: crate::arch::Token,
     Width: width::Width,
 {
-    type Token: crate::arch::Token + From<Token>;
-    type Vector: Vector<Token = Self::Token, Width = Width>;
+    type Vector: Vector<Token = Token, Width = Width>;
 
     /// Read a vector from a pointer.
     ///
@@ -24,12 +23,11 @@ where
     Token: crate::arch::Token,
     Width: width::Width,
 {
-    type Token = T::Token;
     type Vector = T::Vector;
 
     #[inline]
     unsafe fn vector_read(self, token: Token) -> Self::Vector {
-        Self::Vector::read_ptr(Self::Token::from(token), self)
+        Self::Vector::read_ptr(token, self)
     }
 }
 
@@ -39,12 +37,11 @@ where
     Token: crate::arch::Token,
     Width: width::Width,
 {
-    type Token = T::Token;
     type Vector = T::Vector;
 
     #[inline]
     unsafe fn vector_read(self, token: Token) -> Self::Vector {
-        Self::Vector::read_ptr(Self::Token::from(token), self)
+        Self::Vector::read_ptr(token, self)
     }
 }
 

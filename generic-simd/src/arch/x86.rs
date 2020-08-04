@@ -1,7 +1,7 @@
 //! x86/x86-64 vector types.
 
 use crate::arch::{generic, Token};
-use crate::shim::{Shim2, Shim4};
+use crate::shim::{Shim2, Shim4, ShimToken};
 use crate::vector::{scalar::ScalarWidth, width, Native, Vector};
 
 #[cfg(target_arch = "x86")]
@@ -130,178 +130,146 @@ pub struct cf32x4(__m256);
 pub struct cf64x2(__m256d);
 
 impl ScalarWidth<Sse, width::W1> for f32 {
-    type Token = generic::Generic;
-    type Vector = generic::f32x1;
+    type Vector = ShimToken<generic::f32x1, Self, Sse>;
 }
 
 impl ScalarWidth<Sse, width::W2> for f32 {
-    type Token = generic::Generic;
-    type Vector = Shim2<generic::f32x1, f32>;
+    type Vector = ShimToken<Shim2<generic::f32x1, Self>, Self, Sse>;
 }
 
 impl ScalarWidth<Sse, width::W4> for f32 {
-    type Token = Sse;
     type Vector = f32x4;
 }
 
 impl ScalarWidth<Sse, width::W8> for f32 {
-    type Token = Sse;
     type Vector = Shim2<f32x4, f32>;
 }
 
 impl ScalarWidth<Sse, width::W1> for f64 {
-    type Token = generic::Generic;
-    type Vector = generic::f64x1;
+    type Vector = ShimToken<generic::f64x1, Self, Sse>;
 }
 
 impl ScalarWidth<Sse, width::W2> for f64 {
-    type Token = Sse;
     type Vector = f64x2;
 }
 
 impl ScalarWidth<Sse, width::W4> for f64 {
-    type Token = Sse;
     type Vector = Shim2<f64x2, f64>;
 }
 
 impl ScalarWidth<Sse, width::W8> for f64 {
-    type Token = Sse;
     type Vector = Shim4<f64x2, f64>;
 }
 
 #[cfg(feature = "complex")]
 impl ScalarWidth<Sse, width::W1> for Complex<f32> {
-    type Token = generic::Generic;
-    type Vector = generic::cf32x1;
+    type Vector = ShimToken<generic::cf32x1, Self, Sse>;
 }
 
 #[cfg(feature = "complex")]
 impl ScalarWidth<Sse, width::W2> for Complex<f32> {
-    type Token = Sse;
     type Vector = cf32x2;
 }
 
 #[cfg(feature = "complex")]
 impl ScalarWidth<Sse, width::W4> for Complex<f32> {
-    type Token = Sse;
     type Vector = Shim2<cf32x2, Complex<f32>>;
 }
 
 #[cfg(feature = "complex")]
 impl ScalarWidth<Sse, width::W8> for Complex<f32> {
-    type Token = Sse;
     type Vector = Shim4<cf32x2, Complex<f32>>;
 }
 
 #[cfg(feature = "complex")]
 impl ScalarWidth<Sse, width::W1> for Complex<f64> {
-    type Token = Sse;
     type Vector = cf64x1;
 }
 
 #[cfg(feature = "complex")]
 impl ScalarWidth<Sse, width::W2> for Complex<f64> {
-    type Token = Sse;
     type Vector = Shim2<cf64x1, Complex<f64>>;
 }
 
 #[cfg(feature = "complex")]
 impl ScalarWidth<Sse, width::W4> for Complex<f64> {
-    type Token = Sse;
     type Vector = Shim4<cf64x1, Complex<f64>>;
 }
 
 #[cfg(feature = "complex")]
 impl ScalarWidth<Sse, width::W8> for Complex<f64> {
-    type Token = Sse;
-    type Vector = Shim8<cf64x1, Complex<f64>>;
+    type Vector = Shim8<cf64x1, Self>;
 }
 
 impl ScalarWidth<Avx, width::W1> for f32 {
-    type Token = generic::Generic;
-    type Vector = generic::f32x1;
+    type Vector = ShimToken<generic::f32x1, Self, Avx>;
 }
 
 impl ScalarWidth<Avx, width::W2> for f32 {
-    type Token = generic::Generic;
-    type Vector = Shim2<generic::f32x1, f32>;
+    type Vector = ShimToken<Shim2<generic::f32x1, Self>, Self, Avx>;
 }
 
 impl ScalarWidth<Avx, width::W4> for f32 {
-    type Token = Sse;
-    type Vector = f32x4;
+    type Vector = ShimToken<f32x4, Self, Avx>;
 }
 
 impl ScalarWidth<Avx, width::W8> for f32 {
-    type Token = Avx;
     type Vector = f32x8;
 }
 
 impl ScalarWidth<Avx, width::W1> for f64 {
-    type Token = generic::Generic;
-    type Vector = generic::f64x1;
+    type Vector = ShimToken<generic::f64x1, Self, Avx>;
 }
 
 impl ScalarWidth<Avx, width::W2> for f64 {
-    type Token = Sse;
-    type Vector = f64x2;
+    type Vector = ShimToken<f64x2, Self, Avx>;
 }
 
 impl ScalarWidth<Avx, width::W4> for f64 {
-    type Token = Avx;
     type Vector = f64x4;
 }
 
 impl ScalarWidth<Avx, width::W8> for f64 {
-    type Token = Avx;
     type Vector = Shim2<f64x4, f64>;
 }
 
 #[cfg(feature = "complex")]
 impl ScalarWidth<Avx, width::W1> for Complex<f32> {
-    type Token = generic::Generic;
-    type Vector = generic::cf32x1;
+    type Vector = ShimToken<generic::cf32x1, Self, Avx>;
 }
 
 #[cfg(feature = "complex")]
 impl ScalarWidth<Avx, width::W2> for Complex<f32> {
-    type Token = Sse;
-    type Vector = cf32x2;
+    type Vector = ShimToken<cf32x2, Self, Avx>;
 }
 
 #[cfg(feature = "complex")]
 impl ScalarWidth<Avx, width::W4> for Complex<f32> {
-    type Token = Avx;
     type Vector = cf32x4;
 }
 
 #[cfg(feature = "complex")]
 impl ScalarWidth<Avx, width::W8> for Complex<f32> {
-    type Token = Avx;
     type Vector = Shim2<cf32x4, Complex<f32>>;
 }
 
 #[cfg(feature = "complex")]
 impl ScalarWidth<Avx, width::W1> for Complex<f64> {
-    type Token = Sse;
-    type Vector = cf64x1;
+    type Vector = ShimToken<cf64x1, Self, Avx>;
 }
 
 #[cfg(feature = "complex")]
 impl ScalarWidth<Avx, width::W2> for Complex<f64> {
-    type Token = Avx;
     type Vector = cf64x2;
 }
 
 #[cfg(feature = "complex")]
 impl ScalarWidth<Avx, width::W4> for Complex<f64> {
-    type Token = Avx;
     type Vector = Shim2<cf64x2, Complex<f64>>;
 }
 
 #[cfg(feature = "complex")]
 impl ScalarWidth<Avx, width::W8> for Complex<f64> {
-    type Token = Avx;
     type Vector = Shim4<cf64x2, Complex<f64>>;
 }
 

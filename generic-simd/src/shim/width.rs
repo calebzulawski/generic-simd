@@ -1,5 +1,3 @@
-//! Shims for non-native vector widths.
-
 use crate::vector::{width, Vector};
 use core::marker::PhantomData;
 
@@ -25,6 +23,7 @@ impl Double for width::W4 {
 
 /// Shim that doubles the width of a vector.
 #[derive(Copy, Clone, Debug)]
+#[repr(transparent)]
 pub struct Shim2<Underlying, Scalar>([Underlying; 2], PhantomData<Scalar>);
 
 /// Shim that quadruples the width of a vector.
