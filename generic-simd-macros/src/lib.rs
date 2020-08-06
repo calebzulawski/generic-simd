@@ -16,19 +16,19 @@ pub fn dispatch(args: TokenStream, input: TokenStream) -> TokenStream {
     let output = quote! {
         #[generic_simd::multiversion::multiversion]
         #[clone(target = "[x86|x86_64]+avx")]
-        #[clone(target = "[x86|x86_64]+sse3")]
+        #[clone(target = "[x86|x86_64]+sse4.1")]
         #[crate_path(path = "generic_simd::multiversion")]
         #(#attrs)*
         #vis
         #sig
         {
-            #[target_cfg(target = "[x86|x86_64]+sse3")]
+            #[target_cfg(target = "[x86|x86_64]+sse4.1")]
             let #feature = unsafe { <generic_simd::arch::x86::Sse as generic_simd::arch::Token>::new_unchecked() };
 
             #[target_cfg(target = "[x86|x86_64]+avx")]
             let #feature = unsafe { <generic_simd::arch::x86::Avx as generic_simd::arch::Token>::new_unchecked() };
 
-            #[target_cfg(not(any(target = "[x86|x86_64]+sse3", target = "[x86|x86_64]+avx")))]
+            #[target_cfg(not(any(target = "[x86|x86_64]+sse4.1", target = "[x86|x86_64]+avx")))]
             let #feature = <generic_simd::arch::generic::Generic as generic_simd::arch::Token>::new().unwrap();
 
             #block
