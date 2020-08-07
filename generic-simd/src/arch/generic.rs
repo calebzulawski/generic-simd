@@ -118,9 +118,15 @@ macro_rules! implement {
 
             type Width = crate::vector::width::W1;
 
+            type Underlying = $scalar;
+
             #[inline]
-            fn splat(_: Self::Token, from: Self::Scalar) -> Self
-            {
+            fn zeroed(_: Self::Token) -> Self {
+                Self(<$scalar>::default())
+            }
+
+            #[inline]
+            fn splat(_: Self::Token, from: Self::Scalar) -> Self {
                 Self(from)
             }
         }

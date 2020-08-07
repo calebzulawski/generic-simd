@@ -222,6 +222,13 @@ unsafe impl Vector for f32x4 {
 
     type Width = crate::vector::width::W4;
 
+    type Underlying = __m128;
+
+    #[inline]
+    fn zeroed(_: Self::Token) -> Self {
+        Self(unsafe { _mm_setzero_ps() })
+    }
+
     #[inline]
     fn splat(_: Self::Token, from: Self::Scalar) -> Self {
         Self(unsafe { _mm_set1_ps(from) })
@@ -234,6 +241,13 @@ unsafe impl Vector for f64x2 {
     type Token = Sse;
 
     type Width = crate::vector::width::W2;
+
+    type Underlying = __m128d;
+
+    #[inline]
+    fn zeroed(_: Self::Token) -> Self {
+        Self(unsafe { _mm_setzero_pd() })
+    }
 
     #[inline]
     fn splat(_: Self::Token, from: Self::Scalar) -> Self {
@@ -248,6 +262,13 @@ unsafe impl Vector for f32x8 {
 
     type Width = crate::vector::width::W8;
 
+    type Underlying = __m256;
+
+    #[inline]
+    fn zeroed(_: Self::Token) -> Self {
+        Self(unsafe { _mm256_setzero_ps() })
+    }
+
     #[inline]
     fn splat(_: Self::Token, from: Self::Scalar) -> Self {
         Self(unsafe { _mm256_set1_ps(from) })
@@ -260,6 +281,13 @@ unsafe impl Vector for f64x4 {
     type Token = Avx;
 
     type Width = crate::vector::width::W4;
+
+    type Underlying = __m256d;
+
+    #[inline]
+    fn zeroed(_: Self::Token) -> Self {
+        Self(unsafe { _mm256_setzero_pd() })
+    }
 
     #[inline]
     fn splat(_: Self::Token, from: Self::Scalar) -> Self {

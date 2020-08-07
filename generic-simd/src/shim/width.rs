@@ -41,10 +41,16 @@ where
     type Scalar = Scalar;
     type Token = <Underlying as Vector>::Token;
     type Width = <Underlying::Width as Double>::Doubled;
+    type Underlying = [<Underlying as Vector>::Underlying; 2];
 
     #[inline]
-    fn splat(feature: Self::Token, from: Self::Scalar) -> Self {
-        Self([Underlying::splat(feature, from); 2], PhantomData)
+    fn zeroed(token: Self::Token) -> Self {
+        Self([Underlying::zeroed(token); 2], PhantomData)
+    }
+
+    #[inline]
+    fn splat(token: Self::Token, from: Self::Scalar) -> Self {
+        Self([Underlying::splat(token, from); 2], PhantomData)
     }
 }
 

@@ -40,10 +40,19 @@ pub unsafe trait Vector: Copy {
     /// The number of elements in the vector.
     type Width: width::Width;
 
+    /// The underlying type
+    type Underlying: Copy;
+
     /// Returns the number of lanes.
     #[inline]
     fn width() -> usize {
         <Self::Width as width::Width>::VALUE
+    }
+
+    /// Creates a new instance of `Token` from a vector.
+    #[inline]
+    fn to_token(self) -> Self::Token {
+        unsafe { Self::Token::new_unchecked() }
     }
 
     /// Returns a slice containing the vector.
@@ -56,6 +65,29 @@ pub unsafe trait Vector: Copy {
     #[inline]
     fn as_slice_mut(&mut self) -> &mut [Self::Scalar] {
         unsafe { core::slice::from_raw_parts_mut(self as *mut _ as *mut _, Self::width()) }
+    }
+
+    /// Converts this vector to its underlying type.
+    #[inline]
+    fn to_underlying(self) -> Self::Underlying {
+        assert_eq!(
+            core::mem::size_of::<Self::Underlying>(),
+            core::mem::size_of::<Self>()
+        );
+        unsafe { core::mem::transmute_copy(&self) }
+    }
+
+    /// Converts the underlying type to a vector.
+    #[inline]
+    fn from_underlying(
+        #[allow(unused_variables)] token: Self::Token,
+        underlying: Self::Underlying,
+    ) -> Self {
+        assert_eq!(
+            core::mem::size_of::<Self::Underlying>(),
+            core::mem::size_of::<Self>()
+        );
+        unsafe { core::mem::transmute_copy(&underlying) }
     }
 
     /// Read from a pointer.
@@ -124,10 +156,7 @@ pub unsafe trait Vector: Copy {
     }
 
     /// Create a new vector with each lane containing zeroes.
-    #[inline]
-    fn zeroed(#[allow(unused_variables)] token: Self::Token) -> Self {
-        unsafe { core::mem::zeroed() }
-    }
+    fn zeroed(token: Self::Token) -> Self;
 
     /// Create a new vector with each lane containing the provided value.
     fn splat(token: Self::Token, from: Self::Scalar) -> Self;

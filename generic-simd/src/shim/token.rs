@@ -19,6 +19,12 @@ where
     type Scalar = Scalar;
     type Token = Token;
     type Width = <Underlying as Vector>::Width;
+    type Underlying = <Underlying as Vector>::Underlying;
+
+    #[inline]
+    fn zeroed(token: Self::Token) -> Self {
+        Self(Underlying::zeroed(token.into()), PhantomData)
+    }
 
     #[inline]
     fn splat(token: Self::Token, from: Self::Scalar) -> Self {
