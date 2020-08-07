@@ -71,8 +71,11 @@ pub unsafe trait Vector: Copy {
     #[inline]
     fn to_underlying(self) -> Self::Underlying {
         assert_eq!(
-            core::mem::size_of::<Self::Underlying>(),
-            core::mem::size_of::<Self>()
+            (
+                core::mem::size_of::<Self::Underlying>(),
+                core::mem::align_of::<Self::Underlying>(),
+            ),
+            (core::mem::align_of::<Self>(), core::mem::size_of::<Self>(),)
         );
         unsafe { core::mem::transmute_copy(&self) }
     }
@@ -84,8 +87,11 @@ pub unsafe trait Vector: Copy {
         underlying: Self::Underlying,
     ) -> Self {
         assert_eq!(
-            core::mem::size_of::<Self::Underlying>(),
-            core::mem::size_of::<Self>()
+            (
+                core::mem::size_of::<Self::Underlying>(),
+                core::mem::align_of::<Self::Underlying>(),
+            ),
+            (core::mem::align_of::<Self>(), core::mem::size_of::<Self>(),)
         );
         unsafe { core::mem::transmute_copy(&underlying) }
     }
