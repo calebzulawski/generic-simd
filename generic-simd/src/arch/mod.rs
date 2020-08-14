@@ -49,18 +49,6 @@ pub mod generic;
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 pub mod x86;
 
-#[cfg(all(not(doc), any(target_arch = "x86", target_arch = "x86_64")))]
-#[macro_export]
-macro_rules! call_macro_with_tokens {
-    { $mac:ident } => {
-        $mac! {
-            $crate::arch::x86::Avx,
-            $crate::arch::x86::Sse,
-            $crate::arch::generic::Generic,
-        }
-    }
-}
-
 /// Invokes a macro with the supported token types.
 ///
 /// Invokes the macro with the list of [`Token`] types as arguments in priority order, delimited
@@ -82,11 +70,17 @@ macro_rules! call_macro_with_tokens {
 ///
 /// [`Token`]: arch/trait.Token.html
 /// [`Scalar`]: vector/scalar/trait.Scalar.html
-#[cfg(any(doc, not(any(target_arch = "x86", target_arch = "x86_64"))))]
 #[macro_export]
 macro_rules! call_macro_with_tokens {
     { $mac:ident } => {
+        #[cfg(not(any(target_arch = "x86", target_arch = "x86_64")))]
         $mac! {
+            $crate::arch::generic::Generic,
+        }
+        #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+        $mac! {
+            $crate::arch::x86::Avx,
+            $crate::arch::x86::Sse,
             $crate::arch::generic::Generic,
         }
     }

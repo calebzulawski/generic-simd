@@ -108,6 +108,7 @@ pub use generic_simd_macros::dispatch;
 #[macro_use]
 mod implementation;
 
+pub mod alignment;
 pub mod arch;
 pub mod shim;
 pub mod vector;
