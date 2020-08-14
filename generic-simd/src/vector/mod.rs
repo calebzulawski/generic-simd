@@ -108,6 +108,21 @@ pub unsafe trait Vector: Copy {
         (from as *const Self).read_unaligned()
     }
 
+    /// Read from a vector-aligned pointer.
+    ///
+    /// # Safety
+    /// * `from` must point to an array of length at least `width()`.
+    /// * `from` must be aligned for the vector type.
+    #[inline]
+    unsafe fn read_aligned_ptr(
+        #[allow(unused_variables)] token: Self::Token,
+        from: *const Self::Scalar,
+    ) -> Self {
+        (from as *const Self).read()
+    }
+
+    /// Read from a vector-aligned pointer.
+
     /// Read from a slice without checking the length.
     ///
     /// # Safety
@@ -137,6 +152,16 @@ pub unsafe trait Vector: Copy {
     #[inline]
     unsafe fn write_ptr(self, to: *mut Self::Scalar) {
         (to as *mut Self).write_unaligned(self);
+    }
+
+    /// Write to a pointer.
+    ///
+    /// # Safety
+    /// `from` must point to an array of length at least `width()`
+    /// `from` must be aligned for the vector type.
+    #[inline]
+    unsafe fn write_aligned_ptr(self, to: *mut Self::Scalar) {
+        (to as *mut Self).write(self);
     }
 
     /// Write to a slice without checking the length.
