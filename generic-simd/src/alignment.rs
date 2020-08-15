@@ -3,8 +3,14 @@
 #[cfg(all(feature = "alloc", not(feature = "std")))]
 extern crate alloc;
 
-#[cfg(all(feature = "std"))]
-use std::alloc;
+#[cfg(all(feature = "alloc", not(feature = "std")))]
+use alloc::{
+    alloc::{alloc, Layout},
+    boxed::Box,
+};
+
+#[cfg(feature = "std")]
+use std::alloc::{alloc, Layout};
 
 use crate::{
     arch,
@@ -135,13 +141,13 @@ impl<AlignTo, T: core::hash::Hash> core::hash::Hash for Aligned<AlignTo, T> {
 #[cfg(any(feature = "std", feature = "alloc"))]
 pub fn allocate_aligned_slice<AlignTo, T: Default>(count: usize) -> Box<[T]> {
     assert!(count > 0, "size must be nonzero");
-    let layout = alloc::Layout::from_size_align(
+    let layout = Layout::from_size_align(
         count * core::mem::size_of::<T>(),
         core::cmp::max(core::mem::align_of::<AlignTo>(), core::mem::align_of::<T>()),
     )
     .unwrap();
     unsafe {
-        let ptr = alloc::alloc(layout) as *mut T;
+        let ptr = alloc(layout) as *mut T;
         assert!(!ptr.is_null());
         for i in 0..count {
             ptr.add(i).write(T::default());
