@@ -103,6 +103,22 @@
 #[doc(hidden)]
 pub use multiversion;
 
+/// Multiversions a function over all supported instruction sets.
+///
+/// Tagging a function with `#[dispatch(token)]` creates a version of the function for each
+/// supported instruction set and provides its token as `token`.
+/// The best supported function variant is selected at runtime.
+///
+/// # Examples
+/// See [Abstractions] and [Vector shims] for example usage.
+///
+/// # Implementation
+/// This attribute is a wrapper for [`multiversion`] and supports all of its
+/// conditional compilation and static dispatch features.
+///
+/// [Abstractions]: index.html#abstractions
+/// [Vector shims]: index.html#vector-shims
+/// [`multiversion`]: ../multiversion/attr.multiversion.html
 pub use generic_simd_macros::dispatch;
 
 #[macro_use]
