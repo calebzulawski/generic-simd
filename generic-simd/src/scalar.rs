@@ -2,8 +2,8 @@
 
 use crate::vector::{width, Native, NativeWidth, Vector};
 
-/// A scalar value, parameterized by vector width.
-pub trait ScalarWidth<Token, Width>: Copy
+/// A scalar value.
+pub trait Scalar<Token, Width>: Copy
 where
     Token: crate::arch::Token,
     Width: width::Width,
@@ -58,44 +58,44 @@ macro_rules! scalar_impl {
         #[doc = $width]
         #[doc = " from a slice without checking the length.\n\nSee [`read_unchecked`](../trait.Vector.html#method.read_ptr)."]
         #[inline]
-        unsafe fn $read_unchecked(token: Token, from: &[Self]) -> <Self as ScalarWidth<Token, $width_type>>::Vector {
-            <Self as ScalarWidth<Token, $width_type>>::read_unchecked(token.into(), from)
+        unsafe fn $read_unchecked(token: Token, from: &[Self]) -> <Self as Scalar<Token, $width_type>>::Vector {
+            <Self as Scalar<Token, $width_type>>::read_unchecked(token.into(), from)
         }
 
         #[doc = "Read a vector with "]
         #[doc = $width]
         #[doc = " from a slice.\n\nSee [`read`](../trait.Vector.html#method.read)."]
         #[inline]
-        fn $read(token: Token, from: &[Self]) -> <Self as ScalarWidth<Token, $width_type>>::Vector {
-            <Self as ScalarWidth<Token, $width_type>>::read(token.into(), from)
+        fn $read(token: Token, from: &[Self]) -> <Self as Scalar<Token, $width_type>>::Vector {
+            <Self as Scalar<Token, $width_type>>::read(token.into(), from)
         }
 
         #[doc = "Create a vector with "]
         #[doc = $width]
         #[doc = " set to zero.\n\nSee [`zeroed`](../trait.Vector.html#method.zeroed)."]
         #[inline]
-        fn $zeroed(token: Token) -> <Self as ScalarWidth<Token, $width_type>>::Vector {
-           <Self as ScalarWidth<Token, $width_type>>::zeroed(token.into())
+        fn $zeroed(token: Token) -> <Self as Scalar<Token, $width_type>>::Vector {
+           <Self as Scalar<Token, $width_type>>::zeroed(token.into())
         }
 
         #[doc = "Splat a scalar to "]
         #[doc = $width]
         #[doc = ".\n\nSee [`splat`](../trait.Vector.html#tymethod.splat)."]
         #[inline]
-        fn $splat(self, token: Token) -> <Self as ScalarWidth<Token, $width_type>>::Vector {
-            <Self as ScalarWidth<Token, $width_type>>::splat(self, token.into())
+        fn $splat(self, token: Token) -> <Self as Scalar<Token, $width_type>>::Vector {
+            <Self as Scalar<Token, $width_type>>::splat(self, token.into())
         }
     }
 }
 
-/// A scalar value.
-pub trait Scalar<Token>:
+/// A scalar value, supporting all vector widths.
+pub trait ScalarExt<Token>:
     Native<Token>
-    + ScalarWidth<Token, width::W1>
-    + ScalarWidth<Token, width::W2>
-    + ScalarWidth<Token, width::W4>
-    + ScalarWidth<Token, width::W8>
-    + ScalarWidth<Token, NativeWidth<Self, Token>>
+    + self::Scalar<Token, width::W1>
+    + self::Scalar<Token, width::W2>
+    + self::Scalar<Token, width::W4>
+    + self::Scalar<Token, width::W8>
+    + self::Scalar<Token, NativeWidth<Self, Token>>
 where
     Token: crate::arch::Token + From<Token> + Into<Token>,
 {
@@ -106,14 +106,14 @@ where
     scalar_impl! { "8 lanes", width::W8, read8_ptr, read8_unchecked, read8, zeroed8, splat8 }
 }
 
-impl<Token, Scalar> self::Scalar<Token> for Scalar
+impl<Token, Scalar> ScalarExt<Token> for Scalar
 where
     Token: crate::arch::Token,
     Scalar: Native<Token>
-        + ScalarWidth<Token, width::W1>
-        + ScalarWidth<Token, width::W2>
-        + ScalarWidth<Token, width::W4>
-        + ScalarWidth<Token, width::W8>
-        + ScalarWidth<Token, NativeWidth<Self, Token>>,
+        + self::Scalar<Token, width::W1>
+        + self::Scalar<Token, width::W2>
+        + self::Scalar<Token, width::W4>
+        + self::Scalar<Token, width::W8>
+        + self::Scalar<Token, NativeWidth<Self, Token>>,
 {
 }

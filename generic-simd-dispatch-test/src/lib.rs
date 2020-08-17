@@ -1,4 +1,4 @@
-use generic_simd::slice::Slice;
+use generic_simd::slice::SliceExt;
 
 #[generic_simd::dispatch(feature)]
 pub fn add_one_aligned(x: &mut [f32]) {

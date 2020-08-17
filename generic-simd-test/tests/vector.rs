@@ -1,4 +1,4 @@
-use generic_simd::{arch::Token, scalar::Scalar, vector::Signed};
+use generic_simd::{arch::Token, scalar::ScalarExt, vector::Signed};
 use num_traits::Num;
 use rand::distributions::Standard;
 use rand::prelude::*;

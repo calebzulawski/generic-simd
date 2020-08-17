@@ -19,8 +19,8 @@
 //! use generic_simd::{
 //!     arch::Token,
 //!     dispatch,
-//!     scalar::Scalar,
-//!     slice::Slice,
+//!     scalar::ScalarExt,
+//!     slice::SliceExt,
 //!     vector::NativeVector,
 //! };
 //!
@@ -31,7 +31,7 @@
 //! fn sum_impl<T>(token: T, input: &[f32]) -> f32
 //! where
 //!     T: Token,
-//!     f32: Scalar<T> + core::iter::Sum<NativeVector<f32, T>>,
+//!     f32: ScalarExt<T> + core::iter::Sum<NativeVector<f32, T>>,
 //! {
 //!     // Use aligned loads in this example, which may be better on some architectures.
 //!     let (start, vectors, end) = input.align_native(token);
@@ -61,7 +61,7 @@
 //! use generic_simd::{
 //!     arch::Token,
 //!     dispatch,
-//!     scalar::ScalarWidth,
+//!     scalar::Scalar,
 //!     vector::{Signed, Vector, width},
 //! };
 //!
@@ -76,8 +76,8 @@
 //! fn mean_impl<T>(token: T, input: &[Coordinates]) -> (f64, f64)
 //! where
 //!     T: Token,
-//!     f64: ScalarWidth<T, width::W4>,
-//!     <f64 as ScalarWidth<T, width::W4>>::Vector: Signed,
+//!     f64: Scalar<T, width::W4>,
+//!     <f64 as Scalar<T, width::W4>>::Vector: Signed,
 //! {
 //!     let mut xsum = f64::zeroed(token);
 //!     let mut ysum = f64::zeroed(token);

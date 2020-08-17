@@ -2,13 +2,13 @@
 
 use crate::arch::Token;
 use crate::{
-    scalar::ScalarWidth,
+    scalar::Scalar,
     vector::{width, Native, NativeWidth, Vector},
 };
 use core::marker::PhantomData;
 
-/// A slice of scalars, parameterized by vector width.
-pub trait SliceWidth<Token, Width>
+/// A slice of scalars.
+pub trait Slice<Token, Width>
 where
     Token: crate::arch::Token,
     Width: width::Width,
@@ -48,9 +48,9 @@ where
     fn overlapping_mut(&mut self, token: Token) -> OverlappingMut<'_, Self::Vector>;
 }
 
-impl<T, Token, Width> SliceWidth<Token, Width> for [T]
+impl<T, Token, Width> Slice<Token, Width> for [T]
 where
-    T: ScalarWidth<Token, Width>,
+    T: Scalar<Token, Width>,
     Token: crate::arch::Token,
     Width: width::Width,
 {
@@ -104,49 +104,49 @@ macro_rules! slice_impl {
     } => {
         #[doc = "Align a slice of scalars to vectors with "]
         #[doc = $width]
-        #[doc = ".\n\nSee [`align`](trait.SliceWidth.html#tymethod.align)."]
+        #[doc = ".\n\nSee [`align`](trait.Slice.html#tymethod.align)."]
         #[allow(clippy::type_complexity)]
         #[inline]
         fn $align(&self, token: Token) ->
         (
-            &[<<Self as SliceWidth<Token, $width_type>>::Vector as Vector>::Scalar],
-            &[<Self as SliceWidth<Token, $width_type>>::Vector],
-            &[<<Self as SliceWidth<Token, $width_type>>::Vector as Vector>::Scalar],
+            &[<<Self as Slice<Token, $width_type>>::Vector as Vector>::Scalar],
+            &[<Self as Slice<Token, $width_type>>::Vector],
+            &[<<Self as Slice<Token, $width_type>>::Vector as Vector>::Scalar],
         ) {
-            <Self as SliceWidth<Token, $width_type>>::align(self, token)
+            <Self as Slice<Token, $width_type>>::align(self, token)
         }
 
         #[doc = "Align a slice of scalars to vectors with "]
         #[doc = $width]
-        #[doc = ".\n\nSee [`align_mut`](trait.SliceWidth.html#tymethod.align_mut)."]
+        #[doc = ".\n\nSee [`align_mut`](trait.Slice.html#tymethod.align_mut)."]
         #[allow(clippy::type_complexity)]
         #[inline]
         fn $align_mut(&mut self, token: Token) ->
         (
-            &mut [<<Self as SliceWidth<Token, $width_type>>::Vector as Vector>::Scalar],
-            &mut [<Self as SliceWidth<Token, $width_type>>::Vector],
-            &mut [<<Self as SliceWidth<Token, $width_type>>::Vector as Vector>::Scalar],
+            &mut [<<Self as Slice<Token, $width_type>>::Vector as Vector>::Scalar],
+            &mut [<Self as Slice<Token, $width_type>>::Vector],
+            &mut [<<Self as Slice<Token, $width_type>>::Vector as Vector>::Scalar],
         ){
-            <Self as SliceWidth<Token, $width_type>>::align_mut(self, token)
+            <Self as Slice<Token, $width_type>>::align_mut(self, token)
         }
 
         #[doc = "Create a slice of overlapping vectors of "]
         #[doc = $width]
-        #[doc = "from a slice of scalars.\n\nSee [`overlapping`](trait.SliceWidth.html#tymethod.overlapping)."]
+        #[doc = "from a slice of scalars.\n\nSee [`overlapping`](trait.Slice.html#tymethod.overlapping)."]
         #[inline]
-        fn $overlapping(&self, token: Token) -> Overlapping<'_, <Self as SliceWidth<Token, $width_type>>::Vector> {
-            <Self as SliceWidth<Token, $width_type>>::overlapping(self, token)
+        fn $overlapping(&self, token: Token) -> Overlapping<'_, <Self as Slice<Token, $width_type>>::Vector> {
+            <Self as Slice<Token, $width_type>>::overlapping(self, token)
         }
 
         #[doc = "Create a mutable slice of overlapping vectors of "]
         #[doc = $width]
-        #[doc = "from a slice of scalars.\n\nSee [`overlapping_mut`](trait.SliceWidth.html#tymethod.overlapping_mut)."]
+        #[doc = "from a slice of scalars.\n\nSee [`overlapping_mut`](trait.Slice.html#tymethod.overlapping_mut)."]
         #[inline]
         fn $overlapping_mut(
             &mut self,
             token: Token,
-        ) -> OverlappingMut<'_, <Self as SliceWidth<Token, $width_type>>::Vector> {
-            <Self as SliceWidth<Token, $width_type>>::overlapping_mut(self, token)
+        ) -> OverlappingMut<'_, <Self as Slice<Token, $width_type>>::Vector> {
+            <Self as Slice<Token, $width_type>>::overlapping_mut(self, token)
         }
     }
 }
@@ -158,14 +158,14 @@ where
     type Width = T::Width;
 }
 
-/// A pointer to a vector.
-pub trait Slice<Token>:
+/// A slice of scalars, supporting all vector widths.
+pub trait SliceExt<Token>:
     Native<Token>
-    + SliceWidth<Token, width::W1>
-    + SliceWidth<Token, width::W2>
-    + SliceWidth<Token, width::W4>
-    + SliceWidth<Token, width::W8>
-    + SliceWidth<Token, NativeWidth<Self, Token>>
+    + Slice<Token, width::W1>
+    + Slice<Token, width::W2>
+    + Slice<Token, width::W4>
+    + Slice<Token, width::W8>
+    + Slice<Token, NativeWidth<Self, Token>>
 where
     Token: crate::arch::Token,
 {
@@ -176,15 +176,15 @@ where
     slice_impl! { "8 lanes",  width::W8, align8, align8_mut, overlapping8, overlapping8_mut }
 }
 
-impl<T, Token> Slice<Token> for T
+impl<T, Token> SliceExt<Token> for T
 where
     T: ?Sized
         + Native<Token>
-        + SliceWidth<Token, width::W1>
-        + SliceWidth<Token, width::W2>
-        + SliceWidth<Token, width::W4>
-        + SliceWidth<Token, width::W8>
-        + SliceWidth<Token, NativeWidth<Self, Token>>,
+        + Slice<Token, width::W1>
+        + Slice<Token, width::W2>
+        + Slice<Token, width::W4>
+        + Slice<Token, width::W8>
+        + Slice<Token, NativeWidth<Self, Token>>,
     Token: crate::arch::Token,
 {
 }

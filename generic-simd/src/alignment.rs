@@ -19,7 +19,7 @@ use crate::{
 
 #[repr(C)]
 #[derive(Copy, Clone)]
-struct Vectors<Token: arch::Token, Scalar: scalar::Scalar<Token>>(
+struct Vectors<Token: arch::Token, Scalar: scalar::ScalarExt<Token>>(
     SizedVector<Scalar, width::W1, Token>,
     SizedVector<Scalar, width::W2, Token>,
     SizedVector<Scalar, width::W4, Token>,
@@ -32,7 +32,7 @@ macro_rules! max_alignment {
         #[doc(hidden)]
         #[repr(C)]
         #[derive(Copy, Clone)]
-        pub struct AllVectors<Scalar: scalar::Scalar<$first> $(+ scalar::Scalar<$rest>)*>(
+        pub struct AllVectors<Scalar: scalar::ScalarExt<$first> $(+ scalar::ScalarExt<$rest>)*>(
             Vectors<$first, Scalar>,
             $(
             Vectors<$rest, Scalar>,
@@ -45,7 +45,7 @@ macro_rules! max_alignment {
         /// # Panics
         /// Panics if `count` is 0 or memory allocation fails.
         #[cfg(any(feature = "std", feature = "alloc"))]
-        pub fn allocate_max_aligned_slice<Scalar: Default + scalar::Scalar<$first> $(+ scalar::Scalar<$rest>)*>(count: usize) -> Box<[Scalar]> {
+        pub fn allocate_max_aligned_slice<Scalar: Default + scalar::ScalarExt<$first> $(+ scalar::ScalarExt<$rest>)*>(count: usize) -> Box<[Scalar]> {
             allocate_aligned_slice::<AllVectors<Scalar>, Scalar>(count)
         }
     }

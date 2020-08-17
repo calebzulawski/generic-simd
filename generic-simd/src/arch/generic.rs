@@ -2,7 +2,7 @@
 
 use crate::{
     arch::Token,
-    scalar::ScalarWidth,
+    scalar::Scalar,
     shim::{Shim2, Shim4, Shim8},
     vector::{width, Native, Vector},
 };
@@ -60,19 +60,19 @@ macro_rules! implement {
     {
         $vector:ty, $scalar:ty
     } => {
-        impl ScalarWidth<Generic, width::W1> for $scalar {
+        impl Scalar<Generic, width::W1> for $scalar {
             type Vector = $vector;
         }
 
-        impl ScalarWidth<Generic, width::W2> for $scalar {
+        impl Scalar<Generic, width::W2> for $scalar {
             type Vector = Shim2<$vector, $scalar>;
         }
 
-        impl ScalarWidth<Generic, width::W4> for $scalar {
+        impl Scalar<Generic, width::W4> for $scalar {
             type Vector = Shim4<$vector, $scalar>;
         }
 
-        impl ScalarWidth<Generic, width::W8> for $scalar {
+        impl Scalar<Generic, width::W8> for $scalar {
             type Vector = Shim8<$vector, $scalar>;
         }
 

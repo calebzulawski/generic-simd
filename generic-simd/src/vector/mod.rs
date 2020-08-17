@@ -3,7 +3,7 @@
 pub mod width;
 
 use crate::arch::Token;
-use crate::scalar::ScalarWidth;
+use crate::scalar::Scalar;
 use core::ops::{
     Add, AddAssign, Deref, DerefMut, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign,
 };
@@ -20,7 +20,7 @@ pub type NativeWidth<Scalar, Token> = <Scalar as Native<Token>>::Width;
 pub type NativeVector<Scalar, Token> = SizedVector<Scalar, NativeWidth<Scalar, Token>, Token>;
 
 /// Convenience type for the vector with a particular width.
-pub type SizedVector<Scalar, Width, Token> = <Scalar as ScalarWidth<Token, Width>>::Vector;
+pub type SizedVector<Scalar, Width, Token> = <Scalar as self::Scalar<Token, Width>>::Vector;
 
 /// The fundamental vector type.
 ///

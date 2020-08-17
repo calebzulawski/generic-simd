@@ -7,7 +7,7 @@ pub use complex::*;
 
 use crate::{
     arch::{generic, Token},
-    scalar::ScalarWidth,
+    scalar::Scalar,
     shim::{Shim2, Shim4, ShimToken},
     vector::{width, Native, Vector},
 };
@@ -75,67 +75,67 @@ pub struct f32x8(__m256);
 #[allow(non_camel_case_types)]
 pub struct f64x4(__m256d);
 
-impl ScalarWidth<Sse, width::W1> for f32 {
+impl Scalar<Sse, width::W1> for f32 {
     type Vector = ShimToken<generic::f32x1, Self, Sse>;
 }
 
-impl ScalarWidth<Sse, width::W2> for f32 {
+impl Scalar<Sse, width::W2> for f32 {
     type Vector = ShimToken<Shim2<generic::f32x1, Self>, Self, Sse>;
 }
 
-impl ScalarWidth<Sse, width::W4> for f32 {
+impl Scalar<Sse, width::W4> for f32 {
     type Vector = f32x4;
 }
 
-impl ScalarWidth<Sse, width::W8> for f32 {
+impl Scalar<Sse, width::W8> for f32 {
     type Vector = Shim2<f32x4, f32>;
 }
 
-impl ScalarWidth<Sse, width::W1> for f64 {
+impl Scalar<Sse, width::W1> for f64 {
     type Vector = ShimToken<generic::f64x1, Self, Sse>;
 }
 
-impl ScalarWidth<Sse, width::W2> for f64 {
+impl Scalar<Sse, width::W2> for f64 {
     type Vector = f64x2;
 }
 
-impl ScalarWidth<Sse, width::W4> for f64 {
+impl Scalar<Sse, width::W4> for f64 {
     type Vector = Shim2<f64x2, f64>;
 }
 
-impl ScalarWidth<Sse, width::W8> for f64 {
+impl Scalar<Sse, width::W8> for f64 {
     type Vector = Shim4<f64x2, f64>;
 }
 
-impl ScalarWidth<Avx, width::W1> for f32 {
+impl Scalar<Avx, width::W1> for f32 {
     type Vector = ShimToken<generic::f32x1, Self, Avx>;
 }
 
-impl ScalarWidth<Avx, width::W2> for f32 {
+impl Scalar<Avx, width::W2> for f32 {
     type Vector = ShimToken<Shim2<generic::f32x1, Self>, Self, Avx>;
 }
 
-impl ScalarWidth<Avx, width::W4> for f32 {
+impl Scalar<Avx, width::W4> for f32 {
     type Vector = ShimToken<f32x4, Self, Avx>;
 }
 
-impl ScalarWidth<Avx, width::W8> for f32 {
+impl Scalar<Avx, width::W8> for f32 {
     type Vector = f32x8;
 }
 
-impl ScalarWidth<Avx, width::W1> for f64 {
+impl Scalar<Avx, width::W1> for f64 {
     type Vector = ShimToken<generic::f64x1, Self, Avx>;
 }
 
-impl ScalarWidth<Avx, width::W2> for f64 {
+impl Scalar<Avx, width::W2> for f64 {
     type Vector = ShimToken<f64x2, Self, Avx>;
 }
 
-impl ScalarWidth<Avx, width::W4> for f64 {
+impl Scalar<Avx, width::W4> for f64 {
     type Vector = f64x4;
 }
 
-impl ScalarWidth<Avx, width::W8> for f64 {
+impl Scalar<Avx, width::W8> for f64 {
     type Vector = Shim2<f64x4, f64>;
 }
 
