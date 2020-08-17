@@ -16,13 +16,13 @@ where
     /// Read a vector from a pointer.
     ///
     /// # Safety
-    /// See [`read_ptr`](../trait.Vector.html#method.read_ptr).
+    /// See [`read_ptr`](../vector/trait.Vector.html#method.read_ptr).
     unsafe fn vector_read(self, token: Token) -> Self::Vector;
 
     /// Read a vector from a vector-aligned pointer.
     ///
     /// # Safety
-    /// See [`read_aligned_ptr`](../trait.Vector.html#method.read_aligned_ptr).
+    /// See [`read_aligned_ptr`](../vector/trait.Vector.html#method.read_aligned_ptr).
     unsafe fn vector_read_aligned(self, token: Token) -> Self::Vector;
 }
 
@@ -73,7 +73,7 @@ macro_rules! pointer_impl {
     } => {
         #[doc = "Read a vector with "]
         #[doc = $width]
-        #[doc = " from a pointer.\n\n# Safety\nSee [`read_ptr`](../trait.Vector.html#method.read_ptr)."]
+        #[doc = " from a pointer.\n\n# Safety\nSee [`read_ptr`](../vector/trait.Vector.html#method.read_ptr)."]
         #[inline]
         unsafe fn $read_unaligned(self, token: Token) -> <Self as Pointer<Token, $width_type>>::Vector {
             <Self as Pointer<Token, $width_type>>::vector_read(self, token)
@@ -81,7 +81,7 @@ macro_rules! pointer_impl {
 
         #[doc = "Read a vector with "]
         #[doc = $width]
-        #[doc = " from a vector-aligned pointer.\n\n# Safety\nSee [`read_aligned_ptr`](../trait.Vector.html#method.read_aligned_ptr)."]
+        #[doc = " from a vector-aligned pointer.\n\n# Safety\nSee [`read_aligned_ptr`](../vector/trait.Vector.html#method.read_aligned_ptr)."]
         #[inline]
         unsafe fn $read_aligned(self, token: Token) -> <Self as Pointer<Token, $width_type>>::Vector {
             <Self as Pointer<Token, $width_type>>::vector_read_aligned(self, token)

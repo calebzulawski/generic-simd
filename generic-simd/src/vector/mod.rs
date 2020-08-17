@@ -17,10 +17,10 @@ pub trait Native<Token> {
 pub type NativeWidth<Scalar, Token> = <Scalar as Native<Token>>::Width;
 
 /// Convenience type for the widest native vector.
-pub type NativeVector<Scalar, Token> = SizedVector<Scalar, NativeWidth<Scalar, Token>, Token>;
+pub type NativeVector<Scalar, Token> = VectorOf<Scalar, NativeWidth<Scalar, Token>, Token>;
 
 /// Convenience type for the vector with a particular width.
-pub type SizedVector<Scalar, Width, Token> = <Scalar as self::Scalar<Token, Width>>::Vector;
+pub type VectorOf<Scalar, Width, Token> = <Scalar as self::Scalar<Token, Width>>::Vector;
 
 /// The fundamental vector type.
 ///

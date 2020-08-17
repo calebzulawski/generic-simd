@@ -14,16 +14,16 @@ use std::alloc::{alloc, Layout};
 
 use crate::{
     arch, scalar,
-    vector::{width, SizedVector},
+    vector::{width, VectorOf},
 };
 
 #[repr(C)]
 #[derive(Copy, Clone)]
 struct Vectors<Token: arch::Token, Scalar: scalar::ScalarExt<Token>>(
-    SizedVector<Scalar, width::W1, Token>,
-    SizedVector<Scalar, width::W2, Token>,
-    SizedVector<Scalar, width::W4, Token>,
-    SizedVector<Scalar, width::W8, Token>,
+    VectorOf<Scalar, width::W1, Token>,
+    VectorOf<Scalar, width::W2, Token>,
+    VectorOf<Scalar, width::W4, Token>,
+    VectorOf<Scalar, width::W8, Token>,
 );
 
 macro_rules! max_alignment {

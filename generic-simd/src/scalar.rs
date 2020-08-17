@@ -13,7 +13,7 @@ where
     /// Read a vector from a slice without checking the length.
     ///
     /// # Safety
-    /// See [`read_unchecked`](../trait.Vector.html#method.read_ptr).
+    /// See [`read_unchecked`](../vector/trait.Vector.html#method.read_ptr).
     #[inline]
     unsafe fn read_unchecked(token: Token, from: &[Self]) -> Self::Vector {
         Self::Vector::read_unchecked(token, from)
@@ -21,7 +21,7 @@ where
 
     /// Read a vector from a slice.
     ///
-    /// See [`read`](../trait.Vector.html#method.read).
+    /// See [`read`](../vector/trait.Vector.html#method.read).
     #[inline]
     fn read(token: Token, from: &[Self]) -> Self::Vector {
         Self::Vector::read(token, from)
@@ -29,7 +29,7 @@ where
 
     /// Create a vector set to zero.
     ///
-    /// See [`zeroed`](../trait.Vector.html#method.zeroed).
+    /// See [`zeroed`](../vector/trait.Vector.html#method.zeroed).
     #[inline]
     fn zeroed(token: Token) -> Self::Vector {
         Self::Vector::zeroed(token)
@@ -37,7 +37,7 @@ where
 
     /// Splat a scalar to a vector.
     ///
-    /// See [`splat`](../trait.Vector.html#tymethod.splat).
+    /// See [`splat`](../vector/trait.Vector.html#tymethod.splat).
     #[inline]
     fn splat(self, token: Token) -> Self::Vector {
         Self::Vector::splat(token, self)
@@ -56,7 +56,7 @@ macro_rules! scalar_impl {
     } => {
         #[doc = "Read a vector with "]
         #[doc = $width]
-        #[doc = " from a slice without checking the length.\n\nSee [`read_unchecked`](../trait.Vector.html#method.read_ptr)."]
+        #[doc = " from a slice without checking the length.\n\nSee [`read_unchecked`](../vector/trait.Vector.html#method.read_ptr)."]
         #[inline]
         unsafe fn $read_unchecked(token: Token, from: &[Self]) -> <Self as Scalar<Token, $width_type>>::Vector {
             <Self as Scalar<Token, $width_type>>::read_unchecked(token.into(), from)
@@ -64,7 +64,7 @@ macro_rules! scalar_impl {
 
         #[doc = "Read a vector with "]
         #[doc = $width]
-        #[doc = " from a slice.\n\nSee [`read`](../trait.Vector.html#method.read)."]
+        #[doc = " from a slice.\n\nSee [`read`](../vector/trait.Vector.html#method.read)."]
         #[inline]
         fn $read(token: Token, from: &[Self]) -> <Self as Scalar<Token, $width_type>>::Vector {
             <Self as Scalar<Token, $width_type>>::read(token.into(), from)
@@ -72,7 +72,7 @@ macro_rules! scalar_impl {
 
         #[doc = "Create a vector with "]
         #[doc = $width]
-        #[doc = " set to zero.\n\nSee [`zeroed`](../trait.Vector.html#method.zeroed)."]
+        #[doc = " set to zero.\n\nSee [`zeroed`](../vector/trait.Vector.html#method.zeroed)."]
         #[inline]
         fn $zeroed(token: Token) -> <Self as Scalar<Token, $width_type>>::Vector {
            <Self as Scalar<Token, $width_type>>::zeroed(token.into())
@@ -80,7 +80,7 @@ macro_rules! scalar_impl {
 
         #[doc = "Splat a scalar to "]
         #[doc = $width]
-        #[doc = ".\n\nSee [`splat`](../trait.Vector.html#tymethod.splat)."]
+        #[doc = ".\n\nSee [`splat`](../vector/trait.Vector.html#tymethod.splat)."]
         #[inline]
         fn $splat(self, token: Token) -> <Self as Scalar<Token, $width_type>>::Vector {
             <Self as Scalar<Token, $width_type>>::splat(self, token.into())
