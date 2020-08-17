@@ -17,7 +17,7 @@ use core::arch::x86::*;
 #[cfg(target_arch = "x86_64")]
 use core::arch::x86_64::*;
 
-/// SSE instruction set token.
+/// SSE4.1 instruction set token.
 #[derive(Copy, Clone, Debug)]
 pub struct Sse(());
 

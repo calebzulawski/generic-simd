@@ -5,7 +5,7 @@
 //! # Supported architectures
 //! All architectures are supported via scalar fallbacks, but the following instruction sets are
 //! also supported:
-//! * SSE3 (x86/x86-64)
+//! * SSE4.1 (x86/x86-64)
 //! * AVX (x86/x86-64)
 //!
 //! The various architecture-specific types are available in the [`arch`](arch/index.html) module.

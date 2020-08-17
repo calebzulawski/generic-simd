@@ -69,7 +69,7 @@ pub mod x86;
 /// ```
 ///
 /// [`Token`]: arch/trait.Token.html
-/// [`Scalar`]: vector/scalar/trait.Scalar.html
+/// [`Scalar`]: scalar/trait.Scalar.html
 #[macro_export]
 macro_rules! call_macro_with_tokens {
     { $mac:ident } => {
