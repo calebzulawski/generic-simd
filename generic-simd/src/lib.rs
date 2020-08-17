@@ -19,7 +19,9 @@
 //! use generic_simd::{
 //!     arch::Token,
 //!     dispatch,
-//!     vector::{slice::Slice, scalar::Scalar, NativeVector},
+//!     scalar::Scalar,
+//!     slice::Slice,
+//!     vector::NativeVector,
 //! };
 //!
 //! // This function provides a generic implementation for any instruction set.
@@ -59,7 +61,8 @@
 //! use generic_simd::{
 //!     arch::Token,
 //!     dispatch,
-//!     vector::{Signed, scalar::ScalarWidth, Vector, width},
+//!     scalar::ScalarWidth,
+//!     vector::{Signed, Vector, width},
 //! };
 //!
 //! // Equivalent to an array of 4 2-dimensional coordinates,
@@ -126,5 +129,8 @@ mod implementation;
 
 pub mod alignment;
 pub mod arch;
+pub mod pointer;
+pub mod scalar;
 pub mod shim;
+pub mod slice;
 pub mod vector;

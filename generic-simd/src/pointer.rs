@@ -1,6 +1,9 @@
 //! Extensions for pointers to vectors.
 
-use crate::vector::{scalar::ScalarWidth, width, Native, NativeWidth, Vector};
+use crate::{
+    scalar::ScalarWidth,
+    vector::{width, Native, NativeWidth, Vector},
+};
 
 /// A pointer to a vector, parameterized by vector width.
 pub trait PointerWidth<Token, Width>: Copy

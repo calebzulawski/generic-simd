@@ -1,15 +1,12 @@
 //! Vector type interfaces.
 
-pub mod pointer;
-pub mod scalar;
-pub mod slice;
 pub mod width;
 
 use crate::arch::Token;
+use crate::scalar::ScalarWidth;
 use core::ops::{
     Add, AddAssign, Deref, DerefMut, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign,
 };
-use scalar::ScalarWidth;
 
 /// Indicates the widest native vector.
 pub trait Native<Token> {

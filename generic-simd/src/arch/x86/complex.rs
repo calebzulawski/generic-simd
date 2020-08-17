@@ -5,8 +5,9 @@ use core::arch::x86_64::*;
 
 use crate::{
     arch::{generic, x86::*, Token},
+    scalar::ScalarWidth,
     shim::{Shim2, Shim4, Shim8, ShimToken},
-    vector::{scalar::ScalarWidth, width, Native, Vector},
+    vector::{width, Native, Vector},
 };
 use num_complex::Complex;
 

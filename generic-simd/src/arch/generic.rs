@@ -1,8 +1,11 @@
 //! Generic vector types for any platform.
 
-use crate::arch::Token;
-use crate::shim::{Shim2, Shim4, Shim8};
-use crate::vector::{scalar::ScalarWidth, width, Native, Vector};
+use crate::{
+    arch::Token,
+    scalar::ScalarWidth,
+    shim::{Shim2, Shim4, Shim8},
+    vector::{width, Native, Vector},
+};
 
 #[cfg(feature = "complex")]
 use num_complex::Complex;

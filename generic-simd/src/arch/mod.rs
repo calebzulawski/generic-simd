@@ -57,7 +57,7 @@ pub mod x86;
 /// The following example creates a `SupportedScalar` supertrait that implements [`Scalar`] for
 /// each token:
 /// ```
-/// use generic_simd::{call_macro_with_tokens, vector::scalar::Scalar};
+/// use generic_simd::{call_macro_with_tokens, scalar::Scalar};
 ///
 /// macro_rules! supported_scalars {
 ///     { $($token:ty,)+ } => {

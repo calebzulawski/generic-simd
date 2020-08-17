@@ -7,8 +7,9 @@ pub use complex::*;
 
 use crate::{
     arch::{generic, Token},
+    scalar::ScalarWidth,
     shim::{Shim2, Shim4, ShimToken},
-    vector::{scalar::ScalarWidth, width, Native, Vector},
+    vector::{width, Native, Vector},
 };
 
 #[cfg(target_arch = "x86")]

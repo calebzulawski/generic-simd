@@ -1,7 +1,10 @@
 //! Extensions for slices of vectors.
 
 use crate::arch::Token;
-use crate::vector::{scalar::ScalarWidth, width, Native, NativeWidth, Vector};
+use crate::{
+    scalar::ScalarWidth,
+    vector::{width, Native, NativeWidth, Vector},
+};
 use core::marker::PhantomData;
 
 /// A slice of scalars, parameterized by vector width.

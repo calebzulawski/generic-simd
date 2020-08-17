@@ -13,8 +13,8 @@ use alloc::{
 use std::alloc::{alloc, Layout};
 
 use crate::{
-    arch,
-    vector::{scalar, width, SizedVector},
+    arch, scalar,
+    vector::{width, SizedVector},
 };
 
 #[repr(C)]
