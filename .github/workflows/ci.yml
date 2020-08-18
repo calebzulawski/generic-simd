@@ -50,8 +50,8 @@ jobs:
           - aarch64-unknown-linux-gnu
           - arm-unknown-linux-gnueabihf
         include:
-          target: wasm-unknown-emscripten
-          feature: wasm
+          - target: wasm-unknown-emscripten
+            feature: wasm
 
     runs-on: ubuntu-latest
 
