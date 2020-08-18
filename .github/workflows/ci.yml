@@ -36,8 +36,8 @@ jobs:
     - name: Run tests
       shell: bash
       run: |
-          FEATURES_FLAG=$(echo '${{ toJson(matrix.features) }}' | jq 'map("--features \(.)")')
-          TEST_FEATURES_FLAG=$(echo '${{ toJson(matrix.features) }}' | jq 'map("--features generic-simd/\(.)")')
+          FEATURES_FLAG=$(echo '${{ toJson(matrix.features) }}' | jq -r 'map("--features \(.)") | join(" ")')
+          TEST_FEATURES_FLAG=$(echo '${{ toJson(matrix.features) }}' | jq -r 'map("--features generic-simd/\(.)") | join(" "')
           cargo test --verbose --no-default-features $FEATURES_FLAG --manifest-path generic-simd/Cargo.toml
           cargo test --verbose --no-default-features $TEST_FEATURES_FLAG --manifest-path generic-simd-test/Cargo.toml
 
