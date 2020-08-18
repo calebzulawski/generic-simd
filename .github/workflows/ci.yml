@@ -37,9 +37,8 @@ jobs:
       shell: bash
       run: |
           FEATURES_FLAG=$(echo '${{ toJson(matrix.features) }}' | jq -r 'map("--features \(.)") | join(" ")')
-          TEST_FEATURES_FLAG=$(echo '${{ toJson(matrix.features) }}' | jq -r 'map("--features generic-simd/\(.)") | join(" ")')
           cargo test --verbose --no-default-features $FEATURES_FLAG --manifest-path generic-simd/Cargo.toml
-          cargo test --verbose --no-default-features $TEST_FEATURES_FLAG --manifest-path generic-simd-test/Cargo.toml
+          cargo test --verbose --no-default-features $FEATURES_FLAG --manifest-path generic-simd-test/Cargo.toml
 
 
   cross:
@@ -65,7 +64,7 @@ jobs:
           RUSTFLAGS: ${{ matrix.rustflags }}
       run: |
           cross +nightly test --target ${{ matrix.target }} --verbose --no-default-features --features complex --features nightly --manifest-path generic-simd/Cargo.toml
-          cross +nightly test --target ${{ matrix.target }} --verbose --no-default-features --features generic-simd/complex --features generic-simd/nightly --manifest-path generic-simd-test/Cargo.toml
+          cross +nightly test --target ${{ matrix.target }} --verbose --no-default-features --features complex --features nightly --manifest-path generic-simd-test/Cargo.toml
 
 
   lint:
