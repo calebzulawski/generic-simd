@@ -7,8 +7,9 @@ edition = "2018"
 [features]
 default = ["std", "complex"]
 std = ["multiversion/std"]
-alloc = []
 complex = ["num-complex"]
+alloc = []
+wasm = []
 
 [dependencies]
 num-complex = { version = "0.3", default-features = false, optional = true }

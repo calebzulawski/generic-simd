@@ -41,6 +41,31 @@ jobs:
           cargo test --verbose --no-default-features $FEATURES_FLAG --manifest-path generic-simd/Cargo.toml
           cargo test --verbose --no-default-features $TEST_FEATURES_FLAG --manifest-path generic-simd-test/Cargo.toml
 
+
+  cross:
+    strategy:
+      matrix:
+        target:
+          - wasm-unknown-emscripten
+          - aarch64-unknown-linux-gnu
+          - arm-unknown-linux-gnueabihf
+        include:
+          target: wasm-unknown-emscripten
+          feature: wasm
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Install cross
+      run: cargo install cross
+    - name: Run tests
+      shell: bash
+      run: |
+          cross test --target ${{ matrix.target }} --verbose --no-default-features --features complex --manifest-path generic-simd/Cargo.toml
+          cross test --target ${{ matrix.target }} --verbose --no-default-features --features complex --manifest-path generic-simd-test/Cargo.toml
+
+
   lint:
     runs-on: ubuntu-latest
     steps:
