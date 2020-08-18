@@ -17,11 +17,11 @@ jobs:
           - windows-latest
         features:
           - --no-default-features
-          - --no-default-features --features alloc
-          - --no-default-features --features complex
-          - --no-default-features --features std
-          - --no-default-features --features std --features alloc
-          - --no-default-features --features std --features complex
+          - --no-default-features --features generic-simd/alloc
+          - --no-default-features --features generic-simd/complex
+          - --no-default-features --features generic-simd/std
+          - --no-default-features --features generic-simd/std --features generic-simd/alloc
+          - --no-default-features --features generic-simd/std --features generic-simd/complex
 
     runs-on: ${{ matrix.os }}
     
