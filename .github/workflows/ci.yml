@@ -14,11 +14,14 @@ jobs:
         os:
           - macos-latest
           - ubuntu-latest
-          #- windows-latest
-          # disabled due to rustup errors
+          - windows-latest
         features:
-          - --all-features
           - --no-default-features
+          - --no-default-features --features alloc
+          - --no-default-features --features complex
+          - --no-default-features --features std
+          - --no-default-features --features std --features alloc
+          - --no-default-features --features std --features complex
 
     runs-on: ${{ matrix.os }}
     

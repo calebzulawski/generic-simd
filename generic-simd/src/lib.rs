@@ -112,12 +112,34 @@ pub use multiversion;
 /// supported instruction set and provides its token as `token`.
 /// The best supported function variant is selected at runtime.
 ///
-/// # Examples
-/// See [Abstractions] and [Vector shims] for example usage.
-///
 /// # Implementation
 /// This attribute is a wrapper for [`multiversion`] and supports all of its
 /// conditional compilation and static dispatch features.
+///
+/// # Example
+/// ```
+/// use generic_simd::slice::SliceExt;
+///
+/// #[generic_simd::dispatch(token)]
+/// pub fn add_one(x: &mut [f32]) {
+///     let (start, vecs, end) = x.align_native_mut(token);
+///     for s in start.iter_mut().chain(end.iter_mut()) {
+///         *s += 1.;
+///     }
+///
+///     for v in vecs {
+///         *v += 1.;
+///     }
+/// }
+///
+/// #[generic_simd::dispatch(_token)]
+/// pub fn add_two(x: &mut [f32]) {
+///     // Static dispatching provided by `multiversion`.
+///     // This does not perform runtime feature selection and allows inlining.
+///     dispatch!(add_one(x));
+///     dispatch!(add_one(x));
+/// }
+/// ```
 ///
 /// [Abstractions]: index.html#abstractions
 /// [Vector shims]: index.html#vector-shims
