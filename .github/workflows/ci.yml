@@ -63,7 +63,7 @@ jobs:
       shell: bash
       run: |
           cross test --target ${{ matrix.target }} --verbose --no-default-features --features complex --manifest-path generic-simd/Cargo.toml
-          cross test --target ${{ matrix.target }} --verbose --no-default-features --features complex --manifest-path generic-simd-test/Cargo.toml
+          cross test --target ${{ matrix.target }} --verbose --no-default-features --features generic-simd/complex --manifest-path generic-simd-test/Cargo.toml
 
 
   lint:
