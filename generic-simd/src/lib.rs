@@ -1,4 +1,5 @@
 #![cfg_attr(not(feature = "std"), no_std)]
+#![cfg_attr(feature = "nightly", feature(wasm_simd, wasm_target_feature))]
 //! `generic-simd` provides zero-cost abstractions for writing explicit cross-platform SIMD
 //! operations.
 //!

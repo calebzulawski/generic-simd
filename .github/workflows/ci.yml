@@ -46,9 +46,11 @@ jobs:
     strategy:
       matrix:
         target:
-          - wasm32-unknown-emscripten
           - aarch64-unknown-linux-gnu
           - arm-unknown-linux-gnueabihf
+        include:
+          - target: wasm32-unknown-emscripten
+            rustflags: "-Ctarget-feature=simd128"
 
     runs-on: ubuntu-latest
 
@@ -58,6 +60,8 @@ jobs:
       run: cargo install cross
     - name: Run tests
       shell: bash
+      env:
+          RUSTFLAGS: ${{ matrix.rustflags }}
       run: |
           cross +nightly test --target ${{ matrix.target }} --verbose --no-default-features --features complex wasm --manifest-path generic-simd/Cargo.toml
           cross +nightly test --target ${{ matrix.target }} --verbose --no-default-features --features generic-simd/complex generic-simd/wasm --manifest-path generic-simd-test/Cargo.toml

@@ -49,6 +49,9 @@ pub mod generic;
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 pub mod x86;
 
+#[cfg(all(feature = "nightly", target_arch = "wasm32"))]
+pub mod wasm32;
+
 /// Invokes a macro with the supported token types.
 ///
 /// Invokes the macro with the list of [`Token`] types as arguments in priority order, delimited

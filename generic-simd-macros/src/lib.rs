@@ -17,6 +17,7 @@ pub fn dispatch(args: TokenStream, input: TokenStream) -> TokenStream {
         #[generic_simd::multiversion::multiversion]
         #[clone(target = "[x86|x86_64]+avx")]
         #[clone(target = "[x86|x86_64]+sse4.1")]
+        #[clone(target = "wasm32+simd128")]
         #[crate_path(path = "generic_simd::multiversion")]
         #(#attrs)*
         #vis
@@ -28,7 +29,14 @@ pub fn dispatch(args: TokenStream, input: TokenStream) -> TokenStream {
             #[target_cfg(target = "[x86|x86_64]+avx")]
             let #feature = unsafe { <generic_simd::arch::x86::Avx as generic_simd::arch::Token>::new_unchecked() };
 
-            #[target_cfg(not(any(target = "[x86|x86_64]+sse4.1", target = "[x86|x86_64]+avx")))]
+            #[target_cfg(target = "wasm32+simd128")]
+            let #feature = unsafe { <generic_simd::arch::wasm::Wasm as generic_simd::arch::Token>::new_unchecked() };
+
+            #[target_cfg(not(any(
+                target = "[x86|x86_64]+sse4.1",
+                target = "[x86|x86_64]+avx",
+                target = "wasm32+simd128",
+            )))]
             let #feature = <generic_simd::arch::generic::Generic as generic_simd::arch::Token>::new().unwrap();
 
             #block

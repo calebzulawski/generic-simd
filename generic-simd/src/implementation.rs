@@ -11,10 +11,10 @@ macro_rules! arithmetic_ops {
             }
         }
 
-        impl core::ops::$trait<<$type as Vector>::Scalar> for $type {
+        impl core::ops::$trait<<$type as $crate::vector::Vector>::Scalar> for $type {
             type Output = Self;
             #[inline]
-            fn $func(self, rhs: <$type as Vector>::Scalar) -> Self {
+            fn $func(self, rhs: <$type as $crate::vector::Vector>::Scalar) -> Self {
                 self.$func(<$type>::splat(unsafe { $feature }, rhs))
             }
         }
@@ -30,9 +30,9 @@ macro_rules! arithmetic_ops {
             }
         }
 
-        impl core::ops::$trait<<$type as Vector>::Scalar> for $type {
+        impl core::ops::$trait<<$type as $crate::vector::Vector>::Scalar> for $type {
             #[inline]
-            fn $func(&mut self, rhs: <$type as Vector>::Scalar) {
+            fn $func(&mut self, rhs: <$type as $crate::vector::Vector>::Scalar) {
                 self.$func(<$type>::splat(unsafe { $feature }, rhs))
             }
         }
