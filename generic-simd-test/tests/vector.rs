@@ -208,3 +208,6 @@ ops_test! { ops_sse, generic_simd::arch::x86::Sse, generic_simd::arch::x86::Sse:
 
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 ops_test! { ops_avx, generic_simd::arch::x86::Avx, generic_simd::arch::x86::Avx::new() }
+
+#[cfg(all(feature = "nightly", target_arch = "wasm32"))]
+ops_test! { ops_wasm, generic_simd::arch::wasm32::Wasm32, generic_simd::arch::wasm32::Wasm32::new() }

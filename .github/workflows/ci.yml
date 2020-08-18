@@ -50,6 +50,7 @@ jobs:
           - arm-unknown-linux-gnueabihf
         include:
           - target: wasm32-unknown-emscripten
+          - target: wasm32-unknown-emscripten
             rustflags: "-Ctarget-feature=simd128"
 
     runs-on: ubuntu-latest
