@@ -5,8 +5,12 @@ authors = ["Caleb Zulawski <caleb.zulawski@gmail.com>"]
 edition = "2018"
 publish = false
 
+[features]
+default = ["all"]
+all = ["generic-simd/default"]
+
 [dependencies]
-generic-simd = { path = "../generic-simd" }
+generic-simd = { path = "../generic-simd", default-features = false }
 
 [dev-dependencies]
 num-complex = { version = "0.3", default-features = false, features = ["rand"] }
