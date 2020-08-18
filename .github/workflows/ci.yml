@@ -49,9 +49,6 @@ jobs:
           - wasm32-unknown-emscripten
           - aarch64-unknown-linux-gnu
           - arm-unknown-linux-gnueabihf
-        include:
-          - target: wasm32-unknown-emscripten
-            feature: wasm
 
     runs-on: ubuntu-latest
 
@@ -62,8 +59,8 @@ jobs:
     - name: Run tests
       shell: bash
       run: |
-          cross test --target ${{ matrix.target }} --verbose --no-default-features --features complex --manifest-path generic-simd/Cargo.toml
-          cross test --target ${{ matrix.target }} --verbose --no-default-features --features generic-simd/complex --manifest-path generic-simd-test/Cargo.toml
+          cross +nightly test --target ${{ matrix.target }} --verbose --no-default-features --features complex wasm --manifest-path generic-simd/Cargo.toml
+          cross +nightly test --target ${{ matrix.target }} --verbose --no-default-features --features generic-simd/complex generic-simd/wasm --manifest-path generic-simd-test/Cargo.toml
 
 
   lint:
