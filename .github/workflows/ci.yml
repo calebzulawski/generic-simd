@@ -16,12 +16,12 @@ jobs:
           - ubuntu-latest
           - windows-latest
         features:
-          - --no-default-features
-          - --no-default-features --features generic-simd/alloc
-          - --no-default-features --features generic-simd/complex
-          - --no-default-features --features generic-simd/std
-          - --no-default-features --features generic-simd/std --features generic-simd/alloc
-          - --no-default-features --features generic-simd/std --features generic-simd/complex
+          - []
+          - [alloc]
+          - [complex]
+          - [std]
+          - [std, alloc]
+          - [std, complex]
 
     runs-on: ${{ matrix.os }}
     
@@ -35,8 +35,8 @@ jobs:
         profile: minimal
     - name: Run tests
       run: |
-          cargo test --verbose ${{ matrix.features }} --manifest-path generic-simd/Cargo.toml
-          cargo test --verbose ${{ matrix.features }} --manifest-path generic-simd-test/Cargo.toml
+          cargo test --verbose --no-default-features --features ${{ join(matrix.features, ' ') }} --manifest-path generic-simd/Cargo.toml
+          cargo test --verbose --no-default-features --features generic-simd/${{ join(matrix.features, ' generic-simd/' }} --manifest-path generic-simd-test/Cargo.toml
 
   lint:
     runs-on: ubuntu-latest
