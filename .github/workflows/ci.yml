@@ -64,8 +64,8 @@ jobs:
       env:
           RUSTFLAGS: ${{ matrix.rustflags }}
       run: |
-          cross +nightly test --target ${{ matrix.target }} --verbose --no-default-features --features complex wasm --manifest-path generic-simd/Cargo.toml
-          cross +nightly test --target ${{ matrix.target }} --verbose --no-default-features --features generic-simd/complex generic-simd/wasm --manifest-path generic-simd-test/Cargo.toml
+          cross +nightly test --target ${{ matrix.target }} --verbose --no-default-features --features complex --features nightly --manifest-path generic-simd/Cargo.toml
+          cross +nightly test --target ${{ matrix.target }} --verbose --no-default-features --features generic-simd/complex --features generic-simd/nightly --manifest-path generic-simd-test/Cargo.toml
 
 
   lint:
