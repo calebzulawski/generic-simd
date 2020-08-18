@@ -35,8 +35,10 @@ jobs:
         profile: minimal
     - name: Run tests
       run: |
-          cargo test --verbose --no-default-features --features ${{ join(matrix.features, ' ') }} --manifest-path generic-simd/Cargo.toml
-          cargo test --verbose --no-default-features --features generic-simd/${{ join(matrix.features, ' generic-simd/') }} --manifest-path generic-simd-test/Cargo.toml
+          FEATURES_FLAG=$(echo ${{ toJson(matrix.features) }} | jq 'map("--features \(.)")')
+          TEST_FEATURES_FLAG=$(echo ${{ toJson(matrix.features) }} | jq 'map("--features generic-simd/\(.)")')
+          cargo test --verbose --no-default-features $FEATURES_FLAG --manifest-path generic-simd/Cargo.toml
+          cargo test --verbose --no-default-features $TEST_FEATURES_FLAG --manifest-path generic-simd-test/Cargo.toml
 
   lint:
     runs-on: ubuntu-latest
