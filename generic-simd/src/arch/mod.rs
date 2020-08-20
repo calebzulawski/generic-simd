@@ -17,6 +17,7 @@ pub unsafe trait Token: Copy + From<Self> + Into<Self> {
     unsafe fn new_unchecked() -> Self;
 }
 
+#[allow(unused_macros)]
 macro_rules! impl_token {
     { $name:ident => $($features:tt),+ } => {
         unsafe impl $crate::arch::Token for $name {

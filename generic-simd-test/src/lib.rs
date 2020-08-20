@@ -3,12 +3,11 @@
     feature(wasm_simd, wasm_target_feature)
 )]
 
-use generic_simd::{arch::Token, dispatch, scalar::ScalarExt, vector::Signed};
+use generic_simd::{dispatch, scalar::ScalarExt, vector::Signed};
 use num_traits::Num;
 use rand::distributions::Standard;
 use rand::prelude::*;
 use rand::SeedableRng;
-use wasm_bindgen_test::wasm_bindgen_test;
 
 wasm_bindgen_test::wasm_bindgen_test_configure!(run_in_browser);
 
@@ -220,7 +219,7 @@ macro_rules! ops_test {
             }
 
             #[test]
-            #[wasm_bindgen_test]
+            #[wasm_bindgen_test::wasm_bindgen_test]
             pub fn [<$name _generic>]() {
                 [<$name _dispatch_default_version>]()
             }
@@ -228,6 +227,7 @@ macro_rules! ops_test {
             #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
             #[test]
             pub fn [<$name _sse>]() {
+                use generic_simd::arch::Token as _;
                 if generic_simd::arch::x86::Sse::new().is_some() {
                     unsafe { [<$name _dispatch_sse41_version>]() }
                 }
@@ -236,14 +236,16 @@ macro_rules! ops_test {
             #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
             #[test]
             pub fn [<$name _avx>]() {
+                use generic_simd::arch::Token as _;
                 if generic_simd::arch::x86::Avx::new().is_some() {
                     unsafe { [<$name _dispatch_avx_version>]() }
                 }
             }
 
             #[cfg(all(feature = "nightly", target_arch = "wasm32", target_feature = "simd128"))]
-            #[wasm_bindgen_test]
+            #[wasm_bindgen_test::wasm_bindgen_test]
             pub fn [<$name _simd128>]() {
+                use generic_simd::arch::Token as _;
                 assert!(generic_simd::arch::wasm32::Simd128::new().is_some());
                 unsafe { [<$name _dispatch_simd128_version>]() }
             }
