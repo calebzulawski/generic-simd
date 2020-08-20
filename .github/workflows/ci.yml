@@ -46,7 +46,7 @@ jobs:
         rustflags:
         - "-Ctarget-feature=-simd128"
         - "-Ctarget-feature=+simd128"
-      features:
+        features:
         - --no-default-features
         - --no-default-features --features complex
         - --no-default-features --features nightly
