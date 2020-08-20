@@ -4,6 +4,7 @@ version = "0.1.0"
 authors = ["Caleb Zulawski <caleb.zulawski@gmail.com>"]
 edition = "2018"
 publish = false
+crate-type = ["cdylib"]
 
 [features]
 default = ["std", "complex"]
@@ -14,8 +15,11 @@ nightly = ["generic-simd/nightly"]
 
 [dependencies]
 generic-simd = { path = "../generic-simd", default-features = false }
-
-[dev-dependencies]
 num-complex = { version = "0.3", default-features = false, features = ["rand"] }
 num-traits = "0.2"
 rand = "0.7"
+rand_pcg = "0.2"
+paste = "1"
+wasm-bindgen-test = "0.3"
+
+[dev-dependencies]

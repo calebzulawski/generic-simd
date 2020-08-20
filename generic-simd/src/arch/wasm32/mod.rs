@@ -13,17 +13,17 @@ use crate::{
 };
 use core::arch::wasm32::*;
 
-/// WASM instruction set token.
+/// simd128 instruction set token.
 #[derive(Copy, Clone, Debug)]
-pub struct Wasm32(());
+pub struct Simd128(());
 
-impl_token! { Wasm32 => "simd128" }
+impl_token! { Simd128 => "simd128" }
 
-impl Native<Wasm32> for f32 {
+impl Native<Simd128> for f32 {
     type Width = width::W4;
 }
 
-impl Native<Wasm32> for f64 {
+impl Native<Simd128> for f64 {
     type Width = width::W2;
 }
 
@@ -39,35 +39,35 @@ pub struct f32x4(v128);
 #[allow(non_camel_case_types)]
 pub struct f64x2(v128);
 
-impl Scalar<Wasm32, width::W1> for f32 {
-    type Vector = ShimToken<generic::f32x1, Self, Wasm32>;
+impl Scalar<Simd128, width::W1> for f32 {
+    type Vector = ShimToken<generic::f32x1, Self, Simd128>;
 }
 
-impl Scalar<Wasm32, width::W2> for f32 {
-    type Vector = ShimToken<Shim2<generic::f32x1, Self>, Self, Wasm32>;
+impl Scalar<Simd128, width::W2> for f32 {
+    type Vector = ShimToken<Shim2<generic::f32x1, Self>, Self, Simd128>;
 }
 
-impl Scalar<Wasm32, width::W4> for f32 {
+impl Scalar<Simd128, width::W4> for f32 {
     type Vector = f32x4;
 }
 
-impl Scalar<Wasm32, width::W8> for f32 {
+impl Scalar<Simd128, width::W8> for f32 {
     type Vector = Shim2<f32x4, f32>;
 }
 
-impl Scalar<Wasm32, width::W1> for f64 {
-    type Vector = ShimToken<generic::f64x1, Self, Wasm32>;
+impl Scalar<Simd128, width::W1> for f64 {
+    type Vector = ShimToken<generic::f64x1, Self, Simd128>;
 }
 
-impl Scalar<Wasm32, width::W2> for f64 {
+impl Scalar<Simd128, width::W2> for f64 {
     type Vector = f64x2;
 }
 
-impl Scalar<Wasm32, width::W4> for f64 {
+impl Scalar<Simd128, width::W4> for f64 {
     type Vector = Shim2<f64x2, f64>;
 }
 
-impl Scalar<Wasm32, width::W8> for f64 {
+impl Scalar<Simd128, width::W8> for f64 {
     type Vector = Shim4<f64x2, f64>;
 }
 
@@ -76,7 +76,7 @@ as_slice! { f64x2 }
 
 unsafe impl Vector for f32x4 {
     type Scalar = f32;
-    type Token = Wasm32;
+    type Token = Simd128;
     type Width = width::W4;
     type Underlying = v128;
 
@@ -93,7 +93,7 @@ unsafe impl Vector for f32x4 {
 
 unsafe impl Vector for f64x2 {
     type Scalar = f64;
-    type Token = Wasm32;
+    type Token = Simd128;
     type Width = width::W2;
     type Underlying = v128;
 
@@ -109,7 +109,7 @@ unsafe impl Vector for f64x2 {
 }
 
 arithmetic_ops! {
-    feature: Wasm32::new_unchecked(),
+    feature: Simd128::new_unchecked(),
     for f32x4:
         add -> f32x4_add,
         sub -> f32x4_sub,
@@ -118,7 +118,7 @@ arithmetic_ops! {
 }
 
 arithmetic_ops! {
-    feature: Wasm32::new_unchecked(),
+    feature: Simd128::new_unchecked(),
     for f64x2:
         add -> f64x2_add,
         sub -> f64x2_sub,

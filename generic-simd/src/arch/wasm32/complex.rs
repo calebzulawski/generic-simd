@@ -8,11 +8,11 @@ use crate::{
 };
 use num_complex::Complex;
 
-impl Native<Wasm32> for Complex<f32> {
+impl Native<Simd128> for Complex<f32> {
     type Width = width::W2;
 }
 
-impl Native<Wasm32> for Complex<f64> {
+impl Native<Simd128> for Complex<f64> {
     type Width = width::W1;
 }
 
@@ -32,35 +32,35 @@ pub struct cf32x2(v128);
 #[allow(non_camel_case_types)]
 pub struct cf64x1(v128);
 
-impl Scalar<Wasm32, width::W1> for Complex<f32> {
-    type Vector = ShimToken<generic::cf32x1, Self, Wasm32>;
+impl Scalar<Simd128, width::W1> for Complex<f32> {
+    type Vector = ShimToken<generic::cf32x1, Self, Simd128>;
 }
 
-impl Scalar<Wasm32, width::W2> for Complex<f32> {
+impl Scalar<Simd128, width::W2> for Complex<f32> {
     type Vector = cf32x2;
 }
 
-impl Scalar<Wasm32, width::W4> for Complex<f32> {
+impl Scalar<Simd128, width::W4> for Complex<f32> {
     type Vector = Shim2<cf32x2, Complex<f32>>;
 }
 
-impl Scalar<Wasm32, width::W8> for Complex<f32> {
+impl Scalar<Simd128, width::W8> for Complex<f32> {
     type Vector = Shim4<cf32x2, Complex<f32>>;
 }
 
-impl Scalar<Wasm32, width::W1> for Complex<f64> {
+impl Scalar<Simd128, width::W1> for Complex<f64> {
     type Vector = cf64x1;
 }
 
-impl Scalar<Wasm32, width::W2> for Complex<f64> {
+impl Scalar<Simd128, width::W2> for Complex<f64> {
     type Vector = Shim2<cf64x1, Complex<f64>>;
 }
 
-impl Scalar<Wasm32, width::W4> for Complex<f64> {
+impl Scalar<Simd128, width::W4> for Complex<f64> {
     type Vector = Shim4<cf64x1, Complex<f64>>;
 }
 
-impl Scalar<Wasm32, width::W8> for Complex<f64> {
+impl Scalar<Simd128, width::W8> for Complex<f64> {
     type Vector = Shim8<cf64x1, Complex<f64>>;
 }
 
@@ -69,7 +69,7 @@ as_slice! { cf64x1 }
 
 unsafe impl Vector for cf32x2 {
     type Scalar = Complex<f32>;
-    type Token = Wasm32;
+    type Token = Simd128;
     type Width = width::W2;
     type Underlying = v128;
 
@@ -86,7 +86,7 @@ unsafe impl Vector for cf32x2 {
 
 unsafe impl Vector for cf64x1 {
     type Scalar = Complex<f64>;
-    type Token = Wasm32;
+    type Token = Simd128;
     type Width = width::W1;
     type Underlying = v128;
 
@@ -102,7 +102,7 @@ unsafe impl Vector for cf64x1 {
 }
 
 arithmetic_ops! {
-    feature: Wasm32::new_unchecked(),
+    feature: Simd128::new_unchecked(),
     for cf32x2:
         add -> f32x4_add,
         sub -> f32x4_sub,
@@ -111,7 +111,7 @@ arithmetic_ops! {
 }
 
 arithmetic_ops! {
-    feature: Wasm32::new_unchecked(),
+    feature: Simd128::new_unchecked(),
     for cf64x1:
         add -> f64x2_add,
         sub -> f64x2_sub,
@@ -154,9 +154,9 @@ unsafe fn f32x4_addsub(a: v128, b: v128) -> v128 {
 #[target_feature(enable = "simd128")]
 #[inline]
 unsafe fn f64x2_addsub(a: v128, b: v128) -> v128 {
-    let add = f32x4_add(a, b);
-    let sub = f32x4_sub(a, b);
-    v64x2_shuffle::<0, 2>(sub, add)
+    let add = f64x2_add(a, b);
+    let sub = f64x2_sub(a, b);
+    v64x2_shuffle::<0, 3>(sub, add)
 }
 
 #[target_feature(enable = "simd128")]

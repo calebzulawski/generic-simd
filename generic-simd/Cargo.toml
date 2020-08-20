@@ -9,9 +9,9 @@ default = ["std", "complex"]
 std = ["multiversion/std"]
 complex = ["num-complex"]
 alloc = []
-nightly = []
+nightly = ["generic-simd-macros/nightly"]
 
 [dependencies]
 num-complex = { version = "0.3", default-features = false, optional = true }
-generic-simd-macros = { version = "0.1", path = "../generic-simd-macros" }
+generic-simd-macros = { version = "0.1", default-features = false, path = "../generic-simd-macros" }
 multiversion = { version = "0.6.1", default-features = false }

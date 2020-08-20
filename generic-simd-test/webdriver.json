@@ -1,0 +1,7 @@
+{
+    "goog:chromeOptions": {
+        "args": [
+            "--experimental-wasm-simd"
+        ]
+    }
+}

@@ -13,34 +13,50 @@ pub fn dispatch(args: TokenStream, input: TokenStream) -> TokenStream {
     } = parse_macro_input!(input as ItemFn);
     let feature = parse_macro_input!(args as Ident);
 
-    let output = quote! {
-        #[generic_simd::multiversion::multiversion]
-        #[clone(target = "[x86|x86_64]+avx")]
-        #[clone(target = "[x86|x86_64]+sse4.1")]
-        #[clone(target = "wasm32+simd128")]
-        #[crate_path(path = "generic_simd::multiversion")]
-        #(#attrs)*
-        #vis
-        #sig
-        {
-            #[target_cfg(target = "[x86|x86_64]+sse4.1")]
-            let #feature = unsafe { <generic_simd::arch::x86::Sse as generic_simd::arch::Token>::new_unchecked() };
+    let build_fn = |wasm| {
+        let clone_wasm = if wasm {
+            Some(quote! { #[clone(target = "wasm32+simd128")] })
+        } else {
+            None
+        };
+        quote! {
+            #[generic_simd::multiversion::multiversion]
+            #[clone(target = "[x86|x86_64]+avx")]
+            #[clone(target = "[x86|x86_64]+sse4.1")]
+            #clone_wasm
+            #[crate_path(path = "generic_simd::multiversion")]
+            #(#attrs)*
+            #vis
+            #sig
+            {
+                #[target_cfg(target = "[x86|x86_64]+sse4.1")]
+                let #feature = unsafe { <generic_simd::arch::x86::Sse as generic_simd::arch::Token>::new_unchecked() };
 
-            #[target_cfg(target = "[x86|x86_64]+avx")]
-            let #feature = unsafe { <generic_simd::arch::x86::Avx as generic_simd::arch::Token>::new_unchecked() };
+                #[target_cfg(target = "[x86|x86_64]+avx")]
+                let #feature = unsafe { <generic_simd::arch::x86::Avx as generic_simd::arch::Token>::new_unchecked() };
 
-            #[target_cfg(target = "wasm32+simd128")]
-            let #feature = unsafe { <generic_simd::arch::wasm::Wasm as generic_simd::arch::Token>::new_unchecked() };
+                #[target_cfg(target = "wasm32+simd128")]
+                let #feature = unsafe { <generic_simd::arch::wasm32::Simd128 as generic_simd::arch::Token>::new_unchecked() };
 
-            #[target_cfg(not(any(
-                target = "[x86|x86_64]+sse4.1",
-                target = "[x86|x86_64]+avx",
-                target = "wasm32+simd128",
-            )))]
-            let #feature = <generic_simd::arch::generic::Generic as generic_simd::arch::Token>::new().unwrap();
+                #[target_cfg(not(any(
+                    target = "[x86|x86_64]+sse4.1",
+                    target = "[x86|x86_64]+avx",
+                    target = "wasm32+simd128",
+                )))]
+                let #feature = <generic_simd::arch::generic::Generic as generic_simd::arch::Token>::new().unwrap();
 
-            #block
+                #block
+            }
         }
+    };
+    let without_wasm = build_fn(false);
+    let with_wasm = build_fn(cfg!(feature = "nightly"));
+    let output = quote! {
+        #[cfg(all(target_arch = "wasm32", target_feature = "simd128"))]
+        #with_wasm
+
+        #[cfg(not(all(target_arch = "wasm32", target_feature = "simd128")))]
+        #without_wasm
     };
     output.into()
 }
