@@ -3,6 +3,7 @@
     all(feature = "nightly", target_arch = "wasm32"),
     feature(wasm_simd, wasm_target_feature)
 )]
+#![cfg_attr(all(feature = "nightly", target_arch = "aarch64"), feature(stdsimd))]
 //! `generic-simd` provides zero-cost abstractions for writing explicit cross-platform SIMD
 //! operations.
 //!

@@ -50,6 +50,9 @@ pub mod generic;
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 pub mod x86;
 
+#[cfg(all(any(target_arch = "arm", target_arch = "aarch64", feature = "nightly")))]
+pub mod arm;
+
 #[cfg(all(
     target_arch = "wasm32",
     target_feature = "simd128",
@@ -81,7 +84,13 @@ pub mod wasm32;
 #[macro_export]
 macro_rules! call_macro_with_tokens {
     { $mac:ident } => {
-        #[cfg(not(any(target_arch = "x86", target_arch = "x86_64")))]
+        #[cfg(not(any(
+            target_arch = "x86",
+            target_arch = "x86_64",
+            all(target_arch = "arm", feature = "nightly"),
+            all(target_arch = "aarch64", feature = "nightly"),
+            all(target_arch = "wasm32", feature = "nightly", target_feature = "simd128"),
+        )))]
         $mac! {
             $crate::arch::generic::Generic,
         }
@@ -90,6 +99,18 @@ macro_rules! call_macro_with_tokens {
             $crate::arch::x86::Avx,
             $crate::arch::x86::Sse,
             $crate::arch::generic::Generic,
+        }
+        #[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
+        $mac! {
+            $crate::arch::arm::Neon,
+        }
+        #[cfg(all(
+            target_arch = "wasm32",
+            target_feature = "simd128",
+            feature = "nightly",
+        ))]
+        $mac! {
+            $crate::arch::arm::Simd128,
         }
     }
 }
