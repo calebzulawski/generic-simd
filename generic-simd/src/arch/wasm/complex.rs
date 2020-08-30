@@ -1,7 +1,7 @@
 use core::arch::wasm32::*;
 
 use crate::{
-    arch::{generic, wasm32::*, Token},
+    arch::{generic, wasm::*, Token},
     scalar::Scalar,
     shim::{Shim2, Shim4, Shim8, ShimToken},
     vector::{width, Native, Vector},
