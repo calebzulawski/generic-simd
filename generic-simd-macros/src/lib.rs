@@ -49,7 +49,7 @@ pub fn dispatch(args: TokenStream, input: TokenStream) -> TokenStream {
                 let #feature = unsafe { <generic_simd::arch::x86::Avx as generic_simd::arch::Token>::new_unchecked() };
 
                 #[target_cfg(target = "wasm32+simd128")]
-                let #feature = unsafe { <generic_simd::arch::wasm32::Simd128 as generic_simd::arch::Token>::new_unchecked() };
+                let #feature = unsafe { <generic_simd::arch::wasm::Simd128 as generic_simd::arch::Token>::new_unchecked() };
 
                 #[target_cfg(target = "[arm|aarch64]+neon")]
                 let #feature = unsafe { <generic_simd::arch::arm::Neon as generic_simd::arch::Token>::new_unchecked() };

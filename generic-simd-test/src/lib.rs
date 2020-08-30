@@ -269,7 +269,7 @@ macro_rules! ops_test {
             #[wasm_bindgen_test::wasm_bindgen_test]
             pub fn [<$name _simd128>]() {
                 use generic_simd::arch::Token as _;
-                assert!(generic_simd::arch::wasm32::Simd128::new().is_some());
+                assert!(generic_simd::arch::wasm::Simd128::new().is_some());
                 unsafe { [<$name _dispatch_simd128_version>]() }
             }
         }

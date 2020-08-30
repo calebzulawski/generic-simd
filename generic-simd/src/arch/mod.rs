@@ -124,7 +124,7 @@ macro_rules! call_macro_with_tokens {
             feature = "nightly",
         ))]
         $mac! {
-            $crate::arch::wasm32::Simd128,
+            $crate::arch::wasm::Simd128,
         }
     }
 }
