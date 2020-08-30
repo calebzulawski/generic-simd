@@ -3,7 +3,14 @@
     all(feature = "nightly", target_arch = "wasm32"),
     feature(wasm_simd, wasm_target_feature)
 )]
-#![cfg_attr(all(feature = "nightly", target_arch = "aarch64"), feature(stdsimd))]
+#![cfg_attr(
+    all(feature = "nightly", target_arch = "aarch64"),
+    feature(stdsimd, aarch64_target_feature)
+)]
+#![cfg_attr(
+    all(feature = "nightly", target_arch = "arm"),
+    feature(stdsimd, arm_target_feature)
+)]
 //! `generic-simd` provides zero-cost abstractions for writing explicit cross-platform SIMD
 //! operations.
 //!
@@ -12,6 +19,8 @@
 //! also supported:
 //! * SSE4.1 (x86/x86-64)
 //! * AVX (x86/x86-64)
+//! * NEON(arm/aarch64, with `nightly` cargo feature)
+//! * SIMD128 (wasm32, with `nightly` cargo feature)
 //!
 //! The various architecture-specific types are available in the [`arch`](arch/index.html) module.
 //!

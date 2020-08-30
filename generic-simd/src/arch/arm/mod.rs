@@ -72,7 +72,7 @@ impl Scalar<Neon, width::W1> for f64 {
 
 #[cfg(target_arch = "arm")]
 impl Scalar<Neon, width::W2> for f64 {
-    type Vector = ShimToken<generic::f64x2, Self, Neon>;
+    type Vector = Shim2<ShimToken<generic::f64x1, Self, Neon>, Self>;
 }
 
 #[cfg(target_arch = "aarch64")]
@@ -91,36 +91,36 @@ impl Scalar<Neon, width::W8> for f64 {
 arithmetic_ops! {
     feature: Neon::new_unchecked(),
     for f32x2:
-        add -> vadd_f32,
-        sub -> vsub_f32,
-        mul -> vmul_f32,
-        div -> default
+        add -> (vadd_f32),
+        sub -> (vsub_f32),
+        mul -> (vmul_f32),
+        div -> ()
 }
 
 arithmetic_ops! {
     feature: Neon::new_unchecked(),
     for f32x4:
-        add -> vaddq_f32,
-        sub -> vsubq_f32,
-        mul -> vmulq_f32,
-        div -> default
+        add -> (vaddq_f32),
+        sub -> (vsubq_f32),
+        mul -> (vmulq_f32),
+        div -> ()
 }
 
 #[cfg(target_arch = "aarch64")]
 arithmetic_ops! {
     feature: Neon::new_unchecked(),
     for f64x2:
-        add -> vaddq_f64,
-        sub -> vsubq_f64,
-        mul -> vmulq_f64,
-        div -> default
+        add -> (vaddq_f64),
+        sub -> (vsubq_f64),
+        mul -> (vmulq_f64),
+        div -> ()
 }
 
 impl core::ops::Neg for f32x2 {
     type Output = Self;
 
     #[inline]
-    fn neg(self) -> Self {
+    fn neg(mut self) -> Self {
         for v in self.as_slice_mut() {
             *v = -*v;
         }
@@ -132,7 +132,7 @@ impl core::ops::Neg for f32x4 {
     type Output = Self;
 
     #[inline]
-    fn neg(self) -> Self {
+    fn neg(mut self) -> Self {
         for v in self.as_slice_mut() {
             *v = -*v;
         }
@@ -145,7 +145,7 @@ impl core::ops::Neg for f64x2 {
     type Output = Self;
 
     #[inline]
-    fn neg(self) -> Self {
+    fn neg(mut self) -> Self {
         for v in self.as_slice_mut() {
             *v = -*v;
         }
@@ -177,7 +177,7 @@ unsafe impl Vector for f32x2 {
     #[inline]
     fn splat(_: Self::Token, from: Self::Scalar) -> Self {
         // TODO use vdup
-        let v: Self = unsafe { core::mem::zeroed() };
+        let mut v: Self = unsafe { core::mem::zeroed() };
         v[0] = from;
         v[1] = from;
         v
@@ -202,7 +202,7 @@ unsafe impl Vector for f32x4 {
     #[inline]
     fn splat(_: Self::Token, from: Self::Scalar) -> Self {
         // TODO use vdup
-        let v: Self = unsafe { core::mem::zeroed() };
+        let mut v: Self = unsafe { core::mem::zeroed() };
         v[0] = from;
         v[1] = from;
         v[2] = from;
@@ -230,7 +230,7 @@ unsafe impl Vector for f64x2 {
     #[inline]
     fn splat(_: Self::Token, from: Self::Scalar) -> Self {
         // TODO use vdup
-        let v: Self = unsafe { core::mem::zeroed() };
+        let mut v: Self = unsafe { core::mem::zeroed() };
         v[0] = from;
         v[1] = from;
         v

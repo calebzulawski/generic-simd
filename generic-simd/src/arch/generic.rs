@@ -97,10 +97,10 @@ macro_rules! implement {
         arithmetic_ops! {
             feature: Generic::new_unchecked(),
             for $vector:
-                add -> core::ops::Add::add,
-                sub -> core::ops::Sub::sub,
-                mul -> core::ops::Mul::mul,
-                div -> core::ops::Div::div
+                add -> (),
+                sub -> (),
+                mul -> (),
+                div -> ()
         }
 
         impl core::ops::Neg for $vector {

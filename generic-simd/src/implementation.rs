@@ -1,14 +1,14 @@
 macro_rules! arithmetic_ops {
     {
-        @new $type:ty, $feature:expr, $trait:ident, $func:ident, default
+        @new $type:ty, $feature:expr, $trait:ident, $func:ident, ()
     } => {
         impl core::ops::$trait<$type> for $type {
             type Output = Self;
             #[allow(unused_unsafe)]
             #[inline]
             fn $func(mut self, rhs: Self) -> Self {
-                for (a, b) in self.iter_mut().zip(b.iter()) {
-                    *a = $trait::$func(*a, b);
+                for (a, b) in self.iter_mut().zip(rhs.iter()) {
+                    *a = core::ops::$trait::$func(*a, b);
                 }
                 self
             }
@@ -19,21 +19,21 @@ macro_rules! arithmetic_ops {
             #[inline]
             fn $func(mut self, rhs: <$type as $crate::vector::Vector>::Scalar) -> Self {
                 for a in self.iter_mut() {
-                    *a = $trait::$func(*a, rhs);
+                    *a = core::ops::$trait::$func(*a, rhs);
                 }
                 self
             }
         }
     };
     {
-        @assign $type:ty, $feature:expr, $trait:ident, $func:ident, default
+        @assign $type:ty, $feature:expr, $trait:ident, $func:ident, ()
     } => {
         impl core::ops::$trait<$type> for $type {
             #[allow(unused_unsafe)]
             #[inline]
             fn $func(&mut self, rhs: Self) {
-                for (a, b) in self.iter_mut().zip(b.iter()) {
-                    $trait::$func(a, b);
+                for (a, b) in self.iter_mut().zip(rhs.iter()) {
+                    core::ops::$trait::$func(a, b);
                 }
             }
         }
@@ -42,13 +42,13 @@ macro_rules! arithmetic_ops {
             #[inline]
             fn $func(&mut self, rhs: <$type as $crate::vector::Vector>::Scalar) {
                 for a in self.iter_mut() {
-                    $trait::$func(a, rhs);
+                    core::ops::$trait::$func(a, rhs);
                 }
             }
         }
     };
     {
-        @new $type:ty, $feature:expr, $trait:ident, $func:ident, $op:path
+        @new $type:ty, $feature:expr, $trait:ident, $func:ident, ($op:path)
     } => {
         impl core::ops::$trait<$type> for $type {
             type Output = Self;
@@ -68,7 +68,7 @@ macro_rules! arithmetic_ops {
         }
     };
     {
-        @assign $type:ty, $feature:expr, $trait:ident, $func:ident, $op:path
+        @assign $type:ty, $feature:expr, $trait:ident, $func:ident, ($op:path)
     } => {
         impl core::ops::$trait<$type> for $type {
             #[allow(unused_unsafe)]
@@ -88,10 +88,10 @@ macro_rules! arithmetic_ops {
     {
         feature: $feature:expr,
         for $type:ty:
-            add -> $add_expr:path,
-            sub -> $sub_expr:path,
-            mul -> $mul_expr:path,
-            div -> $div_expr:path
+            add -> $add_expr:tt,
+            sub -> $sub_expr:tt,
+            mul -> $mul_expr:tt,
+            div -> $div_expr:tt
     } => {
         impl core::iter::Sum<$type> for Option<$type> {
             #[inline]

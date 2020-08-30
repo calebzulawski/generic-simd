@@ -104,19 +104,19 @@ unsafe impl Vector for cf64x1 {
 arithmetic_ops! {
     feature: Simd128::new_unchecked(),
     for cf32x2:
-        add -> f32x4_add,
-        sub -> f32x4_sub,
-        mul -> cf32x2_mul,
-        div -> cf32x2_div
+        add -> (f32x4_add),
+        sub -> (f32x4_sub),
+        mul -> (cf32x2_mul),
+        div -> (cf32x2_div)
 }
 
 arithmetic_ops! {
     feature: Simd128::new_unchecked(),
     for cf64x1:
-        add -> f64x2_add,
-        sub -> f64x2_sub,
-        mul -> cf64x1_mul,
-        div -> cf64x1_div
+        add -> (f64x2_add),
+        sub -> (f64x2_sub),
+        mul -> (cf64x1_mul),
+        div -> (cf64x1_div)
 }
 
 #[target_feature(enable = "simd128")]

@@ -14,8 +14,14 @@ pub fn dispatch(args: TokenStream, input: TokenStream) -> TokenStream {
     let feature = parse_macro_input!(args as Ident);
 
     let build_fn = |wasm| {
-        let clone_wasm = if wasm {
+        let nightly = cfg!(feature = "nightly");
+        let clone_wasm = if nightly && wasm {
             Some(quote! { #[clone(target = "wasm32+simd128")] })
+        } else {
+            None
+        };
+        let clone_arm = if nightly {
+            Some(quote! { #[clone(target = "[arm|aarch64]+neon")] })
         } else {
             None
         };
@@ -24,6 +30,7 @@ pub fn dispatch(args: TokenStream, input: TokenStream) -> TokenStream {
             #[clone(target = "[x86|x86_64]+avx")]
             #[clone(target = "[x86|x86_64]+sse4.1")]
             #clone_wasm
+            #clone_arm
             #[crate_path(path = "generic_simd::multiversion")]
             #(#attrs)*
             #vis
@@ -38,9 +45,13 @@ pub fn dispatch(args: TokenStream, input: TokenStream) -> TokenStream {
                 #[target_cfg(target = "wasm32+simd128")]
                 let #feature = unsafe { <generic_simd::arch::wasm32::Simd128 as generic_simd::arch::Token>::new_unchecked() };
 
+                #[target_cfg(target = "[arm|aarch64]+neon")]
+                let #feature = unsafe { <generic_simd::arch::arm::Neon as generic_simd::arch::Token>::new_unchecked() };
+
                 #[target_cfg(not(any(
                     target = "[x86|x86_64]+sse4.1",
                     target = "[x86|x86_64]+avx",
+                    target = "[arm|aarch64]+neon",
                     target = "wasm32+simd128",
                 )))]
                 let #feature = <generic_simd::arch::generic::Generic as generic_simd::arch::Token>::new().unwrap();
@@ -50,7 +61,7 @@ pub fn dispatch(args: TokenStream, input: TokenStream) -> TokenStream {
         }
     };
     let without_wasm = build_fn(false);
-    let with_wasm = build_fn(cfg!(feature = "nightly"));
+    let with_wasm = build_fn(true);
     let output = quote! {
         #[cfg(all(target_arch = "wasm32", target_feature = "simd128"))]
         #with_wasm

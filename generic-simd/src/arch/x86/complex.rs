@@ -126,37 +126,37 @@ impl Scalar<Avx, width::W8> for Complex<f64> {
 arithmetic_ops! {
     feature: Sse::new_unchecked(),
     for cf32x2:
-        add -> _mm_add_ps,
-        sub -> _mm_sub_ps,
-        mul -> mul_cf32x2,
-        div -> div_cf32x2
+        add -> (_mm_add_ps),
+        sub -> (_mm_sub_ps),
+        mul -> (mul_cf32x2),
+        div -> (div_cf32x2)
 }
 
 arithmetic_ops! {
     feature: Sse::new_unchecked(),
     for cf64x1:
-        add -> _mm_add_pd,
-        sub -> _mm_sub_pd,
-        mul -> mul_cf64x1,
-        div -> div_cf64x1
+        add -> (_mm_add_pd),
+        sub -> (_mm_sub_pd),
+        mul -> (mul_cf64x1),
+        div -> (div_cf64x1)
 }
 
 arithmetic_ops! {
     feature: Avx::new_unchecked(),
     for cf32x4:
-        add -> _mm256_add_ps,
-        sub -> _mm256_sub_ps,
-        mul -> mul_cf32x4,
-        div -> div_cf32x4
+        add -> (_mm256_add_ps),
+        sub -> (_mm256_sub_ps),
+        mul -> (mul_cf32x4),
+        div -> (div_cf32x4)
 }
 
 arithmetic_ops! {
     feature: Avx::new_unchecked(),
     for cf64x2:
-        add -> _mm256_add_pd,
-        sub -> _mm256_sub_pd,
-        mul -> mul_cf64x2,
-        div -> div_cf64x2
+        add -> (_mm256_add_pd),
+        sub -> (_mm256_sub_pd),
+        mul -> (mul_cf64x2),
+        div -> (div_cf64x2)
 }
 
 #[target_feature(enable = "sse3")]

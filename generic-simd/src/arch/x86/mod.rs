@@ -142,37 +142,37 @@ impl Scalar<Avx, width::W8> for f64 {
 arithmetic_ops! {
     feature: Sse::new_unchecked(),
     for f32x4:
-        add -> _mm_add_ps,
-        sub -> _mm_sub_ps,
-        mul -> _mm_mul_ps,
-        div -> _mm_div_ps
+        add -> (_mm_add_ps),
+        sub -> (_mm_sub_ps),
+        mul -> (_mm_mul_ps),
+        div -> (_mm_div_ps)
 }
 
 arithmetic_ops! {
     feature: Sse::new_unchecked(),
     for f64x2:
-        add -> _mm_add_pd,
-        sub -> _mm_sub_pd,
-        mul -> _mm_mul_pd,
-        div -> _mm_div_pd
+        add -> (_mm_add_pd),
+        sub -> (_mm_sub_pd),
+        mul -> (_mm_mul_pd),
+        div -> (_mm_div_pd)
 }
 
 arithmetic_ops! {
     feature: Avx::new_unchecked(),
     for f32x8:
-        add -> _mm256_add_ps,
-        sub -> _mm256_sub_ps,
-        mul -> _mm256_mul_ps,
-        div -> _mm256_div_ps
+        add -> (_mm256_add_ps),
+        sub -> (_mm256_sub_ps),
+        mul -> (_mm256_mul_ps),
+        div -> (_mm256_div_ps)
 }
 
 arithmetic_ops! {
     feature: Avx::new_unchecked(),
     for f64x4:
-        add -> _mm256_add_pd,
-        sub -> _mm256_sub_pd,
-        mul -> _mm256_mul_pd,
-        div -> _mm256_div_pd
+        add -> (_mm256_add_pd),
+        sub -> (_mm256_sub_pd),
+        mul -> (_mm256_mul_pd),
+        div -> (_mm256_div_pd)
 }
 
 impl core::ops::Neg for f32x4 {

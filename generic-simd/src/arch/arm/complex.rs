@@ -1,7 +1,7 @@
 use crate::{
-    arch::{arm::Neon, generic, Token},
+    arch::{arm::Neon, Token},
     scalar::Scalar,
-    shim::{Shim2, Shim4, Shim8, ShimToken},
+    shim::{Shim2, Shim4, Shim8},
     vector::{width, Native, Vector},
 };
 use num_complex::Complex;
@@ -62,7 +62,7 @@ impl Scalar<Neon, width::W8> for Complex<f32> {
 
 #[cfg(target_arch = "arm")]
 impl Scalar<Neon, width::W1> for Complex<f64> {
-    type Vector = generic::cf64x1;
+    type Vector = crate::arch::generic::cf64x1;
 }
 
 #[cfg(target_arch = "aarch64")]
@@ -85,36 +85,36 @@ impl Scalar<Neon, width::W8> for Complex<f64> {
 arithmetic_ops! {
     feature: Neon::new_unchecked(),
     for cf32x1:
-        add -> vadd_f32,
-        sub -> vsub_f32,
-        mul -> default,
-        div -> default
+        add -> (vadd_f32),
+        sub -> (vsub_f32),
+        mul -> (),
+        div -> ()
 }
 
 arithmetic_ops! {
     feature: Neon::new_unchecked(),
     for cf32x2:
-        add -> vaddq_f32,
-        sub -> vsubq_f32,
-        mul -> default,
-        div -> default
+        add -> (vaddq_f32),
+        sub -> (vsubq_f32),
+        mul -> (),
+        div -> ()
 }
 
 #[cfg(target_arch = "aarch64")]
 arithmetic_ops! {
     feature: Neon::new_unchecked(),
     for cf64x1:
-        add -> vaddq_f64,
-        sub -> vsubq_f64,
-        mul -> default,
-        div -> default
+        add -> (vaddq_f64),
+        sub -> (vsubq_f64),
+        mul -> (),
+        div -> ()
 }
 
 impl core::ops::Neg for cf32x1 {
     type Output = Self;
 
     #[inline]
-    fn neg(self) -> Self {
+    fn neg(mut self) -> Self {
         for v in self.as_slice_mut() {
             *v = -*v;
         }
@@ -126,7 +126,7 @@ impl core::ops::Neg for cf32x2 {
     type Output = Self;
 
     #[inline]
-    fn neg(self) -> Self {
+    fn neg(mut self) -> Self {
         for v in self.as_slice_mut() {
             *v = -*v;
         }
@@ -139,7 +139,7 @@ impl core::ops::Neg for cf64x1 {
     type Output = Self;
 
     #[inline]
-    fn neg(self) -> Self {
+    fn neg(mut self) -> Self {
         for v in self.as_slice_mut() {
             *v = -*v;
         }
@@ -170,9 +170,8 @@ unsafe impl Vector for cf32x1 {
     #[inline]
     fn splat(_: Self::Token, from: Self::Scalar) -> Self {
         // TODO use vdup
-        let v: Self = unsafe { core::mem::zeroed() };
+        let mut v: Self = unsafe { core::mem::zeroed() };
         v[0] = from;
-        v[1] = from;
         v
     }
 }
@@ -195,7 +194,7 @@ unsafe impl Vector for cf32x2 {
     #[inline]
     fn splat(_: Self::Token, from: Self::Scalar) -> Self {
         // TODO use vdup
-        let v: Self = unsafe { core::mem::zeroed() };
+        let mut v: Self = unsafe { core::mem::zeroed() };
         v[0] = from;
         v[1] = from;
         v
@@ -221,9 +220,8 @@ unsafe impl Vector for cf64x1 {
     #[inline]
     fn splat(_: Self::Token, from: Self::Scalar) -> Self {
         // TODO use vdup
-        let v: Self = unsafe { core::mem::zeroed() };
+        let mut v: Self = unsafe { core::mem::zeroed() };
         v[0] = from;
-        v[1] = from;
         v
     }
 }
@@ -232,7 +230,7 @@ impl crate::vector::Complex for cf32x1 {
     type RealScalar = f32;
 
     #[inline]
-    fn conj(self) -> Self {
+    fn conj(mut self) -> Self {
         for v in self.as_slice_mut() {
             *v = v.conj();
         }
@@ -240,7 +238,7 @@ impl crate::vector::Complex for cf32x1 {
     }
 
     #[inline]
-    fn mul_i(self) -> Self {
+    fn mul_i(mut self) -> Self {
         for v in self.as_slice_mut() {
             *v = Complex::new(-v.im, v.re);
         }
@@ -248,7 +246,7 @@ impl crate::vector::Complex for cf32x1 {
     }
 
     #[inline]
-    fn mul_neg_i(self) -> Self {
+    fn mul_neg_i(mut self) -> Self {
         for v in self.as_slice_mut() {
             *v = Complex::new(v.im, -v.re);
         }
@@ -260,7 +258,7 @@ impl crate::vector::Complex for cf32x2 {
     type RealScalar = f32;
 
     #[inline]
-    fn conj(self) -> Self {
+    fn conj(mut self) -> Self {
         for v in self.as_slice_mut() {
             *v = v.conj();
         }
@@ -268,7 +266,7 @@ impl crate::vector::Complex for cf32x2 {
     }
 
     #[inline]
-    fn mul_i(self) -> Self {
+    fn mul_i(mut self) -> Self {
         for v in self.as_slice_mut() {
             *v = Complex::new(-v.im, v.re);
         }
@@ -276,7 +274,7 @@ impl crate::vector::Complex for cf32x2 {
     }
 
     #[inline]
-    fn mul_neg_i(self) -> Self {
+    fn mul_neg_i(mut self) -> Self {
         for v in self.as_slice_mut() {
             *v = Complex::new(v.im, -v.re);
         }
@@ -289,7 +287,7 @@ impl crate::vector::Complex for cf64x1 {
     type RealScalar = f32;
 
     #[inline]
-    fn conj(self) -> Self {
+    fn conj(mut self) -> Self {
         for v in self.as_slice_mut() {
             *v = v.conj();
         }
@@ -297,7 +295,7 @@ impl crate::vector::Complex for cf64x1 {
     }
 
     #[inline]
-    fn mul_i(self) -> Self {
+    fn mul_i(mut self) -> Self {
         for v in self.as_slice_mut() {
             *v = Complex::new(-v.im, v.re);
         }
@@ -305,7 +303,7 @@ impl crate::vector::Complex for cf64x1 {
     }
 
     #[inline]
-    fn mul_neg_i(self) -> Self {
+    fn mul_neg_i(mut self) -> Self {
         for v in self.as_slice_mut() {
             *v = Complex::new(v.im, -v.re);
         }

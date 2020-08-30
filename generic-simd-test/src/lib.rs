@@ -2,6 +2,14 @@
     all(feature = "nightly", target_arch = "wasm32"),
     feature(wasm_simd, wasm_target_feature)
 )]
+#![cfg_attr(
+    all(feature = "nightly", target_arch = "aarch64"),
+    feature(stdsimd, aarch64_target_feature)
+)]
+#![cfg_attr(
+    all(feature = "nightly", target_arch = "arm"),
+    feature(stdsimd, arm_target_feature)
+)]
 
 use generic_simd::{dispatch, scalar::ScalarExt, vector::Signed};
 use num_traits::Num;
@@ -239,6 +247,15 @@ macro_rules! ops_test {
                 use generic_simd::arch::Token as _;
                 if generic_simd::arch::x86::Avx::new().is_some() {
                     unsafe { [<$name _dispatch_avx_version>]() }
+                }
+            }
+
+            #[cfg(all(feature = "nightly", any(target_arch = "arm", target_arch = "aarch64")))]
+            #[test]
+            pub fn [<$name _neon>]() {
+                use generic_simd::arch::Token as _;
+                if generic_simd::arch::arm::Neon::new().is_some() {
+                    unsafe { [<$name _dispatch_neon_version>]() }
                 }
             }
 
