@@ -250,7 +250,13 @@ macro_rules! ops_test {
                 }
             }
 
-            #[cfg(all(feature = "nightly", any(target_arch = "arm", target_arch = "aarch64")))]
+            #[cfg(all(
+                feature = "nightly",
+                any(
+                    all(target_arch = "arm", target_feature = "v7", target_feature = "neon"),
+                    target_arch = "aarch64"
+                )
+            ))]
             #[test]
             pub fn [<$name _neon>]() {
                 use generic_simd::arch::Token as _;

@@ -50,7 +50,15 @@ pub mod generic;
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 pub mod x86;
 
-#[cfg(all(feature = "nightly", any(target_arch = "arm", target_arch = "aarch64")))]
+#[cfg(any(
+    all(feature = "nightly", target_arch = "aarch64"),
+    all(
+        feature = "nightly",
+        target_arch = "arm",
+        target_feature = "v7",
+        target_feature = "neon"
+    )
+))]
 pub mod arm;
 
 #[cfg(all(
@@ -58,7 +66,7 @@ pub mod arm;
     target_feature = "simd128",
     feature = "nightly",
 ))]
-pub mod wasm32;
+pub mod wasm;
 
 /// Invokes a macro with the supported token types.
 ///
@@ -87,7 +95,7 @@ macro_rules! call_macro_with_tokens {
         #[cfg(not(any(
             target_arch = "x86",
             target_arch = "x86_64",
-            all(target_arch = "arm", feature = "nightly"),
+            all(target_arch = "arm", feature = "nightly", target_feature = "v7", target_feature = "neon"),
             all(target_arch = "aarch64", feature = "nightly"),
             all(target_arch = "wasm32", feature = "nightly", target_feature = "simd128"),
         )))]
@@ -102,7 +110,10 @@ macro_rules! call_macro_with_tokens {
         }
         #[cfg(all(
             feature = "nightly",
-            any(target_arch = "arm", target_arch = "aarch64"),
+            any(
+                all(target_arch = "arm", target_feature = "v7", target_feature = "neon"),
+                target_arch = "aarch64",
+            ),
         ))]
         $mac! {
             $crate::arch::arm::Neon,
