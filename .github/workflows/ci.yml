@@ -74,8 +74,8 @@ jobs:
     strategy:
       matrix:
         target:
-          - aarch64-unknown-linux-gnu
-          - arm-unknown-linux-gnueabihf
+        - aarch64-unknown-linux-gnu
+        - arm-unknown-linux-gnueabihf
         features:
         - --no-default-features
         - --no-default-features --features complex
@@ -90,8 +90,6 @@ jobs:
       run: cargo install cross
     - name: Run tests
       shell: bash
-      env:
-        RUSTFLAGS: ${{ matrix.rustflags }}
       run: |
         cross +nightly test --target ${{ matrix.target }} --verbose ${{ matrix.features }} --manifest-path generic-simd/Cargo.toml
         cross +nightly test --target ${{ matrix.target }} --verbose ${{ matrix.features }} --manifest-path generic-simd-test/Cargo.toml
