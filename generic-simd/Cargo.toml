@@ -5,7 +5,7 @@ authors = ["Caleb Zulawski <caleb.zulawski@gmail.com>"]
 license = "MIT OR Apache-2.0"
 description = "safe and idiomatic zero-cost abstractions for writing explicit cross-platform SIMD operations"
 repository = "https://github.com/calebzulawski/generic-simd"
-categories = []
+categories = ["no-std", "api-bindings", "hardware-support"]
 readme = "README.md"
 include = [
     "/Cargo.toml",
