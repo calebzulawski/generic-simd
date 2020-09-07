@@ -7,15 +7,6 @@
     all(feature = "nightly", target_arch = "aarch64"),
     feature(stdsimd, aarch64_target_feature)
 )]
-#![cfg_attr(
-    all(
-        feature = "nightly",
-        target_arch = "arm",
-        target_feature = "v7",
-        target_feature = "neon"
-    ),
-    feature(stdsimd, arm_target_feature)
-)]
 //! `generic-simd` provides zero-cost abstractions for writing explicit cross-platform SIMD
 //! operations.
 //!
@@ -24,7 +15,7 @@
 //! also supported:
 //! * SSE4.1 (x86/x86-64)
 //! * AVX (x86/x86-64)
-//! * NEON (arm/aarch64, with `nightly` cargo feature, and `v7` and `neon` target features on arm)
+//! * NEON (aarch64, with `nightly` cargo feature)
 //! * SIMD128 (wasm32, with `nightly` cargo feature and `simd128` target feature)
 //!
 //! The various architecture-specific types are available in the [`arch`](arch/index.html) module.

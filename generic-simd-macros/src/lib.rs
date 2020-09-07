@@ -13,19 +13,14 @@ pub fn dispatch(args: TokenStream, input: TokenStream) -> TokenStream {
     } = parse_macro_input!(input as ItemFn);
     let feature = parse_macro_input!(args as Ident);
 
-    let build_fn = |wasm, arm| {
+    let build_fn = |wasm| {
         let nightly = cfg!(feature = "nightly");
         let clone_wasm = if nightly && wasm {
             Some(quote! { #[clone(target = "wasm32+simd128")] })
         } else {
             None
         };
-        let clone_arm = if nightly && arm {
-            Some(quote! { #[clone(target = "arm+neon")] })
-        } else {
-            None
-        };
-        let clone_aarch64 = if nightly {
+        let clone_arm = if nightly {
             Some(quote! { #[clone(target = "aarch64+neon")] })
         } else {
             None
@@ -36,7 +31,6 @@ pub fn dispatch(args: TokenStream, input: TokenStream) -> TokenStream {
             #[clone(target = "[x86|x86_64]+sse4.1")]
             #clone_wasm
             #clone_arm
-            #clone_aarch64
             #[crate_path(path = "generic_simd::multiversion")]
             #(#attrs)*
             #vis
@@ -66,20 +60,13 @@ pub fn dispatch(args: TokenStream, input: TokenStream) -> TokenStream {
             }
         }
     };
-    let normal = build_fn(false, false);
-    let with_wasm = build_fn(true, false);
-    let with_arm = build_fn(false, true);
+    let normal = build_fn(false);
+    let with_wasm = build_fn(true);
     let output = quote! {
         #[cfg(all(target_arch = "wasm32", target_feature = "simd128"))]
         #with_wasm
 
-        #[cfg(all(target_arch = "arm", target_feature = "v7", target_feature = "neon"))]
-        #with_arm
-
-        #[cfg(not(any(
-            all(target_arch = "wasm32", target_feature = "simd128"),
-            all(target_arch = "arm", target_feature = "v7", target_feature = "neon"),
-        )))]
+        #[cfg(not(all(target_arch = "wasm32", target_feature = "simd128"),))]
         #normal
     };
     output.into()
