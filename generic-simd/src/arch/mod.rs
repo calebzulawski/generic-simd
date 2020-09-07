@@ -65,7 +65,7 @@ pub mod wasm;
 /// Invokes the macro with the list of [`Token`] types as arguments in priority order, delimited
 /// by commas (including a trailing comma).
 ///
-/// The following example creates a `SupportedScalar` supertrait that implements [`Scalar`] for
+/// The following example creates a `SupportedScalar` supertrait that implements [`ScalarExt`] for
 /// each token:
 /// ```
 /// use generic_simd::{call_macro_with_tokens, scalar::ScalarExt};
@@ -80,36 +80,69 @@ pub mod wasm;
 /// ```
 ///
 /// [`Token`]: arch/trait.Token.html
-/// [`Scalar`]: scalar/trait.Scalar.html
+/// [`ScalarExt`]: scalar/trait.ScalarExt.html
 #[macro_export]
 macro_rules! call_macro_with_tokens {
+    { $mac:ident } => { $crate::call_macro_with_tokens_impl! { $mac } }
+}
+
+#[cfg(not(any(
+    target_arch = "x86",
+    target_arch = "x86_64",
+    all(target_arch = "aarch64", feature = "nightly"),
+    all(
+        target_arch = "wasm32",
+        target_feature = "simd128",
+        feature = "nightly",
+    ),
+)))]
+#[doc(hidden)]
+#[macro_export]
+macro_rules! call_macro_with_tokens_impl {
     { $mac:ident } => {
-        #[cfg(not(any(
-            target_arch = "x86",
-            target_arch = "x86_64",
-            all(target_arch = "aarch64", feature = "nightly"),
-            all(target_arch = "wasm32", feature = "nightly", target_feature = "simd128"),
-        )))]
         $mac! {
             $crate::arch::generic::Generic,
         }
-        #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    }
+}
+
+#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+#[doc(hidden)]
+#[macro_export]
+macro_rules! call_macro_with_tokens_impl {
+    { $mac:ident } => {
         $mac! {
             $crate::arch::x86::Avx,
             $crate::arch::x86::Sse,
             $crate::arch::generic::Generic,
         }
-        #[cfg(all(feature = "nightly", target_arch = "aarch64"))]
+    }
+}
+
+#[cfg(all(feature = "nightly", target_arch = "aarch64"))]
+#[doc(hidden)]
+#[macro_export]
+macro_rules! call_macro_with_tokens_impl {
+    { $mac:ident } => {
         $mac! {
             $crate::arch::arm::Neon,
+            $crate::arch::generic::Generic,
         }
-        #[cfg(all(
-            target_arch = "wasm32",
-            target_feature = "simd128",
-            feature = "nightly",
-        ))]
+    }
+}
+
+#[cfg(all(
+    target_arch = "wasm32",
+    target_feature = "simd128",
+    feature = "nightly",
+))]
+#[doc(hidden)]
+#[macro_export]
+macro_rules! call_macro_with_tokens_impl {
+    { $mac:ident } => {
         $mac! {
             $crate::arch::wasm::Simd128,
+            $crate::arch::generic::Generic,
         }
     }
 }
