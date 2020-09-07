@@ -2,6 +2,19 @@
 name = "generic-simd-macros"
 version = "0.1.0"
 authors = ["Caleb Zulawski <caleb.zulawski@gmail.com>"]
+license = "MIT OR Apache-2.0"
+description = "Implementation crate for generic-simd"
+repository = "https://github.com/calebzulawski/generic-simd"
+categories = []
+readme = "README.md"
+include = [
+    "/Cargo.toml",
+    "/LICENSE-APACHE",
+    "/LICENSE-MIT",
+    "/README.md",
+    "/src/**",
+    "/tests/**",
+]
 edition = "2018"
 
 [features]

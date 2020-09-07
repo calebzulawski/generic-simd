@@ -7,8 +7,8 @@
     all(feature = "nightly", target_arch = "aarch64"),
     feature(stdsimd, aarch64_target_feature)
 )]
-//! `generic-simd` provides zero-cost abstractions for writing explicit cross-platform SIMD
-//! operations.
+//! `generic-simd` provides safe and idiomatic zero-cost abstractions for writing explicit
+//! cross-platform SIMD operations.
 //!
 //! # Supported architectures
 //! All architectures are supported via scalar fallbacks, but the following instruction sets are
