@@ -10,7 +10,7 @@ use crate::{
 #[cfg(feature = "complex")]
 use num_complex::Complex;
 
-/// Generic instruction set handle.
+/// Generic instruction set token.
 #[derive(Copy, Clone, Debug)]
 pub struct Generic;
 

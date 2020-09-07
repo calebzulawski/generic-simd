@@ -32,7 +32,7 @@ pub unsafe trait Vector: Copy {
     type Scalar: Copy;
 
     /// The token that proves support for this vector on the CPU.
-    type Token: Token + From<Self::Token> + Into<Self::Token>;
+    type Token: Token;
 
     /// The number of elements in the vector.
     type Width: width::Width;

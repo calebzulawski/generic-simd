@@ -134,7 +134,7 @@ impl<AlignTo, T: core::hash::Hash> core::hash::Hash for Aligned<AlignTo, T> {
     }
 }
 
-/// Allocate a boxed slice of `count` `T`s aligned to the `AlignTo`.
+/// Allocate a boxed slice of `count` `T`s aligned to the `AlignTo` type.
 ///
 /// # Panics
 /// Panics if `count` is 0 or memory allocation fails.

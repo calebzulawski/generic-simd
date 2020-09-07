@@ -15,6 +15,17 @@ where
 {
     type Vector: Vector<Token = Token, Width = Width>;
 
+    /// Read a vector from a slice without checking the length.
+    ///
+    /// # Safety
+    /// See [`read_unchecked`](../vector/trait.Vector.html#method.read_ptr).
+    unsafe fn read_unchecked(&self, token: Token) -> Self::Vector;
+
+    /// Read a vector from a slice.
+    ///
+    /// See [`read`](../vector/trait.Vector.html#method.read).
+    fn read(&self, token: Token) -> Self::Vector;
+
     /// Extract a slice of aligned vectors, as if by [`align_to`].
     ///
     /// [`align_to`]: https://doc.rust-lang.org/std/primitive.slice.html#method.align_to
@@ -55,6 +66,16 @@ where
     Width: width::Width,
 {
     type Vector = T::Vector;
+
+    #[inline]
+    unsafe fn read_unchecked(&self, token: Token) -> Self::Vector {
+        Self::Vector::read_unchecked(token, self)
+    }
+
+    #[inline]
+    fn read(&self, token: Token) -> Self::Vector {
+        Self::Vector::read(token, self)
+    }
 
     #[allow(clippy::type_complexity)]
     #[inline]
@@ -97,11 +118,29 @@ macro_rules! slice_impl {
     {
         $width:literal,
         $width_type:ty,
+        $read_unchecked:ident,
+        $read:ident,
         $align:ident,
         $align_mut:ident,
         $overlapping:ident,
         $overlapping_mut:ident
     } => {
+        #[doc = "Read a vector with "]
+        #[doc = $width]
+        #[doc = " from a slice without checking the length.\n\nSee [`read_unchecked`](../vector/trait.Vector.html#method.read_ptr)."]
+        #[inline]
+        unsafe fn $read_unchecked(&self, token: Token) -> <Self as Slice<Token, $width_type>>::Vector {
+            <Self as Slice<Token, $width_type>>::read_unchecked(self, token)
+        }
+
+        #[doc = "Read a vector with "]
+        #[doc = $width]
+        #[doc = " from a slice.\n\nSee [`read`](../vector/trait.Vector.html#method.read)."]
+        #[inline]
+        fn $read(&self, token: Token) -> <Self as Slice<Token, $width_type>>::Vector {
+            <Self as Slice<Token, $width_type>>::read(self, token)
+        }
+
         #[doc = "Align a slice of scalars to vectors with "]
         #[doc = $width]
         #[doc = ".\n\nSee [`align`](trait.Slice.html#tymethod.align)."]
@@ -169,11 +208,11 @@ pub trait SliceExt<Token>:
 where
     Token: crate::arch::Token,
 {
-    slice_impl! { "the native number of lanes", <Self as Native<Token>>::Width, align_native, align_native_mut, overlapping_native, overlapping_native_mut }
-    slice_impl! { "1 lane",   width::W1, align1, align1_mut, overlapping1, overlapping1_mut }
-    slice_impl! { "2 lanes",  width::W2, align2, align2_mut, overlapping2, overlapping2_mut }
-    slice_impl! { "4 lanes",  width::W4, align4, align4_mut, overlapping4, overlapping4_mut }
-    slice_impl! { "8 lanes",  width::W8, align8, align8_mut, overlapping8, overlapping8_mut }
+    slice_impl! { "the native number of lanes", <Self as Native<Token>>::Width, read_unchecked_native, read_native, align_native, align_native_mut, overlapping_native, overlapping_native_mut }
+    slice_impl! { "1 lane",   width::W1, read_unchecked1, read1, align1, align1_mut, overlapping1, overlapping1_mut }
+    slice_impl! { "2 lanes",  width::W2, read_unchecked2, read2, align2, align2_mut, overlapping2, overlapping2_mut }
+    slice_impl! { "4 lanes",  width::W4, read_unchecked4, read4, align4, align4_mut, overlapping4, overlapping4_mut }
+    slice_impl! { "8 lanes",  width::W8, read_unchecked8, read8, align8, align8_mut, overlapping8, overlapping8_mut }
 }
 
 impl<T, Token> SliceExt<Token> for T

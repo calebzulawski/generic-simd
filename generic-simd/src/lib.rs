@@ -72,6 +72,7 @@
 //!     arch::Token,
 //!     dispatch,
 //!     scalar::Scalar,
+//!     slice::Slice,
 //!     vector::{Signed, Vector, width},
 //! };
 //!
@@ -94,8 +95,8 @@
 //!
 //!     for Coordinates { x, y } in input {
 //!         // read the arrays into vectors
-//!         xsum += f64::read(token, x);
-//!         ysum += f64::read(token, y);
+//!         xsum += x.read(token);
+//!         ysum += y.read(token);
 //!     }
 //!
 //!     // sum across the vector lanes
@@ -106,9 +107,9 @@
 //! }
 //!
 //! // Selects the best instruction set at runtime.
-//! #[dispatch(handle)]
+//! #[dispatch(token)]
 //! fn mean(input: &[Coordinates]) -> (f64, f64) {
-//!     mean_impl(handle, input)
+//!     mean_impl(token, input)
 //! }
 //! ```
 
