@@ -27,13 +27,13 @@ impl Native<Simd128> for f64 {
     type Width = width::W2;
 }
 
-/// A WASM vector of `f32`s.
+/// A simd128 vector of `f32`s.
 #[derive(Clone, Copy, Debug)]
 #[repr(transparent)]
 #[allow(non_camel_case_types)]
 pub struct f32x4(v128);
 
-/// A WASM vector of `f64`s.
+/// A simd128 vector of `f64`s.
 #[derive(Clone, Copy, Debug)]
 #[repr(transparent)]
 #[allow(non_camel_case_types)]

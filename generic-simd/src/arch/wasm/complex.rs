@@ -16,7 +16,7 @@ impl Native<Simd128> for Complex<f64> {
     type Width = width::W1;
 }
 
-/// A WASM vector of `Complex<f32>`s.
+/// A simd128 vector of `Complex<f32>`s.
 ///
 /// Requires feature `"complex"`.
 #[derive(Clone, Copy, Debug)]
@@ -24,7 +24,7 @@ impl Native<Simd128> for Complex<f64> {
 #[allow(non_camel_case_types)]
 pub struct cf32x2(v128);
 
-/// A WASM vector of `Complex<f64>`s.
+/// A simd128 vector of `Complex<f64>`s.
 ///
 /// Requires feature `"complex"`.
 #[derive(Clone, Copy, Debug)]

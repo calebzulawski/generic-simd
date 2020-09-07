@@ -28,3 +28,16 @@ nightly = ["generic-simd-macros/nightly"]
 num-complex = { version = "0.3", default-features = false, optional = true }
 generic-simd-macros = { version = "0.1", default-features = false, path = "../generic-simd-macros" }
 multiversion = { version = "0.6.1", default-features = false }
+
+[package.metadata.docs.rs]
+features = ["nightly", "complex", "alloc"]
+no-default-features = true
+default-target = "x86_64-unknown-linux-gnu"
+targets = [
+    "x86_64-unknown-linux-gnu",
+    "i686-unknown-linux-gnu",
+    "aarch64-unknown-linux-gnu",
+    "armv7-unknown-linux-gnueabihf",
+    "wasm32-unknown-unknown",
+]
+rustdoc-args = ["-Ctarget-feature=+simd128"]
